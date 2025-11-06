@@ -43,27 +43,32 @@ check_types <- function(code, from_file = FALSE, strict = FALSE) {
   warnings <- list()
   info <- list()
 
-  # Build type context from assignments
-  context <- build_type_context(parsed)
-
   # Check assignments for type consistency
+  # Build context incrementally to detect reassignments
   assignments <- extract_assignments(parsed)
+  local_context <- list()
+
   if (nrow(assignments) > 0) {
     for (i in seq_len(nrow(assignments))) {
       var_name <- assignments$variable[i]
       line <- assignments$line[i]
+      curr_value <- assignments$value_text[i]
+
+      # Infer current type by parsing the value text as code
+      curr_type <- tryCatch({
+        if (nchar(curr_value) > 0) {
+          parsed_value <- parse(text = curr_value)[[1]]
+          infer_type_from_expr(parsed_value, local_context)
+        } else {
+          TYPES$unknown
+        }
+      }, error = function(e) {
+        TYPES$unknown
+      })
 
       # Check if variable was assigned before with different type
-      if (var_name %in% names(context)) {
-        # Check for type consistency across reassignments
-        prev_type <- context[[var_name]]
-        curr_value <- assignments$value_text[i]
-
-        curr_type <- tryCatch({
-          infer_type(curr_value, context)
-        }, error = function(e) {
-          TYPES$unknown
-        })
+      if (var_name %in% names(local_context)) {
+        prev_type <- local_context[[var_name]]
 
         if (prev_type$base_type != "unknown" &&
             curr_type$base_type != "unknown" &&
@@ -82,8 +87,14 @@ check_types <- function(code, from_file = FALSE, strict = FALSE) {
           )))
         }
       }
+
+      # Update context with current assignment
+      local_context[[var_name]] <- curr_type
     }
   }
+
+  # Use the final context for function call checks
+  context <- local_context
 
   # Check function calls
   calls <- extract_function_calls(parsed)
