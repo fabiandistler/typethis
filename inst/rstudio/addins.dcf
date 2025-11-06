@@ -1,0 +1,19 @@
+Name: Check Types in Current File
+Description: Run type checking on the current R file
+Binding: addin_check_current_file
+Interactive: true
+
+Name: Reveal Type at Cursor
+Description: Show the inferred type of the variable at cursor
+Binding: addin_reveal_type_at_cursor
+Interactive: true
+
+Name: Check Selection
+Description: Check types for the selected code
+Binding: addin_check_selection
+Interactive: true
+
+Name: Insert Type Annotation
+Description: Insert a type annotation template
+Binding: addin_insert_type_annotation
+Interactive: true

@@ -1,0 +1,59 @@
+# Example configuration for typethis
+# Copy this file to .typethis.toml to use
+
+[general]
+# Enable strict mode (all variables must be typed)
+strict = false
+
+# Show warnings for type reassignments
+warn_on_reassignment = true
+
+# Verbose output
+verbose = false
+
+[inference]
+# Enable automatic type inference
+auto_infer = true
+
+# Infer types from function calls
+infer_from_calls = true
+
+# Maximum depth for type inference
+max_depth = 5
+
+[data_table]
+# Enable special data.table support
+enabled = true
+
+# Check column types in data.table operations
+check_columns = true
+
+[rstudio]
+# Enable RStudio integration
+enabled = true
+
+# Show inline warnings
+inline_warnings = true
+
+# Auto-check on save
+check_on_save = false
+
+[ignore]
+# Files to ignore (glob patterns)
+files = [
+  "tests/*",
+  "inst/*"
+]
+
+# Directories to ignore
+directories = [
+  "renv",
+  ".git"
+]
+
+[type_stubs]
+# Use type stubs for packages
+enabled = false
+
+# Directory for custom type stubs
+stub_dir = "typestubs"
