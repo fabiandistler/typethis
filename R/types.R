@@ -35,7 +35,10 @@ print.rtype <- function(x, ...) {
     type_str <- paste0(type_str, " | NULL")
   }
   if (length(x$attributes) > 0) {
-    attr_str <- paste(names(x$attributes), x$attributes, sep = "=", collapse = ", ")
+    attr_str <- paste(
+      names(x$attributes), x$attributes,
+      sep = "=", collapse = ", "
+    )
     type_str <- paste0(type_str, "[", attr_str, "]")
   }
   cat("Type:", type_str, "\n")
@@ -148,7 +151,11 @@ type_matches <- function(obj, expected_type) {
 #' @export
 #' @examples
 #' \dontrun{
-#' dt_type <- data_table_type(id = "integer", name = "character", value = "numeric")
+#' dt_type <- data_table_type(
+#'   id = "integer",
+#'   name = "character",
+#'   value = "numeric"
+#' )
 #' }
 data_table_type <- function(...) {
   cols <- list(...)
@@ -163,7 +170,10 @@ data_table_type <- function(...) {
 #' @export
 #' @examples
 #' \dontrun{
-#' fn_type <- function_type(args = list(x = "integer"), return_type = "numeric")
+#' fn_type <- function_type(
+#'   args = list(x = "integer"),
+#'   return_type = "numeric"
+#' )
 #' }
 function_type <- function(args = list(), return_type = "any") {
   create_type("function", args = args, return_type = return_type)

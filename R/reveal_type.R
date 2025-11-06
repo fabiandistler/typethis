@@ -123,10 +123,12 @@ reveal_all_types <- function(code, from_file = FALSE) {
   cat("===================\n\n")
 
   for (i in seq_len(nrow(type_info))) {
-    cat(sprintf("Line %d: %s :: %s\n",
-                type_info$line[i],
-                type_info$variable[i],
-                type_info$type[i]))
+    cat(sprintf(
+      "Line %d: %s :: %s\n",
+      type_info$line[i],
+      type_info$variable[i],
+      type_info$type[i]
+    ))
   }
 
   invisible(type_info)

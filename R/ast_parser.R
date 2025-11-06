@@ -65,10 +65,17 @@ extract_functions <- function(parsed_code) {
     parent_id <- pd$parent[idx]
 
     # Look backwards for assignment
-    assign_idx <- which(pd$token %in% c("EQ_ASSIGN", "LEFT_ASSIGN") & pd$parent == parent_id)
+    assign_idx <- which(
+      pd$token %in% c("EQ_ASSIGN", "LEFT_ASSIGN") &
+        pd$parent == parent_id
+    )
     if (length(assign_idx) > 0) {
       # Find the symbol being assigned to
-      symbol_idx <- which(pd$token == "SYMBOL" & pd$line1 == pd$line1[assign_idx[1]] & pd$col1 < pd$col1[assign_idx[1]])
+      symbol_idx <- which(
+        pd$token == "SYMBOL" &
+          pd$line1 == pd$line1[assign_idx[1]] &
+          pd$col1 < pd$col1[assign_idx[1]]
+      )
       if (length(symbol_idx) > 0) {
         func_name <- pd$text[symbol_idx[length(symbol_idx)]]
       }
@@ -76,7 +83,10 @@ extract_functions <- function(parsed_code) {
 
     # Extract function formals (parameters)
     formals_parent <- pd$id[idx]
-    formals_idx <- which(pd$parent == formals_parent & pd$token == "SYMBOL_FORMALS")
+    formals_idx <- which(
+      pd$parent == formals_parent &
+        pd$token == "SYMBOL_FORMALS"
+    )
     params <- pd$text[formals_idx]
 
     list(
@@ -109,7 +119,9 @@ extract_assignments <- function(parsed_code) {
   }
 
   # Find assignment operators
-  assign_idx <- which(pd$token %in% c("EQ_ASSIGN", "LEFT_ASSIGN", "RIGHT_ASSIGN"))
+  assign_idx <- which(
+    pd$token %in% c("EQ_ASSIGN", "LEFT_ASSIGN", "RIGHT_ASSIGN")
+  )
 
   if (length(assign_idx) == 0) {
     return(data.frame(
@@ -172,7 +184,10 @@ extract_assignments <- function(parsed_code) {
     ))
   }
 
-  do.call(rbind, lapply(assignments, as.data.frame, stringsAsFactors = FALSE))
+  do.call(
+    rbind,
+    lapply(assignments, as.data.frame, stringsAsFactors = FALSE)
+  )
 }
 
 #' Extract function calls from parsed code
@@ -237,8 +252,10 @@ get_token_at_location <- function(parsed_code, line, col) {
   }
 
   # Return the most specific token (smallest range)
-  token_idx <- token_idx[which.min((pd$line2[token_idx] - pd$line1[token_idx]) * 1000 +
-                                    (pd$col2[token_idx] - pd$col1[token_idx]))]
+  token_idx <- token_idx[which.min(
+    (pd$line2[token_idx] - pd$line1[token_idx]) * 1000 +
+      (pd$col2[token_idx] - pd$col1[token_idx])
+  )]
 
   as.list(pd[token_idx, ])
 }

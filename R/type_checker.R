@@ -70,7 +70,10 @@ check_types <- function(code, from_file = FALSE, strict = FALSE) {
             prev_type$base_type != curr_type$base_type) {
           warnings <- c(warnings, list(list(
             message = sprintf(
-              "Variable '%s' reassigned with different type: was %s, now %s",
+              paste0(
+                "Variable '%s' reassigned with different type: ",
+                "was %s, now %s"
+              ),
               var_name, prev_type$base_type, curr_type$base_type
             ),
             line = line,
@@ -95,7 +98,10 @@ check_types <- function(code, from_file = FALSE, strict = FALSE) {
         # These functions expect numeric input
         # We would need more context to check arguments properly
         info <- c(info, list(list(
-          message = sprintf("Function '%s' expects numeric arguments", func_name),
+          message = sprintf(
+            "Function '%s' expects numeric arguments",
+            func_name
+          ),
           line = line,
           col = calls$col[i]
         )))
