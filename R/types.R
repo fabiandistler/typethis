@@ -58,7 +58,7 @@ TYPES <- list(
   raw = create_type("raw"),
 
   # Special types
-  NULL = create_type("NULL"),
+  `NULL` = create_type("NULL"),
   any = create_type("any"),
   unknown = create_type("unknown"),
 
@@ -72,7 +72,7 @@ TYPES <- list(
   tibble = create_type("tibble"),
 
   # Function type
-  function = create_type("function"),
+  `function` = create_type("function"),
 
   # Formula type
   formula = create_type("formula"),

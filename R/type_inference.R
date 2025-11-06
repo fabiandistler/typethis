@@ -27,7 +27,7 @@ infer_type <- function(x, context = NULL) {
 infer_type.default <- function(x, context = NULL) {
   # For actual R objects, determine type directly
   if (is.null(x)) {
-    return(TYPES$NULL)
+    return(TYPES[["NULL"]])
   }
   if (is.integer(x)) {
     return(TYPES$integer)
@@ -64,7 +64,7 @@ infer_type.default <- function(x, context = NULL) {
     return(TYPES$list)
   }
   if (is.function(x)) {
-    return(TYPES$function)
+    return(TYPES[["function"]])
   }
   if (inherits(x, "formula")) {
     return(TYPES$formula)
@@ -89,13 +89,24 @@ infer_type.default <- function(x, context = NULL) {
 
 #' @export
 infer_type.character <- function(x, context = NULL) {
-  # x is a character string representing code
-  # Try to parse and infer
+  # If it's a simple string (not code), treat as character literal
+  # Check if it looks like code by trying to parse
+  # If parse fails or it's quoted, treat as character literal
+  if (length(x) == 1) {
+    # Check if it looks like a simple value (quoted or just a word)
+    # If it contains only alphanumeric/spaces, treat as literal
+    if (grepl("^[[:alnum:]_ ]+$", x) && !grepl("^[0-9]+$", x)) {
+      return(TYPES$character)
+    }
+  }
+
+  # Try to parse as R code
   tryCatch({
     parsed <- parse(text = x)
     infer_type_from_expr(parsed[[1]], context)
   }, error = function(e) {
-    TYPES$unknown
+    # If parsing fails, it's likely a character literal
+    TYPES$character
   })
 }
 
@@ -112,7 +123,7 @@ infer_type_from_expr <- function(expr, context = NULL) {
 
   # Handle NULL
   if (is.null(expr)) {
-    return(TYPES$NULL)
+    return(TYPES[["NULL"]])
   }
 
   # Handle literals

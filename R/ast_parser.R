@@ -135,14 +135,13 @@ extract_assignments <- function(parsed_code) {
 
   assignments <- lapply(assign_idx, function(idx) {
     assign_line <- pd$line1[idx]
-    parent_id <- pd$parent[idx]
+    assign_col <- pd$col1[idx]
 
-    # Find variable being assigned
+    # Find variable being assigned (SYMBOL before assignment on same line)
     var_idx <- which(
       pd$token == "SYMBOL" &
-      pd$parent == parent_id &
-      pd$line1 == assign_line &
-      pd$col1 < pd$col1[idx]
+        pd$line1 == assign_line &
+        pd$col1 < assign_col
     )
 
     if (length(var_idx) == 0) {
@@ -151,11 +150,15 @@ extract_assignments <- function(parsed_code) {
 
     var_name <- pd$text[var_idx[length(var_idx)]]
 
-    # Find value being assigned (everything after the assignment)
+    # Find value being assigned (tokens after the assignment on same line)
+    # Look for terminal tokens (actual values) after the assignment
     value_idx <- which(
-      pd$parent == parent_id &
-      pd$line1 >= assign_line &
-      pd$col1 > pd$col1[idx]
+      pd$terminal == TRUE &
+        pd$line1 == assign_line &
+        pd$col1 > assign_col &
+        pd$token != "LEFT_ASSIGN" &
+        pd$token != "RIGHT_ASSIGN" &
+        pd$token != "EQ_ASSIGN"
     )
 
     value_text <- if (length(value_idx) > 0) {
