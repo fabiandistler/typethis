@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.git$
+^\.github$
 ^LICENSE\.md$
 ^README\.Rmd$
-^\.github$
-^\.git$
-^data-raw$
+^\.gitignore$

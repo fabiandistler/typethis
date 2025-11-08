@@ -1,23 +1,20 @@
 Package: typethis
-Type: Package
-Title: Animated Typing Effects for Console Output
-Version: 1.0.0
-Authors@R: person("Fabian", "Distler", email = "fabian@example.com", role = c("aut", "cre"))
-Description: Create realistic typing animations in the R console with customizable
-    speed, effects, and styling. Perfect for presentations, tutorials, and creating
-    engaging command-line experiences. Features include variable typing speeds,
-    backspace effects, color support, and various typing presets (slow, fast, human-like).
+Title: Type Safety and Validation for R
+Version: 0.1.0
+Authors@R:
+    person("TypeThis Team", email = "dev@example.com", role = c("aut", "cre"))
+Description: Provides comprehensive type safety and validation for R, similar to
+    Python's mypy and pydantic. Includes runtime type checking, typed functions,
+    validators, and typed data models with automatic validation. Helps catch type
+    errors early and write more robust R code.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.1
-Imports:
-    crayon (>= 1.5.0),
-    cli (>= 3.6.0)
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
 Suggests:
-    testthat (>= 3.0.0),
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports:
+    methods
 URL: https://github.com/fabiandistler/typethis
 BugReports: https://github.com/fabiandistler/typethis/issues

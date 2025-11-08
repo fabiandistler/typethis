@@ -1,18 +1,17 @@
-# typethis
+# typethis: Type Safety and Validation for R
 
-> Animated typing effects for R console output
+[![R-CMD-check](https://github.com/fabiandistler/typethis/workflows/R-CMD-check/badge.svg)](https://github.com/fabiandistler/typethis/actions)
 
-Create realistic, character-by-character typing animations in the R console. Perfect for presentations, tutorials, live demos, and creating engaging command-line experiences.
+`typethis` brings comprehensive type safety and validation to R, inspired by Python's `mypy` and `pydantic`. Write more robust R code with runtime type checking, typed functions, advanced validators, and typed data models.
 
 ## Features
 
-- **Realistic Typing**: Variable speed with human-like delays and optional typos
-- **Multiple Speed Presets**: From cinematic slow reveals to blazing fast output
-- **Color & Styling**: Full color support using crayon with bold, italic, and more
-- **Special Effects**: Error messages, warnings, success notifications, glitch effects
-- **Code Typing**: Syntax-aware typing for code demonstrations
-- **Interactive Prompts**: Type out questions and collect user input
-- **Matrix Rain**: Bonus digital rain effect for dramatic tech presentations
+- **Runtime Type Checking**: Validate types at runtime with `is_type()`, `assert_type()`, and `validate_type()`
+- **Typed Functions**: Create type-safe functions with automatic input/output validation
+- **Advanced Validators**: Built-in validators for common patterns (ranges, string patterns, data frames, etc.)
+- **Typed Models**: Define data models with automatic validation (similar to Pydantic)
+- **Type Coercion**: Safe type conversion with validation
+- **Custom Validators**: Easy to create custom validation logic
 
 ## Installation
 
@@ -24,295 +23,260 @@ devtools::install_github("fabiandistler/typethis")
 
 ## Quick Start
 
+### Basic Type Checking
+
 ```r
 library(typethis)
 
-# Basic typing
-type_this("Hello, World!")
+# Check types
+is_type(5, "numeric")        # TRUE
+is_type("hello", "numeric")  # FALSE
 
-# Fast typing with color
-type_this("Success!", speed = "fast", color = "green")
+# Assert types (throws error on mismatch)
+assert_type(5, "numeric", "my_variable")  # OK
+assert_type("hello", "numeric", "my_variable")  # Error
 
-# Human-like typing with typos
-type_this("This feels realistic", speed = "human", typo_prob = 0.05)
-
-# Dramatic reveal
-type_this("The answer is...", speed = "cinematic", cursor = TRUE)
+# Validate with detailed error messages
+result <- validate_type(5, "numeric", "x")
+# result$valid = TRUE, result$error = NULL
 ```
 
-## Core Functions
-
-### `type_this()` - Main Function
-
-The primary function with full control over typing animation:
+### Typed Functions
 
 ```r
-# Slow, dramatic typing
-type_this("Critical system message",
-          speed = "slow",
-          color = "red",
-          style = "bold")
+# Create a typed function
+add_numbers <- typed_function(
+  fn = function(x, y) x + y,
+  arg_types = list(x = "numeric", y = "numeric"),
+  return_type = "numeric"
+)
 
-# Human-like with mistakes
-type_this("I'm typing like a real person!",
-          speed = "human",
-          typo_prob = 0.03,
-          pause_prob = 0.15)
+add_numbers(5, 3)  # Returns 8
+add_numbers("a", "b")  # Error: Type error
 
-# Blazing fast for long output
-type_this("Installing packages...", speed = "blazing")
+# Using signatures
+sig <- signature(x = "numeric", y = "numeric", .return = "numeric")
+multiply <- with_signature(function(x, y) x * y, sig)
+
+multiply(5, 3)  # Returns 15
 ```
 
-**Parameters:**
-- `speed`: Characters per second or preset ("slow", "human", "fast", "blazing", "cinematic")
-- `speed_var`: Variation factor (0-1) for human-like randomness
-- `color`: Text color ("red", "green", "yellow", "cyan", "blue")
-- `style`: Text style ("bold", "italic", "underline")
-- `typo_prob`: Probability of typos (0-1)
-- `pause_prob`: Probability of thinking pauses (0-1)
-- `cursor`: Show blinking cursor at end
-- `delay_start/delay_end`: Delays before/after typing
-
-### `type_line()` - Quick Single Lines
-
-Convenience function for single lines:
+### Advanced Validators
 
 ```r
-# Command prompt simulation
-type_line("npm install --save-dev typescript",
-          prefix = "$ ",
-          speed = "human")
+# Numeric range
+age_validator <- numeric_range(min = 0, max = 120)
+age_validator(25)   # TRUE
+age_validator(150)  # FALSE
 
-# Success message
-type_line("Build completed!", color = "green")
+# String pattern (regex)
+email_validator <- string_pattern(
+  "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+)
+email_validator("user@example.com")  # TRUE
+email_validator("invalid-email")     # FALSE
+
+# String length
+name_validator <- string_length(min_length = 1, max_length = 50)
+
+# Data frame validation
+df_validator <- dataframe_spec(
+  required_cols = c("id", "name", "age"),
+  min_rows = 1
+)
+
+# Enum validator
+status_validator <- enum_validator(c("active", "inactive", "pending"))
+
+# Combine multiple validators
+validator <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) all(x > 0),
+  all_of = TRUE
+)
 ```
 
-### `type_code()` - Code Demonstrations
-
-Type code with language-specific prompts:
+### Typed Models (like Pydantic)
 
 ```r
-# R code
-type_code("library(dplyr)")
-type_code("mtcars %>% filter(mpg > 20)")
+# Define a typed model
+User <- define_model(
+  name = "character",
+  age = "numeric",
+  email = "character",
+  .validate = TRUE,
+  .strict = TRUE
+)
 
-# Multi-line function
-type_code(c(
-  "calculate <- function(x, y) {",
-  "  result <- x + y",
-  "  return(result)",
-  "}"
-))
+# Create an instance (validates automatically)
+user <- User(
+  name = "John Doe",
+  age = 30,
+  email = "john@example.com"
+)
 
-# Python code
-type_code("def hello():\n    print('Hello!')", language = "python")
+# Access fields
+user$name  # "John Doe"
+user$age   # 30
+
+# Type error is caught
+User(name = "John", age = "thirty", email = "john@example.com")  # Error!
+
+# Advanced field definitions with defaults and validators
+Person <- define_model(
+  name = field(
+    type = "character",
+    validator = string_length(min_length = 1, max_length = 100)
+  ),
+  age = field(
+    type = "numeric",
+    validator = numeric_range(min = 0, max = 120),
+    default = 0
+  ),
+  email = field(
+    type = "character",
+    validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+  ),
+  status = field(
+    type = "character",
+    validator = enum_validator(c("active", "inactive")),
+    default = "active"
+  )
+)
+
+person <- Person(
+  name = "Jane Doe",
+  email = "jane@example.com"
+)
+
+# Update model fields
+person <- update_model(person, age = 25, status = "active")
+
+# Validate model
+result <- validate_model(person)
+# result$valid = TRUE, result$errors = NULL
+
+# Convert to list
+model_to_list(person)
 ```
 
-### `type_effect()` - Special Effects
-
-Pre-configured effects for common scenarios:
+### Type Coercion
 
 ```r
-# Error message
-type_effect("File not found!", effect = "error")
+# Safe type coercion
+coerce_type("123", "numeric")     # 123
+coerce_type(123, "character")     # "123"
+coerce_type(c(1, 2), "integer")   # c(1L, 2L)
 
-# Warning
-type_effect("Deprecated function", effect = "warning")
-
-# Success
-type_effect("Deployment successful!", effect = "success")
-
-# Dramatic reveal
-type_effect("The winner is...", effect = "dramatic")
-
-# Glitch effect with typos
-type_effect("System compromised", effect = "glitch")
-```
-
-### `type_lines()` - Multiple Lines
-
-Type paragraphs or lists:
-
-```r
-# Type a bullet list
-type_lines(c(
-  "Set up environment",
-  "Install dependencies",
-  "Run tests",
-  "Deploy to production"
-), prefix = "• ", speed = "fast")
-```
-
-### `type_prompt()` - Interactive Input
-
-Create interactive experiences:
-
-```r
-# Ask for input
-name <- type_prompt("What is your name?", color = "cyan")
-type_effect(paste0("Welcome, ", name, "!"), effect = "success")
-
-# Confirmation
-response <- type_prompt("Continue? (y/n)")
-if (response == "y") {
-  type_line("Processing...", speed = "fast")
-}
-```
-
-## Speed Presets
-
-Access preset configurations:
-
-```r
-presets <- typing_presets()
-
-# Available presets:
-# - cinematic: 2 chars/sec  - Very slow, dramatic
-# - slow: 4 chars/sec        - Emphasis, tutorials
-# - human: 8 chars/sec       - Realistic with typos
-# - normal: 10 chars/sec     - Default speed
-# - fast: 20 chars/sec       - Quick output
-# - blazing: 50 chars/sec    - Minimal delay
-# - coder: 12 chars/sec      - Realistic coding rhythm
-```
-
-Set global default speed:
-
-```r
-# Set for entire session
-set_typing_speed("fast")
-
-# All subsequent calls use this speed
-type_this("This is fast")
-type_this("This too!")
-
-# Get current speed
-current <- get_typing_speed()
-```
-
-## Advanced Examples
-
-### Live Coding Demo
-
-```r
-type_line("Let's create a data visualization", color = "cyan")
-Sys.sleep(0.5)
-
-type_code("library(ggplot2)")
-Sys.sleep(0.3)
-
-type_code(c(
-  "ggplot(mtcars, aes(x = mpg, y = hp)) +",
-  "  geom_point(color = 'blue') +",
-  "  theme_minimal()"
-), speed = "coder")
-
-type_effect("Plot created successfully!", effect = "success")
-```
-
-### Terminal Simulation
-
-```r
-# Simulate package installation
-type_line("npm install", prefix = "$ ", speed = "human")
-Sys.sleep(0.5)
-
-type_lines(c(
-  "Downloading packages...",
-  "Resolving dependencies...",
-  "Building node_modules..."
-), prefix = "  ", speed = "fast", delay_between = 0.2)
-
-type_effect("Installation complete!", effect = "success")
-```
-
-### Presentation Opener
-
-```r
-# Dramatic intro
-matrix_rain(duration = 2, density = 0.2)
-
-type_this("Welcome to the Future of Data Science",
-          speed = "cinematic",
-          style = "bold",
-          delay_start = 0.5,
-          cursor = TRUE)
-
-Sys.sleep(1)
-
-type_effect("Let's begin...", effect = "info")
-```
-
-### Error Recovery Simulation
-
-```r
-type_line("Deploying application...", speed = "fast")
-Sys.sleep(1)
-
-type_effect("Error: Connection timeout", effect = "error")
-Sys.sleep(0.5)
-
-type_line("Retrying...", color = "yellow")
-Sys.sleep(1)
-
-type_effect("Deployment successful!", effect = "success")
+# Strict mode (fails on NA coercion)
+coerce_type("abc", "numeric", strict = TRUE)  # Error
 ```
 
 ## Use Cases
 
-- **Presentations**: Add drama and engagement to technical talks
-- **Tutorials**: Simulate live typing for educational content
-- **Demos**: Create realistic command-line demonstrations
-- **Videos**: Record screencasts with professional typing effects
-- **Interactive Apps**: Build engaging CLI applications
-- **Documentation**: Make examples more dynamic
-- **Teaching**: Demonstrate coding in real-time style
-
-## Tips & Tricks
-
-1. **Human Realism**: Use `speed = "human"` with `typo_prob = 0.02-0.05` for maximum realism
-
-2. **Performance**: Use `speed = "blazing"` or high numeric values for long text
-
-3. **Emphasis**: Combine `speed = "slow"` with `style = "bold"` for important messages
-
-4. **Pauses**: Use `pause_prob` and `pause_duration` to simulate thinking
-
-5. **Consistency**: Set global speed with `set_typing_speed()` for uniform sessions
-
-6. **Colors**: Match colors to message type (red=error, green=success, yellow=warning)
-
-## Matrix Rain Bonus
+### API Input Validation
 
 ```r
-# Brief digital rain effect
-matrix_rain(duration = 1.5)
+APIRequest <- define_model(
+  endpoint = field("character", validator = string_pattern("^/api/")),
+  method = field("character", validator = enum_validator(c("GET", "POST", "PUT", "DELETE"))),
+  params = field("list", default = list()),
+  .strict = TRUE
+)
 
-# Dense rain
-matrix_rain(duration = 3, density = 0.5, width = 80)
-
-# Quick flash
-matrix_rain(duration = 0.5, density = 0.2)
+request <- APIRequest(
+  endpoint = "/api/users",
+  method = "GET",
+  params = list(page = 1, limit = 10)
+)
 ```
 
-## Requirements
+### Data Processing Pipelines
 
-- R >= 3.5.0
-- crayon >= 1.5.0 (for colors)
-- cli >= 3.6.0 (for enhanced output)
+```r
+process_data <- typed_function(
+  fn = function(data, threshold) {
+    data[data$value > threshold, ]
+  },
+  arg_types = list(
+    data = dataframe_spec(required_cols = c("id", "value")),
+    threshold = numeric_range(min = 0)
+  ),
+  return_type = "data.frame"
+)
+```
 
-## License
+### Configuration Validation
 
-MIT License - see LICENSE file
+```r
+Config <- define_model(
+  host = field("character", default = "localhost"),
+  port = field("integer", validator = numeric_range(min = 1, max = 65535), default = 8080L),
+  debug = field("logical", default = FALSE),
+  database = define_model(
+    name = "character",
+    user = "character",
+    password = "character"
+  )
+)
+```
 
-## Author
+## Why typethis?
 
-Fabian Distler
+R is dynamically typed, which provides flexibility but can lead to runtime errors that are hard to debug. `typethis` helps you:
+
+1. **Catch errors early**: Validate types at function boundaries
+2. **Write clearer code**: Type annotations serve as documentation
+3. **Build robust systems**: Ensure data conforms to expected schemas
+4. **Validate inputs**: Comprehensive validation for user inputs, API responses, etc.
+5. **Reduce bugs**: Prevent type-related bugs before they happen
+
+## Comparison with Python Tools
+
+| Feature | typethis (R) | mypy (Python) | pydantic (Python) |
+|---------|--------------|---------------|-------------------|
+| Runtime type checking | ✅ | ❌ (static) | ✅ |
+| Typed functions | ✅ | ✅ | ❌ |
+| Data models | ✅ | ❌ | ✅ |
+| Custom validators | ✅ | ❌ | ✅ |
+| Type coercion | ✅ | ❌ | ✅ |
+| Static analysis | ❌ | ✅ | ❌ |
+
+## Documentation
+
+See the package vignettes for detailed guides:
+
+```r
+# View the main guide
+vignette("typethis-guide", package = "typethis")
+```
 
 ## Contributing
 
-Issues and pull requests welcome at https://github.com/fabiandistler/typethis
+Contributions are welcome! Please feel free to submit a Pull Request.
 
----
+## License
 
-Made with ❤️ for the R community
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Related Projects
+
+- [pydantic](https://pydantic-docs.helpmanual.io/) - Data validation for Python
+- [mypy](http://mypy-lang.org/) - Static type checker for Python
+- [typed](https://github.com/moodymudskipper/typed) - Another type checking package for R
+
+## Examples
+
+Check out more examples in the `vignettes/` directory:
+
+- Basic type checking
+- Creating typed functions
+- Building data models
+- Custom validators
+- Integration with existing code
+
+## Getting Help
+
+- 📖 Read the [documentation](https://github.com/fabiandistler/typethis)
+- 🐛 Report bugs at [GitHub Issues](https://github.com/fabiandistler/typethis/issues)
+- 💬 Ask questions in [Discussions](https://github.com/fabiandistler/typethis/discussions)
