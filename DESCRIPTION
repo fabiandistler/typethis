@@ -1,0 +1,20 @@
+Package: typethis
+Title: Type Safety and Validation for R
+Version: 0.1.0
+Authors@R:
+    person("TypeThis Team", email = "dev@example.com", role = c("aut", "cre"))
+Description: Provides comprehensive type safety and validation for R, similar to
+    Python's mypy and pydantic. Includes runtime type checking, typed functions,
+    validators, and typed data models with automatic validation. Helps catch type
+    errors early and write more robust R code.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports:
+    methods
+URL: https://github.com/fabiandistler/typethis
+BugReports: https://github.com/fabiandistler/typethis/issues

@@ -1,0 +1,591 @@
+---
+title: "Getting Started with typethis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with typethis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  error = TRUE
+)
+```
+
+# Introduction
+
+`typethis` brings comprehensive type safety and validation to R, inspired by Python's `mypy` and `pydantic`. This guide will walk you through all the major features.
+
+```{r setup}
+library(typethis)
+```
+
+## Basic Type Checking
+
+The foundation of `typethis` is runtime type checking. You can check, assert, and validate types easily.
+
+### Checking Types
+
+```{r}
+# Basic type checking
+is_type(5, "numeric")
+is_type("hello", "character")
+is_type(TRUE, "logical")
+
+# Check with NULL handling
+is_type(NULL, "numeric")  # FALSE
+is_type(NULL, "numeric", nullable = TRUE)  # TRUE
+
+# Check multiple possible types
+is_one_of(5, c("numeric", "character"))
+is_one_of("hello", c("numeric", "character"))
+```
+
+### Asserting Types
+
+Use `assert_type()` when you want to enforce type constraints and throw errors on mismatch:
+
+```{r}
+# Successful assertion
+assert_type(5, "numeric", "my_variable")
+
+# Failed assertion (will throw error)
+# assert_type("hello", "numeric", "my_variable")
+```
+
+### Validating Types
+
+For more controlled error handling, use `validate_type()`:
+
+```{r}
+# Successful validation
+result <- validate_type(5, "numeric", "x")
+result$valid
+result$error
+
+# Failed validation
+result <- validate_type("hello", "numeric", "x")
+result$valid
+result$error
+```
+
+## Type Coercion
+
+Safely convert between types with validation:
+
+```{r}
+# Basic coercion
+coerce_type("123", "numeric")
+coerce_type(123, "character")
+coerce_type(c(1, 2, 3), "integer")
+
+# Strict mode (fails on NA coercion)
+# coerce_type("abc", "numeric", strict = TRUE)  # Error
+```
+
+## Typed Functions
+
+Create functions with automatic type checking for arguments and return values.
+
+### Basic Typed Functions
+
+```{r}
+# Define a typed function
+add_numbers <- typed_function(
+  fn = function(x, y) x + y,
+  arg_types = list(x = "numeric", y = "numeric"),
+  return_type = "numeric"
+)
+
+# Valid call
+add_numbers(5, 3)
+
+# Invalid call (will error)
+# add_numbers("a", "b")
+```
+
+### Function Signatures
+
+Use signatures for cleaner code:
+
+```{r}
+# Define a signature
+sig <- signature(
+  x = "numeric",
+  y = "numeric",
+  .return = "numeric"
+)
+
+# Apply signature to function
+multiply <- with_signature(function(x, y) x * y, sig)
+multiply(5, 3)
+
+# Check if function is typed
+is_typed(multiply)
+
+# Get function signature
+get_signature(multiply)
+```
+
+### Type Coercion in Functions
+
+```{r}
+# Function with automatic type coercion
+add_flexible <- typed_function(
+  fn = function(x, y) x + y,
+  arg_types = list(x = "numeric", y = "numeric"),
+  return_type = "numeric",
+  coerce = TRUE
+)
+
+# This works because strings are coerced to numeric
+add_flexible("5", "3")
+```
+
+### Validating Calls
+
+Validate function calls without executing:
+
+```{r}
+result <- validate_call(add_numbers, x = 5, y = 3)
+result$valid
+
+result <- validate_call(add_numbers, x = "a", y = 3)
+result$valid
+result$errors
+```
+
+## Advanced Validators
+
+`typethis` provides many built-in validators for common validation patterns.
+
+### Numeric Range Validator
+
+```{r}
+# Age validator (0-120)
+age_validator <- numeric_range(min = 0, max = 120)
+age_validator(25)
+age_validator(150)
+
+# Percentage validator (0-100, exclusive bounds)
+percent_validator <- numeric_range(
+  min = 0,
+  max = 100,
+  exclusive_min = FALSE,
+  exclusive_max = FALSE
+)
+percent_validator(50)
+```
+
+### String Validators
+
+```{r}
+# String length validator
+name_validator <- string_length(min_length = 1, max_length = 50)
+name_validator("John Doe")
+name_validator("")
+
+# Email pattern validator
+email_validator <- string_pattern(
+  "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+)
+email_validator("user@example.com")
+email_validator("invalid-email")
+```
+
+### Collection Validators
+
+```{r}
+# Vector length
+pair_validator <- vector_length(exact_len = 2)
+pair_validator(c(1, 2))
+pair_validator(c(1, 2, 3))
+
+# List of specific type
+num_list_validator <- list_of("numeric", min_length = 1, max_length = 5)
+num_list_validator(list(1, 2, 3))
+num_list_validator(list("a", "b"))
+```
+
+### Data Frame Validators
+
+```{r}
+# Data frame with required columns
+df_validator <- dataframe_spec(
+  required_cols = c("id", "name", "age"),
+  min_rows = 1,
+  max_rows = 1000
+)
+
+df_valid <- data.frame(
+  id = 1:3,
+  name = c("Alice", "Bob", "Charlie"),
+  age = c(25, 30, 35)
+)
+df_validator(df_valid)
+
+df_invalid <- data.frame(id = 1:3, name = c("Alice", "Bob", "Charlie"))
+df_validator(df_invalid)
+```
+
+### Enum Validators
+
+```{r}
+# Status enum
+status_validator <- enum_validator(c("active", "inactive", "pending"))
+status_validator("active")
+status_validator("deleted")
+```
+
+### Combining Validators
+
+```{r}
+# Positive number validator
+positive_num <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) all(x > 0),
+  all_of = TRUE
+)
+positive_num(5)
+positive_num(-5)
+
+# Number OR string validator
+num_or_str <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) is.character(x),
+  all_of = FALSE
+)
+num_or_str(5)
+num_or_str("hello")
+num_or_str(TRUE)
+```
+
+### Nullable Validators
+
+```{r}
+# Optional numeric (can be NULL)
+optional_num <- nullable(function(x) is.numeric(x))
+optional_num(5)
+optional_num(NULL)
+optional_num("hello")
+```
+
+## Typed Models
+
+The most powerful feature of `typethis` - create typed data models with automatic validation.
+
+### Basic Models
+
+```{r}
+# Define a User model
+User <- define_model(
+  name = "character",
+  age = "numeric",
+  email = "character"
+)
+
+# Create a valid user
+user <- User(
+  name = "John Doe",
+  age = 30,
+  email = "john@example.com"
+)
+
+# Access fields
+user$name
+user$age
+
+# Check if it's a model
+is_model(user)
+```
+
+### Fields with Defaults
+
+```{r}
+# Model with default values
+Config <- define_model(
+  host = field("character", default = "localhost"),
+  port = field("integer", default = 8080L),
+  debug = field("logical", default = FALSE)
+)
+
+# Create with defaults
+config1 <- Config()
+config1$host
+config1$port
+
+# Override defaults
+config2 <- Config(host = "example.com", port = 3000L)
+config2$host
+```
+
+### Fields with Custom Validators
+
+```{r}
+# Model with field validators
+Person <- define_model(
+  name = field(
+    type = "character",
+    validator = string_length(min_length = 1, max_length = 100),
+    description = "Person's full name"
+  ),
+  age = field(
+    type = "numeric",
+    validator = numeric_range(min = 0, max = 120),
+    default = 0,
+    description = "Person's age in years"
+  ),
+  email = field(
+    type = "character",
+    validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
+    description = "Email address"
+  )
+)
+
+# Valid person
+person <- Person(
+  name = "Jane Doe",
+  age = 28,
+  email = "jane@example.com"
+)
+
+# Invalid age (will error)
+# Person(name = "John", age = 150, email = "john@example.com")
+
+# Invalid email (will error)
+# Person(name = "John", age = 30, email = "invalid-email")
+```
+
+### Strict Mode
+
+```{r}
+# Strict mode: no extra fields allowed
+StrictUser <- define_model(
+  name = "character",
+  age = "numeric",
+  .strict = TRUE
+)
+
+# This works
+user <- StrictUser(name = "John", age = 30)
+
+# This fails (extra field 'email')
+# StrictUser(name = "John", age = 30, email = "john@example.com")
+```
+
+### Working with Models
+
+```{r}
+# Get model schema
+schema <- get_schema(User)
+names(schema)
+
+# Update model fields
+person <- Person(name = "Jane", age = 28, email = "jane@example.com")
+person <- update_model(person, age = 29)
+person$age
+
+# Validate model instance
+result <- validate_model(person)
+result$valid
+
+# Convert to list
+person_list <- model_to_list(person)
+person_list
+```
+
+## Real-World Examples
+
+### API Request Validation
+
+```{r}
+# Define API request model
+APIRequest <- define_model(
+  method = field(
+    type = "character",
+    validator = enum_validator(c("GET", "POST", "PUT", "DELETE"))
+  ),
+  endpoint = field(
+    type = "character",
+    validator = string_pattern("^/api/")
+  ),
+  headers = field(
+    type = "list",
+    default = list()
+  ),
+  body = field(
+    type = "list",
+    default = list(),
+    nullable = TRUE
+  ),
+  .strict = TRUE
+)
+
+# Create valid request
+request <- APIRequest(
+  method = "GET",
+  endpoint = "/api/users",
+  headers = list("Authorization" = "Bearer token123")
+)
+```
+
+### Data Processing Pipeline
+
+```{r}
+# Typed data processing function
+process_sales <- typed_function(
+  fn = function(data, min_amount) {
+    data[data$amount >= min_amount, ]
+  },
+  arg_types = list(
+    data = dataframe_spec(required_cols = c("id", "amount", "date")),
+    min_amount = numeric_range(min = 0)
+  ),
+  return_type = "data.frame"
+)
+
+# Example usage
+sales_data <- data.frame(
+  id = 1:5,
+  amount = c(100, 250, 50, 300, 150),
+  date = as.Date("2024-01-01") + 0:4
+)
+
+# Process with validation
+filtered <- process_sales(sales_data, min_amount = 100)
+filtered
+```
+
+### Configuration Management
+
+```{r}
+# Database configuration model
+DatabaseConfig <- define_model(
+  host = field("character", default = "localhost"),
+  port = field(
+    "integer",
+    validator = numeric_range(min = 1, max = 65535),
+    default = 5432L
+  ),
+  database = "character",
+  user = "character",
+  password = "character",
+  ssl = field("logical", default = FALSE),
+  .strict = TRUE
+)
+
+# Application configuration
+AppConfig <- define_model(
+  app_name = "character",
+  version = field("character", default = "1.0.0"),
+  debug = field("logical", default = FALSE),
+  max_connections = field(
+    "integer",
+    validator = numeric_range(min = 1, max = 1000),
+    default = 10L
+  )
+)
+
+# Create configuration
+db_config <- DatabaseConfig(
+  database = "myapp",
+  user = "admin",
+  password = "secret123"
+)
+
+app_config <- AppConfig(
+  app_name = "My Application",
+  debug = TRUE
+)
+```
+
+## Best Practices
+
+### 1. Use Type Checking at Boundaries
+
+```{r}
+# Good: validate external inputs
+process_user_input <- function(user_data) {
+  assert_type(user_data, "list", "user_data")
+
+  # Process data...
+  user_data
+}
+```
+
+### 2. Combine with Existing Code
+
+```{r}
+# Wrap existing functions with type safety
+unsafe_add <- function(x, y) x + y
+
+safe_add <- typed_function(
+  fn = unsafe_add,
+  arg_types = list(x = "numeric", y = "numeric"),
+  return_type = "numeric"
+)
+```
+
+### 3. Use Models for Complex Data Structures
+
+```{r}
+# Instead of unnamed lists, use models
+# Bad:
+# user <- list(name = "John", age = 30)
+
+# Good:
+User <- define_model(name = "character", age = "numeric")
+user <- User(name = "John", age = 30)
+```
+
+### 4. Leverage Custom Validators
+
+```{r}
+# Create reusable validators
+is_positive <- function(x) is.numeric(x) && all(x > 0)
+is_non_empty <- function(x) is.character(x) && all(nchar(x) > 0)
+
+Product <- define_model(
+  name = field("character", validator = is_non_empty),
+  price = field("numeric", validator = is_positive),
+  quantity = field("integer", validator = is_positive)
+)
+```
+
+## Performance Considerations
+
+Type checking adds runtime overhead. Here are some tips:
+
+1. **Validate at boundaries**: Check types when data enters your system
+2. **Disable validation in production**: Use `.validate = FALSE` for performance-critical code
+3. **Use lazy validation**: Validate only when needed
+4. **Cache validators**: Reuse validator functions
+
+```{r}
+# Disable validation for performance
+User <- define_model(
+  name = "character",
+  age = "numeric",
+  .validate = FALSE  # Skip validation
+)
+
+# Or validate selectively
+user <- User(name = "John", age = 30, .validate_instance = FALSE)
+validate_model(user)  # Validate later if needed
+```
+
+## Summary
+
+`typethis` provides comprehensive type safety for R:
+
+- ✅ Runtime type checking with `is_type()`, `assert_type()`, `validate_type()`
+- ✅ Typed functions with `typed_function()` and `signature()`
+- ✅ Advanced validators for common patterns
+- ✅ Typed models similar to Pydantic
+- ✅ Type coercion with validation
+- ✅ Easy integration with existing code
+
+Start using `typethis` today to write more robust, maintainable R code!
