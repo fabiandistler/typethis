@@ -251,6 +251,10 @@ See the package vignettes for detailed guides:
 vignette("typethis-guide", package = "typethis")
 ```
 
+## Roadmap
+
+See [`ROADMAP.md`](ROADMAP.md) for the v0.2 plan. The short version: typed functions are the highest-priority feature, and typed classes should stay lightweight and S3-based until there is a clear reason to move to a heavier class system.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
