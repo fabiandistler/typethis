@@ -58,7 +58,7 @@ string_length <- function(min_length = 0, max_length = Inf) {
 #' @return validator function
 #' @export
 #' @examples
-#' email_validator <- string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+#' email_validator <- string_pattern("^[a-zA-Z0-9.+-]+@[a-zA-Z0-9.-]+$")
 #' email_validator("user@example.com") # TRUE
 #' email_validator("invalid-email") # FALSE
 string_pattern <- function(pattern, ignore_case = FALSE) {

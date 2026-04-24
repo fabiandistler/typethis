@@ -10,7 +10,8 @@
 #' Two API styles are supported:
 #'
 #' **New-style (v0.2+)**: `define_model("ClassName", fields = list(...))`
-#' Creates `new_ClassName()` and `update_ClassName()` functions in the calling environment.
+#' Creates `new_ClassName()` and `update_ClassName()` functions in the
+#' calling environment.
 #'
 #' **Old-style**: `define_model(name = "type", ...)`
 #' Returns a constructor function that creates model instances.
@@ -42,7 +43,8 @@
 #'   .validate = TRUE
 #' )
 #' user <- User(name = "John", age = 30, email = "john@example.com")
-define_model <- function(..., fields = NULL, .validate = TRUE, .strict = FALSE) {
+define_model <- function(..., fields = NULL, .validate = TRUE,
+                   .strict = FALSE) {
   args <- list(...)
   arg_names <- names(args)
 
@@ -51,7 +53,8 @@ define_model <- function(..., fields = NULL, .validate = TRUE, .strict = FALSE) 
   # - Old-style has all named arguments
   first_arg_unnamed <- is.null(arg_names) || arg_names[1] == ""
 
-  if (length(args) >= 1 && first_arg_unnamed && is.character(args[[1]]) && length(args[[1]]) == 1) {
+  if (length(args) >= 1 && first_arg_unnamed
+      && is.character(args[[1]]) && length(args[[1]]) == 1) {
     class_name <- args[[1]]
 
     # Get fields from explicit fields argument or from remaining ... args
@@ -61,7 +64,8 @@ define_model <- function(..., fields = NULL, .validate = TRUE, .strict = FALSE) 
       # Remaining args after class name should be named field definitions
       field_defs <- args[-1]
     } else {
-      stop("New-style define_model() requires 'fields' argument or named field definitions")
+      stop("New-style define_model() requires 'fields' argument",
+           " or named field definitions")
     }
 
     # Dispatch to new-style implementation
@@ -187,7 +191,8 @@ define_model <- function(..., fields = NULL, .validate = TRUE, .strict = FALSE) 
 #' @param .validate Enable validation on creation
 #' @param .strict Strict mode
 #' @keywords internal
-define_model_new_style <- function(class_name, fields, .validate = TRUE, .strict = FALSE) {
+define_model_new_style <- function(class_name, fields,
+                                 .validate = TRUE, .strict = FALSE) {
   field_names <- names(fields)
 
   if (is.null(field_names) || any(field_names == "")) {
@@ -298,7 +303,8 @@ define_model_new_style <- function(class_name, fields, .validate = TRUE, .strict
   update_func_name <- paste0("update_", class_name)
   update_func <- function(instance, ...) {
     if (!inherits(instance, class_name)) {
-      stop(sprintf("Expected %s instance, got %s", class_name, class(instance)[1]))
+      stop(sprintf("Expected %s instance, got %s",
+                 class_name, class(instance)[1]))
     }
 
     updates <- list(...)
@@ -343,7 +349,8 @@ define_model_new_style <- function(class_name, fields, .validate = TRUE, .strict
 #' @param field_def Field definition list
 #' @param class_name Model class name for error messages
 #' @keywords internal
-validate_field_value <- function(fname, value, field_def, class_name = "model") {
+validate_field_value <- function(fname, value, field_def,
+                           class_name = "model") {
   field_type <- field_def$type
   nullable <- isTRUE(field_def$nullable)
   validator <- field_def$validator
@@ -488,7 +495,8 @@ validate_model <- function(instance) {
       # Custom validator
       if (!is.null(validator) && is.function(validator)) {
         if (!validator(value)) {
-          errors <- c(errors, sprintf("Validation failed for field '%s'", fname))
+          errors <- c(errors,
+                 sprintf("Validation failed for field '%s'", fname))
         }
       }
     }

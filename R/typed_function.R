@@ -58,7 +58,8 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
             tryCatch(
               provided[[param_name]] <- coerce_type(val, expected),
               error = function(e) {
-                stop(sprintf("Argument '%s': %s", param_name, e$message), call. = FALSE)
+                stop(sprintf("Argument '%s': %s",
+                 param_name, e$message), call. = FALSE)
               }
             )
           } else {
@@ -81,7 +82,8 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
           )
           if (has_no_default) {
             stop(
-              sprintf("missing required argument '%s' with no default", param_name),
+              sprintf("missing required argument '%s' with no default",
+               param_name),
               call. = FALSE
             )
           }
@@ -98,13 +100,14 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
     result
   }
 
-  # Copy formals directly - preserves the original signature including empty symbols
+  # Copy formals preserves original signature including empty symbols
   # (empty symbol = no default, NULL = default is NULL - these are different!)
   formals(wrapper) <- fn_formals
 
   fn_attrs <- attributes(fn)
   if (!is.null(fn_attrs)) {
-    protected <- c("arg_specs", "return_spec", "arg_types", "return_type", "typed", "formals_orig")
+    protected <- c("arg_specs", "return_spec", "arg_types",
+                "return_type", "typed", "formals_orig")
     for (nm in setdiff(names(fn_attrs), protected)) {
       attr(wrapper, nm) <- fn_attrs[[nm]]
     }

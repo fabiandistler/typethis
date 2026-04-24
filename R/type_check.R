@@ -151,7 +151,8 @@ coerce_type <- function(value, type, strict = FALSE) {
       result
     },
     error = function(e) {
-      stop(sprintf("Failed to coerce to %s: %s", type, e$message), call. = FALSE)
+      stop(sprintf("Failed to coerce to %s: %s",
+             type, e$message), call. = FALSE)
     }
   )
 }
