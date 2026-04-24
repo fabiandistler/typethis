@@ -14,10 +14,10 @@
 #' @export
 #' @examples
 #' age_validator <- numeric_range(min = 0, max = 120)
-#' age_validator(25)  # TRUE
+#' age_validator(25) # TRUE
 #' age_validator(150) # FALSE
 numeric_range <- function(min = -Inf, max = Inf,
-                         exclusive_min = FALSE, exclusive_max = FALSE) {
+                          exclusive_min = FALSE, exclusive_max = FALSE) {
   function(value) {
     if (!is.numeric(value)) {
       return(FALSE)
@@ -38,8 +38,8 @@ numeric_range <- function(min = -Inf, max = Inf,
 #' @export
 #' @examples
 #' name_validator <- string_length(min_length = 1, max_length = 50)
-#' name_validator("John")  # TRUE
-#' name_validator("")      # FALSE
+#' name_validator("John") # TRUE
+#' name_validator("") # FALSE
 string_length <- function(min_length = 0, max_length = Inf) {
   function(value) {
     if (!is.character(value)) {
@@ -59,8 +59,8 @@ string_length <- function(min_length = 0, max_length = Inf) {
 #' @export
 #' @examples
 #' email_validator <- string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
-#' email_validator("user@example.com")  # TRUE
-#' email_validator("invalid-email")     # FALSE
+#' email_validator("user@example.com") # TRUE
+#' email_validator("invalid-email") # FALSE
 string_pattern <- function(pattern, ignore_case = FALSE) {
   function(value) {
     if (!is.character(value)) {
@@ -80,7 +80,7 @@ string_pattern <- function(pattern, ignore_case = FALSE) {
 #' @export
 #' @examples
 #' pair_validator <- vector_length(exact_len = 2)
-#' pair_validator(c(1, 2))    # TRUE
+#' pair_validator(c(1, 2)) # TRUE
 #' pair_validator(c(1, 2, 3)) # FALSE
 vector_length <- function(min_len = 0, max_len = Inf, exact_len = NULL) {
   function(value) {
@@ -107,7 +107,7 @@ vector_length <- function(min_len = 0, max_len = Inf, exact_len = NULL) {
 #'   min_rows = 1
 #' )
 #' df <- data.frame(id = 1:3, name = c("A", "B", "C"))
-#' df_validator(df)  # TRUE
+#' df_validator(df) # TRUE
 dataframe_spec <- function(required_cols = NULL, min_rows = 0, max_rows = Inf) {
   function(value) {
     if (!is.data.frame(value)) {
@@ -139,7 +139,7 @@ dataframe_spec <- function(required_cols = NULL, min_rows = 0, max_rows = Inf) {
 #'   is_positive <- function(x) all(x > 0),
 #'   all_of = TRUE
 #' )
-#' validator(5)  # TRUE
+#' validator(5) # TRUE
 #' validator(-5) # FALSE
 combine_validators <- function(..., all_of = TRUE) {
   validators <- list(...)
@@ -162,8 +162,8 @@ combine_validators <- function(..., all_of = TRUE) {
 #' @export
 #' @examples
 #' status_validator <- enum_validator(c("active", "inactive", "pending"))
-#' status_validator("active")   # TRUE
-#' status_validator("deleted")  # FALSE
+#' status_validator("active") # TRUE
+#' status_validator("deleted") # FALSE
 enum_validator <- function(allowed_values) {
   function(value) {
     all(value %in% allowed_values)
@@ -179,8 +179,8 @@ enum_validator <- function(allowed_values) {
 #' @export
 #' @examples
 #' num_list_validator <- list_of(element_type = "numeric", min_length = 1)
-#' num_list_validator(list(1, 2, 3))      # TRUE
-#' num_list_validator(list("a", "b"))     # FALSE
+#' num_list_validator(list(1, 2, 3)) # TRUE
+#' num_list_validator(list("a", "b")) # FALSE
 list_of <- function(element_type, min_length = 0, max_length = Inf) {
   function(value) {
     if (!is.list(value)) {
@@ -203,7 +203,7 @@ list_of <- function(element_type, min_length = 0, max_length = Inf) {
 #' @export
 #' @examples
 #' optional_num <- nullable(function(x) is.numeric(x))
-#' optional_num(5)    # TRUE
+#' optional_num(5) # TRUE
 #' optional_num(NULL) # TRUE
 nullable <- function(validator) {
   function(value) {
