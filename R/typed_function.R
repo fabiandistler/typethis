@@ -39,7 +39,7 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
   fn_formals <- formals(fn)
   has_dots <- "..." %in% names(fn_formals)
 
-  wrapper <- function() {
+  wrapper <- function(...) {
     mc <- match.call(expand.dots = FALSE)
     call_args <- as.list(mc)[-1L]
     named_call_args <- call_args[names(call_args) != "..."]
@@ -58,8 +58,10 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
             tryCatch(
               provided[[param_name]] <- coerce_type(val, expected),
               error = function(e) {
-                stop(sprintf("Argument '%s': %s",
-                 param_name, e$message), call. = FALSE)
+                stop(sprintf(
+                  "Argument '%s': %s",
+                  param_name, e$message
+                ), call. = FALSE)
               }
             )
           } else {
@@ -82,8 +84,10 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
           )
           if (has_no_default) {
             stop(
-              sprintf("missing required argument '%s' with no default",
-               param_name),
+              sprintf(
+                "missing required argument '%s' with no default",
+                param_name
+              ),
               call. = FALSE
             )
           }
@@ -106,8 +110,10 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
 
   fn_attrs <- attributes(fn)
   if (!is.null(fn_attrs)) {
-    protected <- c("arg_specs", "return_spec", "arg_types",
-                "return_type", "typed", "formals_orig")
+    protected <- c(
+      "arg_specs", "return_spec", "arg_types",
+      "return_type", "typed", "formals_orig"
+    )
     for (nm in setdiff(names(fn_attrs), protected)) {
       attr(wrapper, nm) <- fn_attrs[[nm]]
     }

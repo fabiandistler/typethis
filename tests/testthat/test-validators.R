@@ -10,7 +10,9 @@ test_that("numeric_range works", {
 })
 
 test_that("numeric_range handles exclusive bounds", {
-  validator <- numeric_range(min = 0, max = 100, exclusive_min = TRUE, exclusive_max = TRUE)
+  validator <- numeric_range(
+    min = 0, max = 100, exclusive_min = TRUE, exclusive_max = TRUE
+  )
 
   expect_true(validator(50))
   expect_false(validator(0))
@@ -28,7 +30,9 @@ test_that("string_length works", {
 })
 
 test_that("string_pattern works", {
-  email_validator <- string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+  email_validator <- string_pattern(
+    "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  )
 
   expect_true(email_validator("user@example.com"))
   expect_true(email_validator("test.user@example.co.uk"))

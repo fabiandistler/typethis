@@ -407,7 +407,9 @@ define_model("Person",
     ),
     email = field(
       type = "character",
-      validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
+      validator = string_pattern(
+        "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      ),
       description = "Email address"
     )
   )

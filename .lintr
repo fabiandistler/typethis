@@ -1,0 +1,10 @@
+linters: linters_with_defaults(
+    object_usage_linter = NULL,
+    commented_code_linter = NULL,
+    object_name_linter = object_name_linter(
+      regexes = c(
+        snake_case = "^[._a-z][._a-z0-9]*$",
+        UpperCamelCase = "^[A-Z][a-zA-Z0-9]*$"
+      )
+    )
+  )

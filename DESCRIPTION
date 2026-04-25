@@ -7,16 +7,15 @@ Description: Provides comprehensive type safety and validation for R, similar to
     Python's mypy and pydantic. Includes runtime type checking, typed functions,
     validators, and typed data models with automatic validation. Helps catch type
     errors early and write more robust R code.
-License: MIT + file LICENSE
+License: file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 Suggests:
     testthat (>= 3.0.0),
-    knitr
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
-Imports:
-    methods
 URL: https://github.com/fabiandistler/typethis
 BugReports: https://github.com/fabiandistler/typethis/issues

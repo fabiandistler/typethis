@@ -49,9 +49,7 @@
 
 # typethis 0.1.0
 
-## Initial Release
-
-This is the first release of `typethis`, bringing comprehensive type safety and validation to R.
+* First release of typethis on CRAN.
 
 ### Features
 

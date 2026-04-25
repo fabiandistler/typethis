@@ -344,7 +344,8 @@ test_that("new-style nested model validates type", {
 test_that("new-style custom validator works", {
   define_model("ValidatedModel",
     fields = list(
-      age = field("integer", nullable = FALSE, validator = function(x) x >= 0 && x <= 120)
+      age = field("integer", nullable = FALSE,
+                  validator = function(x) x >= 0 && x <= 120)
     )
   )
 

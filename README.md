@@ -61,6 +61,54 @@ multiply <- with_signature(function(x, y) x * y, sig)
 multiply(5, 3)  # Returns 15
 ```
 
+#### Calling Conventions
+
+`typed_function()` supports all R calling conventions:
+
+```r
+add <- typed_function(
+  fn = function(x, y) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+
+# Positional arguments
+add(1, 2)  # Returns 3
+
+# Named arguments
+add(x = 1, y = 2)  # Returns 3
+
+# Reordered named arguments
+add(y = 2, x = 1)  # Returns 3
+
+# Mixed positional and named
+add(1, y = 2)  # Returns 3
+
+# Variadic functions with ... passthrough
+sum_fn <- typed_function(
+  fn = function(x, ...) sum(x, ...),
+  arg_specs = c(x = "numeric")
+)
+sum_fn(c(1, NA, 3), na.rm = TRUE)  # Returns 4
+```
+
+#### Missing Argument Detection
+
+```r
+add <- typed_function(
+  fn = function(x, y) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+
+add(1)  # Error: missing required argument 'y' with no default
+
+# Arguments with defaults are optional
+add_with_default <- typed_function(
+  fn = function(x, y = 1) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+add_with_default(5)  # Returns 6
+```
+
 ### Advanced Validators
 
 ```r
@@ -99,17 +147,17 @@ validator <- combine_validators(
 ### Typed Models (like Pydantic)
 
 ```r
-# Define a typed model
-User <- define_model(
-  name = "character",
-  age = "numeric",
-  email = "character",
-  .validate = TRUE,
-  .strict = TRUE
+# v0.2+ New-style API: define_model("ClassName", fields = list(...))
+define_model("User",
+  fields = list(
+    name = field("character", nullable = FALSE),
+    age = field("numeric", nullable = FALSE),
+    email = field("character", nullable = FALSE)
+  )
 )
 
-# Create an instance (validates automatically)
-user <- User(
+# Creates new_User() and update_User() in your environment
+user <- new_User(
   name = "John Doe",
   age = 30,
   email = "john@example.com"
@@ -120,37 +168,53 @@ user$name  # "John Doe"
 user$age   # 30
 
 # Type error is caught
-User(name = "John", age = "thirty", email = "john@example.com")  # Error!
+new_User(name = "John", age = "thirty", email = "john@example.com")  # Error!
+
+# Safe update with revalidation
+user2 <- update_User(user, age = 31)
+
+# Old-style API (still supported for backward compatibility)
+Person <- define_model(
+  name = "character",
+  age = "numeric",
+  email = "character",
+  .validate = TRUE,
+  .strict = TRUE
+)
+person <- Person(name = "Jane", age = 25, email = "jane@example.com")
 
 # Advanced field definitions with defaults and validators
-Person <- define_model(
-  name = field(
-    type = "character",
-    validator = string_length(min_length = 1, max_length = 100)
-  ),
-  age = field(
-    type = "numeric",
-    validator = numeric_range(min = 0, max = 120),
-    default = 0
-  ),
-  email = field(
-    type = "character",
-    validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
-  ),
-  status = field(
-    type = "character",
-    validator = enum_validator(c("active", "inactive")),
-    default = "active"
+define_model("PersonWithDefaults",
+  fields = list(
+    name = field(
+      type = "character",
+      validator = string_length(min_length = 1, max_length = 100)
+    ),
+    age = field(
+      type = "numeric",
+      validator = numeric_range(min = 0, max = 120),
+      default = 0
+    ),
+    email = field(
+      type = "character",
+      validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+    ),
+    status = field(
+      type = "character",
+      validator = enum_validator(c("active", "inactive")),
+      default = "active"
+    )
   )
 )
 
-person <- Person(
+person <- new_PersonWithDefaults(
   name = "Jane Doe",
   email = "jane@example.com"
 )
+# age defaults to 0, status defaults to "active"
 
 # Update model fields
-person <- update_model(person, age = 25, status = "active")
+person <- update_PersonWithDefaults(person, age = 25, status = "active")
 
 # Validate model
 result <- validate_model(person)
@@ -230,6 +294,55 @@ R is dynamically typed, which provides flexibility but can lead to runtime error
 3. **Build robust systems**: Ensure data conforms to expected schemas
 4. **Validate inputs**: Comprehensive validation for user inputs, API responses, etc.
 5. **Reduce bugs**: Prevent type-related bugs before they happen
+
+## Runtime Only
+
+**Important**: `typethis` provides **runtime validation only**, not static type checking.
+
+- Type errors are caught when R code executes, not during development
+- It does not replace static analysis tools like `mypy` for Python
+- Benefits: works with any R code, no special IDE or tooling required
+- Trade-off: errors are only caught at runtime
+
+If you need static analysis for R, consider tools like `lintr` or IDE-based diagnostics.
+
+## When to Use: `typed_function()` vs `define_model()`
+
+| Use `typed_function()` when... | Use `define_model()` when... |
+|--------------------------------|------------------------------|
+| Wrapping existing functions | Creating structured data records |
+| Validating function inputs/outputs | Building configuration objects |
+| API boundary validation | Data transfer objects (DTOs) |
+| Processing pipeline steps | Nested data structures |
+| Need `...` passthrough | Need field-level validators |
+| Function is the primary unit | Data is the primary unit |
+
+### Quick Decision Guide
+
+```r
+# Use typed_function() for:
+# - Functions that transform data
+# - API endpoints
+# - Data processing pipelines
+process <- typed_function(
+  fn = function(data, threshold) data[data$value > threshold, ],
+  arg_specs = c(data = "data.frame", threshold = "numeric"),
+  return_spec = "data.frame"
+)
+
+# Use define_model() for:
+# - Configuration objects
+# - API request/response schemas
+# - Domain entities
+Config <- define_model("Config",
+  fields = list(
+    host = field("character", default = "localhost"),
+    port = field("integer", default = 8080L),
+    debug = field("logical", default = FALSE)
+  )
+)
+config <- new_Config(host = "api.example.com")
+```
 
 ## Comparison with Python Tools
 
