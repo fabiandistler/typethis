@@ -1,8 +1,55 @@
+# typethis (development version)
+
+## typethis 0.2.0
+
+### New Features
+
+#### Typed Functions (F1-F8)
+- **`typed_function()`** now correctly validates arguments regardless of calling convention:
+  - Positional arguments: `add(1, 2)`
+  - Named arguments: `add(x = 1, y = 2)`
+  - Mixed calls: `add(1, y = 2)`
+  - Reordered named arguments: `add(y = 2, x = 1)`
+- Missing required argument detection with clear error messages
+- `...` (ellipsis) passthrough support
+- Return value validation against `return_spec`
+- Metadata preservation (formals, body, attributes)
+- `get_signature()` exposes introspection data for tooling
+
+#### Typed Models (M1-M5)
+- New API: `define_model("ModelName", fields = list(...))` generates:
+  - `new_ModelName()` constructor in calling environment
+  - `update_ModelName()` for safe mutation with revalidation
+- Nested model support: fields can reference other model classes
+- Field defaults applied consistently including for nested fields
+- Backward compatibility: old-style `define_model(name = "type", ...)` still works
+
+#### Documentation (D1-D4)
+- README now clarifies runtime-only scope
+- README includes comparison table: `typed_function()` vs `define_model()`
+- Updated vignette with v0.2 examples
+
+### Bug Fixes
+
+- Fixed formals assignment bug causing "argument missing" errors
+- Fixed attribute preservation not copying original function metadata
+- Fixed return value validation not executing
+
+### Improvements
+
+- API parameter naming aligned: `arg_specs`/`return_spec` (new) with backward-compatible `arg_types`/`return_type`
+- Improved error messages for type mismatches
+- Code style aligned with tidyverse style guide
+
+### Dependencies
+
+- Added `VignetteBuilder: knitr` to DESCRIPTION
+
+---
+
 # typethis 0.1.0
 
-## Initial Release
-
-This is the first release of `typethis`, bringing comprehensive type safety and validation to R.
+* First release of typethis on CRAN.
 
 ### Features
 

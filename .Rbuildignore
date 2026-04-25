@@ -5,3 +5,13 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.gitignore$
+^\.opencode$
+^\.specify$
+^\.claude$
+^\.memsearch$
+^\.remember$
+^AGENTS\.md$
+^CLAUDE\.md$
+^ROADMAP\.md$
+^specs$
+^\.lintr$

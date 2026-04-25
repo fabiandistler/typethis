@@ -36,8 +36,8 @@ is_type("hello", "character")
 is_type(TRUE, "logical")
 
 # Check with NULL handling
-is_type(NULL, "numeric")  # FALSE
-is_type(NULL, "numeric", nullable = TRUE)  # TRUE
+is_type(NULL, "numeric") # FALSE
+is_type(NULL, "numeric", nullable = TRUE) # TRUE
 
 # Check multiple possible types
 is_one_of(5, c("numeric", "character"))
@@ -107,6 +107,59 @@ add_numbers(5, 3)
 # add_numbers("a", "b")
 ```
 
+### Calling Conventions (v0.2+)
+
+`typed_function()` supports all R calling conventions:
+
+```{r}
+add <- typed_function(
+  fn = function(x, y) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+
+# Positional arguments
+add(1, 2)
+
+# Named arguments
+add(x = 1, y = 2)
+
+# Reordered named arguments
+add(y = 2, x = 1)
+
+# Mixed positional and named
+add(1, y = 2)
+```
+
+### Missing Argument Detection (v0.2+)
+
+```{r}
+add <- typed_function(
+  fn = function(x, y) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+
+# Missing required argument
+# add(1)  # Error: missing required argument 'y' with no default
+
+# Arguments with defaults are optional
+add_with_default <- typed_function(
+  fn = function(x, y = 1) x + y,
+  arg_specs = c(x = "numeric", y = "numeric")
+)
+add_with_default(5) # Returns 6
+```
+
+### Variadic Functions (v0.2+)
+
+```{r}
+# ... passthrough works correctly
+sum_fn <- typed_function(
+  fn = function(x, ...) sum(x, ...),
+  arg_specs = c(x = "numeric")
+)
+sum_fn(c(1, NA, 3), na.rm = TRUE)
+```
+
 ### Function Signatures
 
 Use signatures for cleaner code:
@@ -126,7 +179,7 @@ multiply(5, 3)
 # Check if function is typed
 is_typed(multiply)
 
-# Get function signature
+# Get function signature (v0.2+ includes formals)
 get_signature(multiply)
 ```
 
@@ -280,15 +333,18 @@ The most powerful feature of `typethis` - create typed data models with automati
 ### Basic Models
 
 ```{r}
-# Define a User model
-User <- define_model(
-  name = "character",
-  age = "numeric",
-  email = "character"
+# v0.2+ New-style API: define_model("ClassName", fields = list(...))
+# This creates new_ClassName() and update_ClassName() in your environment
+define_model("User",
+  fields = list(
+    name = field("character", nullable = FALSE),
+    age = field("numeric", nullable = FALSE),
+    email = field("character", nullable = FALSE)
+  )
 )
 
 # Create a valid user
-user <- User(
+user <- new_User(
   name = "John Doe",
   age = 30,
   email = "john@example.com"
@@ -300,80 +356,96 @@ user$age
 
 # Check if it's a model
 is_model(user)
+
+# Old-style API (still supported for backward compatibility)
+Person <- define_model(
+  name = "character",
+  age = "numeric",
+  email = "character"
+)
+person <- Person(name = "Jane", age = 25, email = "jane@example.com")
 ```
 
 ### Fields with Defaults
 
 ```{r}
-# Model with default values
-Config <- define_model(
-  host = field("character", default = "localhost"),
-  port = field("integer", default = 8080L),
-  debug = field("logical", default = FALSE)
+# v0.2+ New-style API with defaults
+define_model("Config",
+  fields = list(
+    host = field("character", default = "localhost"),
+    port = field("integer", default = 8080L),
+    debug = field("logical", default = FALSE)
+  )
 )
 
 # Create with defaults
-config1 <- Config()
+config1 <- new_Config()
 config1$host
 config1$port
 
 # Override defaults
-config2 <- Config(host = "example.com", port = 3000L)
+config2 <- new_Config(host = "example.com", port = 3000L)
 config2$host
 ```
 
 ### Fields with Custom Validators
 
 ```{r}
-# Model with field validators
-Person <- define_model(
-  name = field(
-    type = "character",
-    validator = string_length(min_length = 1, max_length = 100),
-    description = "Person's full name"
-  ),
-  age = field(
-    type = "numeric",
-    validator = numeric_range(min = 0, max = 120),
-    default = 0,
-    description = "Person's age in years"
-  ),
-  email = field(
-    type = "character",
-    validator = string_pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
-    description = "Email address"
+# v0.2+ New-style API with field validators
+define_model("Person",
+  fields = list(
+    name = field(
+      type = "character",
+      validator = string_length(min_length = 1, max_length = 100),
+      description = "Person's full name"
+    ),
+    age = field(
+      type = "numeric",
+      validator = numeric_range(min = 0, max = 120),
+      default = 0,
+      description = "Person's age in years"
+    ),
+    email = field(
+      type = "character",
+      validator = string_pattern(
+        "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      ),
+      description = "Email address"
+    )
   )
 )
 
 # Valid person
-person <- Person(
+person <- new_Person(
   name = "Jane Doe",
   age = 28,
   email = "jane@example.com"
 )
 
 # Invalid age (will error)
-# Person(name = "John", age = 150, email = "john@example.com")
+# new_Person(name = "John", age = 150, email = "john@example.com")
 
 # Invalid email (will error)
-# Person(name = "John", age = 30, email = "invalid-email")
+# new_Person(name = "John", age = 30, email = "invalid-email")
 ```
 
 ### Strict Mode
 
 ```{r}
-# Strict mode: no extra fields allowed
-StrictUser <- define_model(
-  name = "character",
-  age = "numeric",
+# v0.2+ Strict mode: no extra fields allowed
+define_model("StrictUser",
+  fields = list(
+    name = field("character"),
+    age = field("numeric")
+  ),
   .strict = TRUE
 )
 
 # This works
-user <- StrictUser(name = "John", age = 30)
+user <- new_StrictUser(name = "John", age = 30)
 
 # This fails (extra field 'email')
-# StrictUser(name = "John", age = 30, email = "john@example.com")
+# new_StrictUser(name = "John", age = 30, email = "john@example.com")
 ```
 
 ### Working with Models
@@ -383,9 +455,9 @@ user <- StrictUser(name = "John", age = 30)
 schema <- get_schema(User)
 names(schema)
 
-# Update model fields
-person <- Person(name = "Jane", age = 28, email = "jane@example.com")
-person <- update_model(person, age = 29)
+# v0.2+ Update model fields with update_<ClassName>()
+person <- new_Person(name = "Jane", age = 28, email = "jane@example.com")
+person <- update_Person(person, age = 29)
 person$age
 
 # Validate model instance
@@ -566,16 +638,29 @@ Type checking adds runtime overhead. Here are some tips:
 
 ```{r}
 # Disable validation for performance
-User <- define_model(
-  name = "character",
-  age = "numeric",
-  .validate = FALSE  # Skip validation
+define_model("FastUser",
+  fields = list(
+    name = field("character"),
+    age = field("numeric")
+  ),
+  .validate = FALSE # Skip validation
 )
 
 # Or validate selectively
-user <- User(name = "John", age = 30, .validate_instance = FALSE)
-validate_model(user)  # Validate later if needed
+user <- new_FastUser(name = "John", age = 30)
+validate_model(user) # Validate later if needed
 ```
+
+## Runtime Only
+
+**Important**: `typethis` provides **runtime validation only**, not static type checking.
+
+- Type errors are caught when R code executes, not during development
+- It does not replace static analysis tools like `mypy` for Python
+- Benefits: works with any R code, no special IDE or tooling required
+- Trade-off: errors are only caught at runtime
+
+If you need static analysis for R, consider tools like `lintr` or IDE-based diagnostics.
 
 ## Summary
 

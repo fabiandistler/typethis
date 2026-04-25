@@ -63,7 +63,7 @@ check_builtin_type <- function(value, type) {
 #' @examples
 #' assert_type(5, "numeric", "my_var")
 #' \dontrun{
-#' assert_type("hello", "numeric", "my_var")  # throws error
+#' assert_type("hello", "numeric", "my_var") # throws error
 #' }
 assert_type <- function(value, type, name = "value", nullable = FALSE) {
   if (!is_type(value, type, nullable)) {
@@ -131,24 +131,30 @@ coerce_type <- function(value, type, strict = FALSE) {
     return(value)
   }
 
-  tryCatch({
-    result <- switch(type,
-      "numeric" = as.numeric(value),
-      "integer" = as.integer(value),
-      "double" = as.double(value),
-      "character" = as.character(value),
-      "logical" = as.logical(value),
-      "factor" = as.factor(value),
-      "date" = as.Date(value),
-      stop(sprintf("Cannot coerce to type: %s", type))
-    )
+  tryCatch(
+    {
+      result <- switch(type,
+        "numeric" = as.numeric(value),
+        "integer" = as.integer(value),
+        "double" = as.double(value),
+        "character" = as.character(value),
+        "logical" = as.logical(value),
+        "factor" = as.factor(value),
+        "date" = as.Date(value),
+        stop(sprintf("Cannot coerce to type: %s", type))
+      )
 
-    if (strict && any(is.na(result) & !is.na(value))) {
-      stop(sprintf("Coercion to %s resulted in NA values", type))
+      if (strict && any(is.na(result) & !is.na(value))) {
+        stop(sprintf("Coercion to %s resulted in NA values", type))
+      }
+
+      result
+    },
+    error = function(e) {
+      stop(sprintf(
+        "Failed to coerce to %s: %s",
+        type, e$message
+      ), call. = FALSE)
     }
-
-    result
-  }, error = function(e) {
-    stop(sprintf("Failed to coerce to %s: %s", type, e$message), call. = FALSE)
-  })
+  )
 }
