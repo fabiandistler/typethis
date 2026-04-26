@@ -152,7 +152,7 @@ read_datacontract <- function(path) {
 #' new_Order(order_id = "ORD-1", amount = 42)
 #' }
 from_datacontract <- function(x, register = TRUE, envir = parent.frame()) {
-  contract <- if (is.list(x) && !is.null(x$schema)) x else read_datacontract(x)
+  contract <- if (is.list(x)) x else read_datacontract(x)
 
   if (is.null(contract$schema) || !is.list(contract$schema)) {
     stop("Data Contract has no `schema` section", call. = FALSE)

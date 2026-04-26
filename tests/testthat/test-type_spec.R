@@ -137,10 +137,12 @@ test_that("validate_type returns formatted spec in errors", {
   expect_match(res$error, "list_of<integer>", fixed = TRUE)
 })
 
-test_that("coerce_type rejects type_spec arguments", {
+test_that("coerce_type rejects unsupported type_spec kinds", {
+  # Supported kinds (nullable, union, enum) covered in test-type_check.R.
+  # Other type_spec kinds remain unsupported and signal a clear error.
   expect_error(
-    coerce_type("123", t_union("numeric", "integer")),
-    "does not support composite"
+    coerce_type(list(1, 2), t_list_of("integer")),
+    "type_spec kind 'list_of'"
   )
 })
 
