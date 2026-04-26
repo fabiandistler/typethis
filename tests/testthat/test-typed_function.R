@@ -242,3 +242,28 @@ test_that("typed_function wrapper is recognized as function", {
   expect_true(is.function(add))
   expect_true(is_typed(add))
 })
+
+test_that("typed_function arg_specs accept t_union", {
+  f <- typed_function(
+    function(x) x,
+    arg_specs = list(x = t_union("integer", "character"))
+  )
+  expect_equal(f(1L), 1L)
+  expect_equal(f("hi"), "hi")
+  expect_error(f(TRUE), "must be union")
+})
+
+test_that("typed_function return_spec validates against t_list_of", {
+  f <- typed_function(
+    function(n) as.list(seq_len(n)),
+    arg_specs = list(n = "integer"),
+    return_spec = t_list_of("integer")
+  )
+  expect_equal(f(3L), list(1L, 2L, 3L))
+
+  bad <- typed_function(
+    function() list("a", 1L),
+    return_spec = t_list_of("integer")
+  )
+  expect_error(bad(), "list_of<integer>", fixed = TRUE)
+})

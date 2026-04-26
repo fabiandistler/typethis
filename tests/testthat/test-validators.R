@@ -121,3 +121,83 @@ test_that("combine_validators works with all_of = FALSE", {
   expect_true(validator("hello"))
   expect_false(validator(TRUE))
 })
+
+test_that("validator_constraint exposes numeric_range parameters", {
+  c <- validator_constraint(numeric_range(0, 10, exclusive_max = TRUE))
+  expect_equal(c$kind, "numeric_range")
+  expect_equal(c$min, 0)
+  expect_equal(c$max, 10)
+  expect_false(c$exclusive_min)
+  expect_true(c$exclusive_max)
+})
+
+test_that("validator_constraint exposes string_length parameters", {
+  c <- validator_constraint(string_length(1, 50))
+  expect_equal(c$kind, "string_length")
+  expect_equal(c$min_length, 1)
+  expect_equal(c$max_length, 50)
+})
+
+test_that("validator_constraint exposes string_pattern parameters", {
+  c <- validator_constraint(string_pattern("^x", ignore_case = TRUE))
+  expect_equal(c$kind, "string_pattern")
+  expect_equal(c$pattern, "^x")
+  expect_true(c$ignore_case)
+})
+
+test_that("validator_constraint exposes vector_length parameters", {
+  c <- validator_constraint(vector_length(exact_len = 3))
+  expect_equal(c$kind, "vector_length")
+  expect_equal(c$exact_len, 3)
+})
+
+test_that("validator_constraint exposes enum_validator values", {
+  c <- validator_constraint(enum_validator(c("a", "b", "c")))
+  expect_equal(c$kind, "enum")
+  expect_equal(c$values, c("a", "b", "c"))
+})
+
+test_that("validator_constraint exposes list_of parameters", {
+  c <- validator_constraint(list_of("numeric", min_length = 1))
+  expect_equal(c$kind, "list_of")
+  expect_equal(c$element_type, "numeric")
+  expect_equal(c$min_length, 1)
+})
+
+test_that("validator_constraint exposes dataframe_spec parameters", {
+  c <- validator_constraint(dataframe_spec(c("a", "b"), min_rows = 1))
+  expect_equal(c$kind, "dataframe_spec")
+  expect_equal(c$required_cols, c("a", "b"))
+  expect_equal(c$min_rows, 1)
+})
+
+test_that("nullable wraps inner constraint", {
+  c <- validator_constraint(nullable(numeric_range(0, 10)))
+  expect_equal(c$kind, "nullable")
+  expect_equal(c$inner_constraint$kind, "numeric_range")
+  expect_equal(c$inner_constraint$min, 0)
+})
+
+test_that("combine_validators captures parts", {
+  c <- validator_constraint(combine_validators(
+    numeric_range(0, 10), function(x) x != 5,
+    all_of = FALSE
+  ))
+  expect_equal(c$kind, "combine")
+  expect_false(c$all_of)
+  expect_equal(c$parts[[1]]$kind, "numeric_range")
+  expect_null(c$parts[[2]])  # plain function has no constraint
+})
+
+test_that("validator_constraint returns NULL for plain functions", {
+  expect_null(validator_constraint(function(x) x > 0))
+  expect_null(validator_constraint("not a function"))
+})
+
+test_that("validator behaviour unchanged after constraint attribute", {
+  v <- numeric_range(0, 10)
+  expect_true(v(5))
+  expect_false(v(11))
+  expect_true(is.function(v))
+})
+

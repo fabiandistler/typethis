@@ -384,3 +384,60 @@ test_that("new-style strict mode rejects extra fields", {
     "Extra fields not allowed"
   )
 })
+
+test_that("model field accepts t_union spec", {
+  define_model("TM_Mixed",
+    fields = list(value = field(t_union("integer", "character")))
+  )
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  expect_equal(new_TM_Mixed(value = 1L)$value, 1L)
+  expect_equal(new_TM_Mixed(value = "hi")$value, "hi")
+  expect_error(new_TM_Mixed(value = TRUE), "must be union")
+})
+
+test_that("model field accepts t_list_of spec with defaults", {
+  define_model("TM_Tagged",
+    fields = list(
+      tags = field(t_list_of("character"), default = list())
+    )
+  )
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  expect_equal(new_TM_Tagged()$tags, list())
+  expect_equal(new_TM_Tagged(tags = list("a", "b"))$tags, list("a", "b"))
+  expect_error(new_TM_Tagged(tags = list("a", 1L)), "list_of<character>",
+               fixed = TRUE)
+})
+
+test_that("model field accepts t_enum spec", {
+  define_model("TM_Roled",
+    fields = list(role = field(t_enum(c("admin", "user", "guest"))))
+  )
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  expect_equal(new_TM_Roled(role = "admin")$role, "admin")
+  expect_error(new_TM_Roled(role = "root"), "must be enum")
+})
+
+test_that("model field accepts t_model() reference", {
+  define_model("TM_Addr", fields = list(zip = field("character")))
+  define_model("TM_Person",
+    fields = list(addr = field(t_model("TM_Addr")))
+  )
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  a <- new_TM_Addr(zip = "12345")
+  p <- new_TM_Person(addr = a)
+  expect_true(inherits(p$addr, "TM_Addr"))
+  expect_error(new_TM_Person(addr = list(zip = "12345")), "TM_Addr")
+})
+
+test_that("regression: bare type_spec passed to fields= works", {
+  # Footgun: type_spec is a list. Without the inherits() guard in
+  # define_model_new_style(), this would silently be misinterpreted as a
+  # full field definition list and fail with "must have a 'type' specification".
+  define_model("TM_Reg",
+    fields = list(value = t_union("integer", "character"))
+  )
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  expect_equal(new_TM_Reg(value = 1L)$value, 1L)
+  expect_equal(new_TM_Reg(value = "x")$value, "x")
+  expect_error(new_TM_Reg(value = TRUE), "must be union")
+})

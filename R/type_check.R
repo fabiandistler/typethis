@@ -16,6 +16,17 @@
 #' is_type("hello", "character")
 #' is_type(NULL, "numeric", nullable = TRUE)
 is_type <- function(value, type, nullable = FALSE) {
+  if (inherits(type, "type_spec")) {
+    if (is.null(value)) {
+      return(nullable || identical(type$kind, "nullable") ||
+               identical(type$kind, "union") &&
+                 any(vapply(type$alternatives,
+                            function(a) identical(a$kind, "nullable"),
+                            logical(1))))
+    }
+    return(check_type_spec(value, type))
+  }
+
   if (is.null(value)) {
     return(nullable)
   }
@@ -28,7 +39,7 @@ is_type <- function(value, type, nullable = FALSE) {
     return(check_builtin_type(value, type))
   }
 
-  stop("Type must be a character string or function")
+  stop("Type must be a character string, function, or type_spec")
 }
 
 #' Check builtin R types
@@ -68,13 +79,26 @@ check_builtin_type <- function(value, type) {
 assert_type <- function(value, type, name = "value", nullable = FALSE) {
   if (!is_type(value, type, nullable)) {
     actual_type <- class(value)[1]
-    expected_type <- if (is.function(type)) deparse(substitute(type)) else type
+    expected_type <- format_type_label(type, substitute(type))
     stop(sprintf(
       "Type error: '%s' must be %s, got %s",
       name, expected_type, actual_type
     ), call. = FALSE)
   }
   invisible(TRUE)
+}
+
+#' Format a type argument for error messages
+#' @keywords internal
+#' @noRd
+format_type_label <- function(type, sub) {
+  if (inherits(type, "type_spec")) {
+    return(format(type))
+  }
+  if (is.function(type)) {
+    return(deparse(sub))
+  }
+  as.character(type)
 }
 
 #' Validate type with detailed error message
@@ -94,7 +118,7 @@ validate_type <- function(value, type, name = "value", nullable = FALSE) {
   }
 
   actual_type <- class(value)[1]
-  expected_type <- if (is.function(type)) deparse(substitute(type)) else type
+  expected_type <- format_type_label(type, substitute(type))
   error_msg <- sprintf(
     "Type error: '%s' must be %s, got %s",
     name, expected_type, actual_type
@@ -127,6 +151,14 @@ is_one_of <- function(value, types) {
 #' coerce_type("123", "numeric")
 #' coerce_type(c(1, 2, 3), "character")
 coerce_type <- function(value, type, strict = FALSE) {
+  if (inherits(type, "type_spec")) {
+    stop(
+      "coerce_type() does not support composite type_spec arguments; ",
+      "pass a builtin type name instead",
+      call. = FALSE
+    )
+  }
+
   if (is_type(value, type)) {
     return(value)
   }
