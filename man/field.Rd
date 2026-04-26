@@ -9,26 +9,63 @@ field(
   default = NULL,
   validator = NULL,
   nullable = FALSE,
-  description = ""
+  description = "",
+  primary_key = FALSE,
+  unique = FALSE,
+  pii = FALSE,
+  classification = NULL,
+  tags = NULL,
+  examples = NULL,
+  references = NULL,
+  quality = NULL
 )
 }
 \arguments{
-\item{type}{Type specification}
+\item{type}{Type specification. Accepts a character builtin name
+(\code{"numeric"}, \code{"character"}, ...), a registered model class name,
+a predicate function, or a composite spec built with \code{t_union()},
+\code{t_list_of()}, \code{t_nullable()}, \code{t_enum()}, \code{t_model()}, etc.}
 
-\item{default}{Default value}
+\item{default}{Default value.}
 
-\item{validator}{Custom validator function}
+\item{validator}{Custom validator function.}
 
-\item{nullable}{Allow NULL values}
+\item{nullable}{Allow NULL values.}
 
-\item{description}{Field description}
+\item{description}{Field description.}
+
+\item{primary_key}{Logical. Field is part of the primary key. ODCS metadata
+only — has no effect on runtime validation.}
+
+\item{unique}{Logical. Values must be unique. ODCS metadata only.}
+
+\item{pii}{Logical. Field contains personally identifiable information.
+ODCS metadata only.}
+
+\item{classification}{Optional character scalar (e.g. \code{"public"},
+\code{"internal"}, \code{"confidential"}). ODCS metadata only.}
+
+\item{tags}{Optional character vector of free-form tags.}
+
+\item{examples}{Optional list/vector of example values for documentation.}
+
+\item{references}{Optional named list \code{list(model = "Order", field = "id")}
+describing a foreign-key style reference. ODCS metadata only.}
+
+\item{quality}{Optional list of quality checks (each a named list with
+\code{type}, \code{description}, and engine-specific keys like \code{query}).}
 }
 \value{
-Field specification
+Field specification.
 }
 \description{
 Define a field with validation and defaults
 }
 \examples{
 field("numeric", default = 0, validator = function(x) x >= 0)
+field(t_union("integer", "character"))
+field(t_list_of("character"), default = list())
+field(t_enum(c("admin", "user")))
+field("character", primary_key = TRUE, pii = TRUE,
+      classification = "confidential")
 }

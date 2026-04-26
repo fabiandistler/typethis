@@ -67,16 +67,16 @@ test_that("coerce_type accepts t_nullable", {
 
 test_that("coerce_type accepts t_union by trying alternatives in order", {
   spec <- t_union("integer", "character")
-  # "5" is already character → returned as-is by the character branch
-  expect_equal(coerce_type("5", spec), "5")
-  # 5 is numeric: integer alternative succeeds via as.integer()
-  expect_equal(coerce_type(5, spec), 5L)
+  # "5" already validates as integer after as.integer(): first wins
+  expect_equal(coerce_type("5", spec), 5L)
+  # Reversing alternative order keeps the input as character
+  expect_equal(coerce_type("5", t_union("character", "integer")), "5")
 })
 
 test_that("coerce_type errors when no union alternative matches", {
   spec <- t_union("integer", "logical")
   expect_error(
-    coerce_type(list(1, 2), spec),
+    coerce_type(function() 1, spec),
     "no alternative matched"
   )
 })

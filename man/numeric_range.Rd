@@ -2,7 +2,7 @@
 % Please edit documentation in R/validators.R
 \name{numeric_range}
 \alias{numeric_range}
-\title{Type Validators}
+\title{Numeric range validator}
 \usage{
 numeric_range(
   min = -Inf,
@@ -24,8 +24,6 @@ numeric_range(
 validator function
 }
 \description{
-Advanced validators for complex type constraints.
-Similar to pydantic validators in Python.
 Numeric range validator
 }
 \examples{
