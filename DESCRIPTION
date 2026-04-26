@@ -1,6 +1,6 @@
 Package: typethis
 Title: Type Safety and Validation for R
-Version: 0.3.0
+Version: 0.4.0
 Authors@R:
     person("TypeThis Team", email = "dev@example.com", role = c("aut", "cre"))
 Description: Provides comprehensive type safety and validation for R, similar to
@@ -16,7 +16,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    jsonlite (>= 1.8.0)
+    jsonlite (>= 1.8.0),
+    yaml (>= 2.3.0)
 Config/testthat/edition: 3
 URL: https://github.com/fabiandistler/typethis
 BugReports: https://github.com/fabiandistler/typethis/issues

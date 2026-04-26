@@ -413,25 +413,52 @@ validate_field_value <- function(fname, value, field_def,
 #'   (`"numeric"`, `"character"`, ...), a registered model class name,
 #'   a predicate function, or a composite spec built with `t_union()`,
 #'   `t_list_of()`, `t_nullable()`, `t_enum()`, `t_model()`, etc.
-#' @param default Default value
-#' @param validator Custom validator function
-#' @param nullable Allow NULL values
-#' @param description Field description
-#' @return Field specification
+#' @param default Default value.
+#' @param validator Custom validator function.
+#' @param nullable Allow NULL values.
+#' @param description Field description.
+#' @param primary_key Logical. Field is part of the primary key. ODCS metadata
+#'   only — has no effect on runtime validation.
+#' @param unique Logical. Values must be unique. ODCS metadata only.
+#' @param pii Logical. Field contains personally identifiable information.
+#'   ODCS metadata only.
+#' @param classification Optional character scalar (e.g. `"public"`,
+#'   `"internal"`, `"confidential"`). ODCS metadata only.
+#' @param tags Optional character vector of free-form tags.
+#' @param examples Optional list/vector of example values for documentation.
+#' @param references Optional named list `list(model = "Order", field = "id")`
+#'   describing a foreign-key style reference. ODCS metadata only.
+#' @param quality Optional list of quality checks (each a named list with
+#'   `type`, `description`, and engine-specific keys like `query`).
+#' @return Field specification.
 #' @export
 #' @examples
 #' field("numeric", default = 0, validator = function(x) x >= 0)
 #' field(t_union("integer", "character"))
 #' field(t_list_of("character"), default = list())
 #' field(t_enum(c("admin", "user")))
+#' field("character", primary_key = TRUE, pii = TRUE,
+#'       classification = "confidential")
 field <- function(type, default = NULL, validator = NULL,
-                  nullable = FALSE, description = "") {
+                  nullable = FALSE, description = "",
+                  primary_key = FALSE, unique = FALSE,
+                  pii = FALSE, classification = NULL,
+                  tags = NULL, examples = NULL,
+                  references = NULL, quality = NULL) {
   list(
     type = type,
     default = default,
     validator = validator,
     nullable = nullable,
-    description = description
+    description = description,
+    primary_key = isTRUE(primary_key),
+    unique = isTRUE(unique),
+    pii = isTRUE(pii),
+    classification = classification,
+    tags = tags,
+    examples = examples,
+    references = references,
+    quality = quality
   )
 }
 
