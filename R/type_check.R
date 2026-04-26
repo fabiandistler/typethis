@@ -152,11 +152,7 @@ is_one_of <- function(value, types) {
 #' coerce_type(c(1, 2, 3), "character")
 coerce_type <- function(value, type, strict = FALSE) {
   if (inherits(type, "type_spec")) {
-    stop(
-      "coerce_type() does not support composite type_spec arguments; ",
-      "pass a builtin type name instead",
-      call. = FALSE
-    )
+    return(coerce_type_spec(value, type, strict = strict))
   }
 
   if (is_type(value, type)) {
@@ -189,4 +185,72 @@ coerce_type <- function(value, type, strict = FALSE) {
       ), call. = FALSE)
     }
   )
+}
+
+#' Coerce a value to a `type_spec`
+#'
+#' Supports `t_nullable()` (NULL passes through, otherwise recurses on the
+#' inner spec), `t_union()` (tries each alternative in order, returns the
+#' first that coerces and validates), and `t_enum()` (accepts the value if
+#' it is — possibly after coercion to the enum's value type — in the
+#' allowed set). Other `type_spec` kinds (model_ref, list_of, vector_of,
+#' predicate) are not supported and signal a clear error.
+#'
+#' @keywords internal
+#' @noRd
+coerce_type_spec <- function(value, spec, strict) {
+  switch(spec$kind,
+    "builtin" = coerce_type(value, spec$name, strict = strict),
+    "nullable" = if (is.null(value)) {
+      NULL
+    } else {
+      coerce_type_spec(value, spec$inner, strict = strict)
+    },
+    "union" = coerce_union(value, spec$alternatives, strict),
+    "enum"  = coerce_enum(value, spec, strict),
+    stop(sprintf(
+      "coerce_type() does not support type_spec kind '%s'", spec$kind
+    ), call. = FALSE)
+  )
+}
+
+#' @keywords internal
+#' @noRd
+coerce_union <- function(value, alternatives, strict) {
+  for (alt in alternatives) {
+    success <- TRUE
+    result <- tryCatch(
+      coerce_type_spec(value, alt, strict = strict),
+      error = function(e) {
+        success <<- FALSE
+        NULL
+      }
+    )
+    if (success && is_type(result, alt)) {
+      return(result)
+    }
+  }
+  stop(sprintf(
+    "Failed to coerce to union<%s>: no alternative matched",
+    paste(vapply(alternatives, format, character(1)), collapse = ", ")
+  ), call. = FALSE)
+}
+
+#' @keywords internal
+#' @noRd
+coerce_enum <- function(value, spec, strict) {
+  if (all(value %in% spec$values)) {
+    return(value)
+  }
+  coerced <- tryCatch(
+    coerce_type(value, spec$value_type, strict = strict),
+    error = function(e) NULL
+  )
+  if (!is.null(coerced) && all(coerced %in% spec$values)) {
+    return(coerced)
+  }
+  stop(sprintf(
+    "Failed to coerce to enum<%s>: value not in allowed set",
+    paste(utils::head(as.character(spec$values), 5L), collapse = ", ")
+  ), call. = FALSE)
 }

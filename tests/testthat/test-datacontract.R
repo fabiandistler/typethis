@@ -281,6 +281,49 @@ test_that("from_datacontract round-trips an exported contract", {
   expect_true(is.function(imported_fields$qty$validator))
 })
 
+test_that("from_datacontract registers nested object properties as models", {
+  skip_without_yaml()
+  options(typethis_model_registry = list())
+  on.exit(options(typethis_model_registry = list()), add = TRUE)
+  contract <- list(
+    apiVersion = "v3.0.2",
+    kind = "DataContract",
+    name = "demo",
+    version = "1.0.0",
+    schema = list(
+      list(
+        name = "Customer",
+        logicalType = "object",
+        properties = list(
+          list(name = "id", logicalType = "string",
+               required = TRUE, primaryKey = TRUE),
+          list(
+            name = "address",
+            logicalType = "object",
+            properties = list(
+              list(name = "street", logicalType = "string", required = TRUE),
+              list(name = "city",   logicalType = "string", required = TRUE)
+            )
+          )
+        )
+      )
+    )
+  )
+  env <- new.env()
+  from_datacontract(contract, register = TRUE, envir = env)
+
+  expect_true(exists("new_Customer", envir = env))
+  expect_true(exists("new_address",  envir = env))
+  expect_true(exists("update_address", envir = env))
+
+  reg <- getOption("typethis_model_registry")
+  expect_true(all(c("Customer", "address") %in% names(reg)))
+  expect_equal(names(reg$address$fields), c("street", "city"))
+
+  addr <- env$new_address(street = "Main 1", city = "Munich")
+  expect_true(is_model(addr))
+})
+
 # ---------------------------------------------------------------------------
 # Error paths
 # ---------------------------------------------------------------------------

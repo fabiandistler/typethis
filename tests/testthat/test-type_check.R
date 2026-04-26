@@ -57,3 +57,46 @@ test_that("coerce_type handles errors", {
     "Coercion to numeric resulted in NA"
   )
 })
+
+test_that("coerce_type accepts t_nullable", {
+  spec <- t_nullable("numeric")
+  expect_null(coerce_type(NULL, spec))
+  expect_equal(coerce_type("123", spec), 123)
+  expect_equal(coerce_type(5, spec), 5)
+})
+
+test_that("coerce_type accepts t_union by trying alternatives in order", {
+  spec <- t_union("integer", "character")
+  # "5" is already character → returned as-is by the character branch
+  expect_equal(coerce_type("5", spec), "5")
+  # 5 is numeric: integer alternative succeeds via as.integer()
+  expect_equal(coerce_type(5, spec), 5L)
+})
+
+test_that("coerce_type errors when no union alternative matches", {
+  spec <- t_union("integer", "logical")
+  expect_error(
+    coerce_type(list(1, 2), spec),
+    "no alternative matched"
+  )
+})
+
+test_that("coerce_type accepts t_enum", {
+  spec <- t_enum(c("admin", "user"))
+  expect_equal(coerce_type("admin", spec), "admin")
+  expect_error(
+    coerce_type("guest", spec),
+    "value not in allowed set"
+  )
+})
+
+test_that("coerce_type rejects unsupported type_spec kinds with clear error", {
+  expect_error(
+    coerce_type(list(1, 2), t_list_of("integer")),
+    "type_spec kind 'list_of'"
+  )
+  expect_error(
+    coerce_type(5, t_predicate(function(x) x > 0)),
+    "type_spec kind 'predicate'"
+  )
+})
