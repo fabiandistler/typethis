@@ -364,9 +364,56 @@ See the package vignettes for detailed guides:
 vignette("typethis-guide", package = "typethis")
 ```
 
+## Composite Type Specs (v0.3+)
+
+In addition to plain builtin names (`"numeric"`, `"character"`, ...) and predicate functions, you can build composite type specifications:
+
+```r
+# Union of types
+field(t_union("integer", "character"))
+
+# Nullable wrapper (composes inside other specs)
+field(t_nullable("integer"))
+
+# Lists / atomic vectors with element types and length constraints
+field(t_list_of("character", min_length = 1L))
+field(t_vector_of("integer", exact_length = 3L))
+
+# Enumerations
+field(t_enum(c("admin", "user", "guest")))
+
+# Nested model references
+define_model("Address", fields = list(zip = field("character")))
+define_model("Person",  fields = list(addr = field(t_model("Address"))))
+
+# Custom predicates with descriptions (surface in error messages)
+field(t_predicate(function(x) x > 0, description = "positive number"))
+```
+
+All composite specs work transparently with `is_type()`, `assert_type()`, `typed_function()` (`arg_specs` and `return_spec`), and `field()`. They compose: `t_list_of(t_union("integer", "character"))` is valid.
+
+## JSON Schema Export (v0.3+)
+
+Serialize typed models or any composite spec to JSON Schema (Draft 2020-12):
+
+```r
+library(typethis)
+
+define_model("Person", fields = list(
+  name = field("character", nullable = FALSE),
+  age  = field("integer", validator = numeric_range(0, 120)),
+  role = field(t_enum(c("admin", "user")), default = "user")
+))
+
+schema <- to_json_schema("Person")
+jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
+```
+
+Constructs without a canonical JSON Schema mapping (data frames, factors, custom predicates) are emitted with `x-typethis-*` extension keys. Builtin validator constraints (`numeric_range`, `string_length`, `string_pattern`, `vector_length`, `enum_validator`) serialize to the corresponding JSON Schema keywords (`minimum`, `maxLength`, `pattern`, `minItems`, `enum`).
+
 ## Roadmap
 
-See [`ROADMAP.md`](ROADMAP.md) for the v0.2 plan. The short version: typed functions are the highest-priority feature, and typed classes should stay lightweight and S3-based until there is a clear reason to move to a heavier class system.
+See [`ROADMAP.md`](ROADMAP.md). v0.2 shipped typed functions and typed models. v0.3 adds composite type specs and JSON Schema export.
 
 ## Contributing
 

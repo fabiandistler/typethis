@@ -1,3 +1,23 @@
+# typethis Roadmap
+
+## v0.3 (current)
+
+Two features land in v0.3, both rooted in the v0.2 foundation:
+
+1. **Composite type specs.** A structured `type_spec` S3 class with
+   constructors `t_union()`, `t_nullable()`, `t_list_of()`,
+   `t_vector_of()`, `t_enum()`, `t_model()`, `t_predicate()`. Composes
+   freely; backward compatible with character names and predicate
+   functions.
+2. **JSON Schema export.** `to_json_schema()` produces JSON Schema
+   (Draft 2020-12) fragments from typed models, composite specs,
+   validators, and `field()` definitions. Builtin validators expose a
+   `constraint` attribute that the exporter reads to emit
+   `minimum`/`maxLength`/`pattern`/`enum` etc.
+
+These features are the foundation for follow-up work (OpenAPI export,
+RStudio addins for signature display, type inference helpers).
+
 # typethis v0.2 Roadmap
 
 This roadmap reflects the most promising next step for `typethis`: make **typed functions** reliable enough to be the core user-facing feature, and keep **typed classes** lightweight and idiomatic for R.

@@ -198,8 +198,10 @@ define_model_new_style <- function(class_name, fields,
   # Validate each field definition
   for (fname in field_names) {
     field_def <- fields[[fname]]
-    if (!is.list(field_def)) {
-      # Convert simple type string to field definition
+    # type_spec IS a list — must be detected before the generic list branch
+    if (!is.list(field_def) || inherits(field_def, "type_spec") ||
+          is.function(field_def)) {
+      # Convert simple type spec to field definition
       fields[[fname]] <- list(type = field_def, nullable = FALSE)
     } else if (is.null(field_def$type)) {
       stop(sprintf("Field '%s' must have a 'type' specification", fname))
@@ -364,27 +366,32 @@ validate_field_value <- function(fname, value, field_def,
     return(invisible(TRUE))
   }
 
-  # Check if type refers to a registered model class (nested model support)
-  model_registry <- getOption("typethis_model_registry", list())
-  if (field_type %in% names(model_registry)) {
-    # Validate as nested model
-    if (!is_model(value)) {
-      stop(sprintf(
-        "Field '%s' in %s must be a typed model, got %s",
-        fname, class_name, class(value)[1]
-      ), call. = FALSE)
-    }
-    if (!inherits(value, field_type)) {
-      stop(sprintf(
-        "Field '%s' in %s must be of class '%s', got '%s'",
-        fname, class_name, field_type, class(value)[1]
-      ), call. = FALSE)
-    }
-  } else {
-    # Standard type check
-    if (!is.null(field_type)) {
+  # Composite type_spec: dispatch through assert_type directly
+  if (inherits(field_type, "type_spec")) {
+    assert_type(value, field_type, fname)
+  } else if (is.character(field_type) && length(field_type) == 1L) {
+    # Check if type refers to a registered model class (nested model support)
+    model_registry <- getOption("typethis_model_registry", list())
+    if (field_type %in% names(model_registry)) {
+      # Validate as nested model
+      if (!is_model(value)) {
+        stop(sprintf(
+          "Field '%s' in %s must be a typed model, got %s",
+          fname, class_name, class(value)[1]
+        ), call. = FALSE)
+      }
+      if (!inherits(value, field_type)) {
+        stop(sprintf(
+          "Field '%s' in %s must be of class '%s', got '%s'",
+          fname, class_name, field_type, class(value)[1]
+        ), call. = FALSE)
+      }
+    } else {
       assert_type(value, field_type, fname)
     }
+  } else if (!is.null(field_type)) {
+    # Function predicate or other — delegate to assert_type
+    assert_type(value, field_type, fname)
   }
 
   # Custom validator
@@ -402,7 +409,10 @@ validate_field_value <- function(fname, value, field_def,
 
 #' Define a field with validation and defaults
 #'
-#' @param type Type specification
+#' @param type Type specification. Accepts a character builtin name
+#'   (`"numeric"`, `"character"`, ...), a registered model class name,
+#'   a predicate function, or a composite spec built with `t_union()`,
+#'   `t_list_of()`, `t_nullable()`, `t_enum()`, `t_model()`, etc.
 #' @param default Default value
 #' @param validator Custom validator function
 #' @param nullable Allow NULL values
@@ -411,6 +421,9 @@ validate_field_value <- function(fname, value, field_def,
 #' @export
 #' @examples
 #' field("numeric", default = 0, validator = function(x) x >= 0)
+#' field(t_union("integer", "character"))
+#' field(t_list_of("character"), default = list())
+#' field(t_enum(c("admin", "user")))
 field <- function(type, default = NULL, validator = NULL,
                   nullable = FALSE, description = "") {
   list(

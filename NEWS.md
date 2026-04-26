@@ -1,5 +1,52 @@
 # typethis (development version)
 
+## typethis 0.3.0
+
+### New Features
+
+#### Composite Type Specs
+
+- New `type_spec` S3 class for structured, composable type specifications.
+- New constructors: `t_union()`, `t_nullable()`, `t_list_of()`, `t_vector_of()`,
+  `t_enum()`, `t_model()`, `t_predicate()`. They compose:
+  `t_list_of(t_union("integer", "character"))` is valid.
+- All composite specs work with `is_type()`, `assert_type()`,
+  `typed_function()` (`arg_specs`/`return_spec`), and `field()`.
+- Backward compatible: plain character builtin names and predicate
+  functions continue to work everywhere they did before.
+- Helper `is_type_spec()` to detect composite specs.
+
+#### JSON Schema Export
+
+- New `to_json_schema()` (S3 generic) serializes typed models, type specs,
+  validator closures, and `field()` definitions into JSON Schema
+  (Draft 2020-12) fragments suitable for `jsonlite::toJSON()`.
+- Methods: `to_json_schema.default()`, `to_json_schema.type_spec()`,
+  `to_json_schema.typed_model()`.
+- Builtin validator factories (`numeric_range`, `string_length`,
+  `string_pattern`, `vector_length`, `enum_validator`, `list_of`,
+  `dataframe_spec`, `nullable`, `combine_validators`) now attach a
+  structured `constraint` attribute to their returned closure. Use
+  `validator_constraint()` to read it. The closure is otherwise
+  unchanged and remains callable as before.
+- Nested models become `$ref` entries with auto-populated `$defs`;
+  cyclic references terminate via a stub-then-fill protocol.
+- Constructs without a canonical JSON Schema mapping (data frames,
+  factors, custom predicates) emit `x-typethis-*` extension keys.
+
+### Bug Fixes
+
+- `define_model_new_style()` now correctly detects `type_spec` objects
+  passed as field definitions (they are lists, but not field-definition
+  lists). Previously a bare `t_union(...)` in a `fields = list(...)`
+  argument would produce a confusing "must have a 'type' specification"
+  error.
+
+### Dependencies
+
+- `jsonlite (>= 1.8.0)` added to `Suggests` (needed only for
+  serializing schemas produced by `to_json_schema()`).
+
 ## typethis 0.2.0
 
 ### New Features
