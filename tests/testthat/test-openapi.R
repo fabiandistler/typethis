@@ -115,12 +115,12 @@ test_that("typed_function becomes a /op POST path with JSON body", {
 test_that("typed_function with optional argument leaves it out of required", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  greet <- typed_function(function(name, greeting = "Hi") {
-                            paste(greeting, name)
-                          },
-                          arg_specs = list(name = "character",
-                                           greeting = "character"),
-                          return_spec = "character")
+  greet_fn <- function(name, greeting = "Hi") paste(greeting, name)
+  greet <- typed_function(
+    greet_fn,
+    arg_specs = list(name = "character", greeting = "character"),
+    return_spec = "character"
+  )
   attr(greet, "openapi_op_id") <- "greet"
   doc <- to_openapi(list(greet))
   body <- doc$paths$`/greet`$post$requestBody$content$`application/json`$schema
@@ -136,7 +136,8 @@ test_that("typed_function whose return type is a model emits $ref response", {
                           return_spec = "U")
   attr(fetch, "openapi_op_id") <- "fetch_u"
   doc <- to_openapi(list(fetch))
-  resp <- doc$paths$`/fetch_u`$post$responses$`200`$content$`application/json`$schema
+  op <- doc$paths$`/fetch_u`$post
+  resp <- op$responses$`200`$content$`application/json`$schema
   expect_equal(resp$`$ref`, "#/components/schemas/U")
   expect_true("U" %in% names(doc$components$schemas))
 })

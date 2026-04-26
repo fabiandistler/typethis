@@ -17,7 +17,7 @@
 #' @name datacontract
 NULL
 
-ODCS_API_VERSION <- "v3.0.2"
+odcs_api_version <- "v3.0.2"
 
 # ---------------------------------------------------------------------------
 # Public API: export
@@ -294,7 +294,7 @@ build_contract <- function(class_names, info = NULL, servers = NULL) {
   }
 
   contract <- list(
-    apiVersion = ODCS_API_VERSION,
+    apiVersion = odcs_api_version,
     kind = "DataContract",
     id = info$id %||% primary,
     status = info$status %||% "draft",

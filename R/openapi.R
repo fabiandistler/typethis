@@ -9,7 +9,7 @@
 #
 # Naming and file IO mirror the ODCS bridge in R/datacontract.R.
 
-OPENAPI_VERSION <- "3.1.0"
+openapi_version <- "3.1.0"
 
 # ---------------------------------------------------------------------------
 # Public API: export
@@ -208,8 +208,8 @@ from_openapi <- function(x, register = TRUE, envir = parent.frame()) {
 #' @keywords internal
 #' @noRd
 build_openapi <- function(class_names, info = NULL, paths = NULL) {
-  info <- normalise_openapi_info(info, fallback_title = class_names[1] %||%
-                                                       "typethis API")
+  fallback <- class_names[1] %||% "typethis API"
+  info <- normalise_openapi_info(info, fallback_title = fallback)
 
   components_schemas <- list()
   for (name in unique(class_names)) {
@@ -225,7 +225,7 @@ build_openapi <- function(class_names, info = NULL, paths = NULL) {
   components_schemas <- lapply(components_schemas, rewrite_refs_to_components)
 
   doc <- list(
-    openapi = OPENAPI_VERSION,
+    openapi = openapi_version,
     info = info,
     components = list(schemas = components_schemas)
   )
@@ -240,9 +240,8 @@ build_openapi <- function(class_names, info = NULL, paths = NULL) {
 build_openapi_from_function <- function(fn, info = NULL, paths = NULL,
                                         path = NULL, op_id = NULL,
                                         method = "post", ...) {
-  doc <- build_openapi(character(0),
-                       info = normalise_openapi_info(info,
-                                                    fallback_title = "typethis function"))
+  info <- normalise_openapi_info(info, fallback_title = "typethis function")
+  doc <- build_openapi(character(0), info = info)
   merge_function_into_openapi(doc, fn, path = path, op_id = op_id,
                               method = method)
 }
@@ -450,8 +449,8 @@ openapi_to_type_spec_or_name <- function(prop_name, prop, ctx) {
   type <- prop$type %||% "string"
 
   if (identical(type, "object") && !is.null(prop$properties)) {
-    nested_name <- prop$title %||% prop_name %||%
-                   paste0("Anon", as.integer(Sys.time()))
+    fallback <- paste0("Anon", as.integer(Sys.time()))
+    nested_name <- prop$title %||% prop_name %||% fallback
     nested_fields <- openapi_schema_to_fields(prop, ctx)
     if (isTRUE(ctx$register)) {
       define_model_in(nested_name, nested_fields, ctx$envir)

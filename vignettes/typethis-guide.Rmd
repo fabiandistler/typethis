@@ -513,7 +513,8 @@ define_model("Account",
   fields = list(
     id      = field("integer", validator = numeric_range(min = 1L)),
     email   = field("character", validator = string_pattern("^[^@]+@[^@]+$")),
-    role    = field("character", validator = enum_validator(c("admin", "user"))),
+    role    = field("character",
+                    validator = enum_validator(c("admin", "user"))),
     tags    = field(t_list_of("character"), default = list())
   )
 )
