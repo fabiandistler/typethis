@@ -326,6 +326,41 @@ optional_num(NULL)
 optional_num("hello")
 ```
 
+## Composable Type Specs (v0.3+)
+
+Beyond plain type names like `"numeric"`, `typethis` provides a small set of constructors that compose into richer specifications. They work everywhere a type name does — `is_type()`, `assert_type()`, `typed_function()`, and `field()`.
+
+```{r}
+# Either an integer or a character
+spec <- t_union("integer", "character")
+is_type(1L, spec)
+is_type("x", spec)
+is_type(1.5, spec)
+
+# A value that may also be NULL
+maybe_num <- t_nullable("numeric")
+is_type(NULL, maybe_num)
+is_type(3.14, maybe_num)
+
+# A list whose elements are all integers, or a vector of them
+is_type(list(1L, 2L, 3L), t_list_of("integer"))
+is_type(c(1L, 2L, 3L), t_vector_of("integer"))
+
+# A finite enumeration
+status <- t_enum(c("active", "inactive", "pending"))
+is_type("active", status)
+is_type("deleted", status)
+```
+
+Specs compose freely. The example below accepts a list whose elements are each either an integer or a character:
+
+```{r}
+mixed <- t_list_of(t_union("integer", "character"))
+is_type(list(1L, "two", 3L), mixed)
+```
+
+Use `is_type_spec()` to detect a composite spec, and pass any spec to `field()` when defining a model.
+
 ## Typed Models
 
 The most powerful feature of `typethis` - create typed data models with automatic validation.
@@ -467,6 +502,76 @@ result$valid
 # Convert to list
 person_list <- model_to_list(person)
 person_list
+```
+
+## JSON Schema Export (v0.3+)
+
+`to_json_schema()` serializes typed models, type specs, and validators into a JSON Schema (Draft 2020-12) fragment. Builtin validator factories (`numeric_range()`, `string_length()`, `string_pattern()`, `enum_validator()`, ...) attach a `constraint` attribute to their closure that the exporter reads — so range and pattern constraints surface as native `minimum` / `maxLength` / `pattern` keys.
+
+```{r json-schema, eval = requireNamespace("jsonlite", quietly = TRUE)}
+define_model("Account",
+  fields = list(
+    id      = field("integer", validator = numeric_range(min = 1L)),
+    email   = field("character", validator = string_pattern("^[^@]+@[^@]+$")),
+    role    = field("character", validator = enum_validator(c("admin", "user"))),
+    tags    = field(t_list_of("character"), default = list())
+  )
+)
+
+schema <- to_json_schema("Account")
+jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
+```
+
+Constructs without a canonical JSON Schema mapping (data frames, factors, custom predicate functions) are emitted as `x-typethis-*` extension keys so that the schema round-trips through typethis-aware tooling without losing information. Nested models become `$ref` entries with auto-populated `$defs`; cyclic references are handled via a stub-then-fill protocol.
+
+## Data Contracts (ODCS v3, v0.4+)
+
+The `to_datacontract()` / `from_datacontract()` bridge maps typed models to and from the [Open Data Contract Standard v3](https://github.com/bitol-io/open-data-contract-standard). `field()` accepts ODCS metadata arguments — `primary_key`, `unique`, `pii`, `classification`, `tags`, `examples`, `references`, `quality` — that round-trip through the contract but have no effect on runtime validation.
+
+```{r datacontract, eval = requireNamespace("yaml", quietly = TRUE)}
+define_model("Customer",
+  fields = list(
+    customer_id = field("integer",
+      primary_key = TRUE,
+      unique = TRUE,
+      description = "Surrogate key"
+    ),
+    email = field("character",
+      pii = TRUE,
+      classification = "confidential",
+      validator = string_pattern("^[^@]+@[^@]+$")
+    ),
+    signup_date = field("date",
+      tags = c("audit", "lifecycle")
+    )
+  )
+)
+
+contract <- to_datacontract("Customer",
+  info = list(name = "Customers", version = "1.0.0")
+)
+str(contract, max.level = 2)
+```
+
+Write the contract to disk with `write_datacontract()` and read it back with `from_datacontract()` (which also re-registers the schemas as `new_*()` constructors in the calling environment):
+
+```{r datacontract-roundtrip, eval = requireNamespace("yaml", quietly = TRUE)}
+tmp <- tempfile(fileext = ".yaml")
+write_datacontract("Customer", tmp,
+  info = list(name = "Customers", version = "1.0.0")
+)
+
+env <- new.env()
+from_datacontract(tmp, envir = env)
+ls(env)
+```
+
+For full validation against the standard, the upstream [`datacontract` CLI](https://datacontract.com) is available through thin wrappers — `datacontract_lint()`, `datacontract_test()`, `datacontract_export()` — gated by `datacontract_cli_available()`:
+
+```{r datacontract-cli, eval = FALSE}
+if (datacontract_cli_available()) {
+  datacontract_lint(tmp)
+}
 ```
 
 ## Real-World Examples

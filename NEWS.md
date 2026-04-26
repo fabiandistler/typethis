@@ -1,5 +1,31 @@
 # typethis (development version)
 
+## typethis 0.4.1
+
+### Improvements
+
+- `coerce_type()` now accepts a `type_spec` argument for the
+  composable cases where coercion has a clear meaning:
+  `t_nullable()` (NULL passes through, otherwise the inner spec
+  drives the coercion), `t_union()` (each alternative is tried in
+  order; the first that coerces and validates wins), and `t_enum()`
+  (the value is accepted directly if already in the allowed set, or
+  coerced to the enum's value type and re-checked). Other
+  `type_spec` kinds (`t_list_of()`, `t_vector_of()`, `t_model()`,
+  `t_predicate()`) still error, but with a clearer message naming
+  the unsupported kind.
+- README and vignette updated to cover v0.3 (composable type specs,
+  JSON Schema export) and v0.4 (Data Contract bridge).
+
+### Internal
+
+- New test for nested-object registration in `from_datacontract()`
+  (covers the implicit `define_model_in()` side-effect for nested
+  ODCS object properties).
+- New `.github/workflows/R-CMD-check.yaml` runs `R CMD check`
+  (errors on warnings) on macOS, Windows, and Ubuntu (release,
+  devel, oldrel-1) plus a `lintr` job on every push and PR.
+
 ## typethis 0.4.0
 
 ### New Features
