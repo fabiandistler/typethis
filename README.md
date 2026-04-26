@@ -411,9 +411,57 @@ jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
 
 Constructs without a canonical JSON Schema mapping (data frames, factors, custom predicates) are emitted with `x-typethis-*` extension keys. Builtin validator constraints (`numeric_range`, `string_length`, `string_pattern`, `vector_length`, `enum_validator`) serialize to the corresponding JSON Schema keywords (`minimum`, `maxLength`, `pattern`, `minItems`, `enum`).
 
+## Data Contract Integration (v0.4+)
+
+Pydantic can be generated from a Data Contract via
+`datacontract export --format pydantic-model`. typethis closes the loop
+for R: typed models can be exported to and imported from the
+[Open Data Contract Standard (ODCS) v3](https://bitol-io.github.io/open-data-contract-standard/).
+
+```r
+library(typethis)
+
+define_model("Order", fields = list(
+  order_id = field("character", primary_key = TRUE,
+                   validator = string_pattern("^ORD-[0-9]+$")),
+  amount   = field("numeric", validator = numeric_range(0, 1e6),
+                   pii = FALSE),
+  status   = field(t_enum(c("new", "paid", "shipped")),
+                   default = "new"),
+  customer = field("character", classification = "confidential",
+                   pii = TRUE)
+))
+
+# Export to ODCS YAML
+write_datacontract("Order", "order.yaml",
+  info = list(name = "orders", version = "1.0.0",
+              description = "Order records"))
+
+# Re-import (registers Order plus new_Order/update_Order in the env)
+from_datacontract("order.yaml")
+new_Order(order_id = "ORD-1", amount = 42, customer = "Alice")
+```
+
+The bridge is bidirectional: `to_datacontract()` / `write_datacontract()`
+go out, `from_datacontract()` / `read_datacontract()` come back in.
+
+If the [`datacontract` CLI](https://cli.datacontract.com/) is installed
+on `PATH`, three thin wrappers run it directly from R:
+
+```r
+datacontract_lint("order.yaml")
+datacontract_test("order.yaml", server = "production")
+datacontract_export("order.yaml", format = "jsonschema")  # or "sql", "avro", ...
+```
+
+`field()` accepts ODCS-specific metadata (`primary_key`, `unique`, `pii`,
+`classification`, `tags`, `examples`, `references`, `quality`). These
+fields round-trip through the contract and are otherwise ignored by
+runtime validation.
+
 ## Roadmap
 
-See [`ROADMAP.md`](ROADMAP.md). v0.2 shipped typed functions and typed models. v0.3 adds composite type specs and JSON Schema export.
+See [`ROADMAP.md`](ROADMAP.md). v0.2 shipped typed functions and typed models. v0.3 added composite type specs and JSON Schema export. v0.4 adds the Data Contract (ODCS v3) bridge.
 
 ## Contributing
 

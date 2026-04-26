@@ -1,6 +1,23 @@
 # typethis Roadmap
 
-## v0.3 (current)
+## v0.4 (current)
+
+A single feature lands in v0.4:
+
+1. **Data Contract (ODCS v3) bridge.** `to_datacontract()` /
+   `from_datacontract()` map typed models to and from the Open Data
+   Contract Standard v3.x. `write_datacontract()` /
+   `read_datacontract()` are convenience wrappers around `yaml`.
+   `datacontract_lint()` / `_test()` / `_export()` are thin shells
+   over the upstream `datacontract` CLI. `field()` gained ODCS
+   metadata arguments (`primary_key`, `unique`, `pii`,
+   `classification`, `tags`, `examples`, `references`, `quality`).
+
+This closes the gap to Pydantic, which can be generated from a contract
+via `datacontract export --format pydantic-model`. typethis works the
+same way in both directions for R.
+
+## v0.3
 
 Two features land in v0.3, both rooted in the v0.2 foundation:
 

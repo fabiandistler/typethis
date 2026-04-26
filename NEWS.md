@@ -1,5 +1,41 @@
 # typethis (development version)
 
+## typethis 0.4.0
+
+### New Features
+
+#### Data Contract (ODCS v3) Bridge
+
+- `to_datacontract()` (S3 generic) converts typed models, model
+  constructors, and instances into Open Data Contract Standard v3.x
+  contracts as native R lists, ready for `yaml::write_yaml()`.
+- `write_datacontract()` writes a contract directly to a `.yaml` file.
+- `from_datacontract()` reads a contract YAML (path, URL, or parsed
+  list) and registers each `schema` entry as a typed model with
+  generated `new_*()` / `update_*()` constructors.
+- `read_datacontract()` parses a contract YAML without registering
+  anything.
+- Thin wrappers around the `datacontract` CLI: `datacontract_lint()`,
+  `datacontract_test()`, `datacontract_export()`, plus
+  `datacontract_cli_available()` for capability detection.
+- `field()` gained ODCS metadata arguments: `primary_key`, `unique`,
+  `pii`, `classification`, `tags`, `examples`, `references`,
+  `quality`. They round-trip through the contract bridge and are
+  introspectable, but have no effect on runtime validation.
+- Validator constraints (`numeric_range`, `string_length`,
+  `string_pattern`, `vector_length`, `enum_validator`,
+  `dataframe_spec`) are emitted as native ODCS constraint fields
+  (`minimum`, `maxLength`, `pattern`, `enum`, ...).
+- Constructs without a native ODCS mapping (data frames, factors,
+  unions, custom predicate functions) emit `x-typethis-*` extension
+  keys so the bridge round-trips through typethis-aware tooling.
+
+### Dependencies
+
+- `yaml (>= 2.3.0)` added to `Suggests`. Required only for
+  `write_datacontract()`, `read_datacontract()`, and
+  `from_datacontract()`.
+
 ## typethis 0.3.0
 
 ### New Features
