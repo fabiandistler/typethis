@@ -1,6 +1,6 @@
 Package: typethis
 Title: Type Safety and Validation for R
-Version: 0.4.1
+Version: 0.5.0
 Authors@R:
     person("TypeThis Team", email = "dev@example.com", role = c("aut", "cre"))
 Description: Provides comprehensive type safety and validation for R, similar to
