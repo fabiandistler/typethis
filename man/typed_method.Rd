@@ -35,7 +35,9 @@ translate(1, 2)
 }
 \seealso{
 Other typed functions: 
+\code{\link{as_typed}()},
 \code{\link{get_signature}()},
+\code{\link{infer_specs}()},
 \code{\link{is_typed}()},
 \code{\link{signature}},
 \code{\link{typed_function}()},

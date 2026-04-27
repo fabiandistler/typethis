@@ -26,7 +26,9 @@ add(2, 3)
 }
 \seealso{
 Other typed functions: 
+\code{\link{as_typed}()},
 \code{\link{get_signature}()},
+\code{\link{infer_specs}()},
 \code{\link{is_typed}()},
 \code{\link{typed_function}()},
 \code{\link{typed_method}()},

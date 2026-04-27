@@ -82,7 +82,9 @@ workflow; \code{\link[=validate_call]{validate_call()}} to dry-run validation; \
 \code{\link[=get_signature]{get_signature()}} for introspection.
 
 Other typed functions: 
+\code{\link{as_typed}()},
 \code{\link{get_signature}()},
+\code{\link{infer_specs}()},
 \code{\link{is_typed}()},
 \code{\link{signature}},
 \code{\link{typed_method}()},
