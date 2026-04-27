@@ -13,15 +13,12 @@ library(typethis)
 out to non-R systems and (for ODCS and OpenAPI) come back in:
 
 - **JSON Schema** (Draft 2020-12) via
-  \[[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)\].
+  \[[`to_json_schema()`](../reference/to_json_schema.md)\].
 - **Open Data Contract Standard v3** via
-  \[[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)\]
-  and
-  \[[`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md)\].
-- **OpenAPI 3.1** via
-  \[[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)\]
-  and
-  \[[`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md)\].
+  \[[`to_datacontract()`](../reference/to_datacontract.md)\] and
+  \[[`from_datacontract()`](../reference/from_datacontract.md)\].
+- **OpenAPI 3.1** via \[[`to_openapi()`](../reference/to_openapi.md)\]
+  and \[[`from_openapi()`](../reference/from_openapi.md)\].
 
 All three share the same machinery — JSON Schema is the canonical
 representation, and the ODCS and OpenAPI exporters lift its fragments
@@ -33,9 +30,8 @@ examples below guard their use with
 
 ## JSON Schema
 
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
-turns typed models, type specs, validators, and
-\[[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)\]
+[`to_json_schema()`](../reference/to_json_schema.md) turns typed models,
+type specs, validators, and \[[`field()`](../reference/field.md)\]
 definitions into a Draft 2020-12 JSON Schema fragment as a plain R list.
 
 ``` r
@@ -108,8 +104,7 @@ Key behaviours:
 Other accepted inputs include type specs
 (`to_json_schema(t_union(...))`), validator closures
 (`to_json_schema(numeric_range(0, 10))`), and
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-definitions.
+[`field()`](../reference/field.md) definitions.
 
 ## Open Data Contract Standard
 
@@ -155,8 +150,8 @@ str(contract, max.level = 2)
 #>   ..$ :List of 3
 ```
 
-[`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
-is the file-IO convenience wrapper:
+[`write_datacontract()`](../reference/write_datacontract.md) is the
+file-IO convenience wrapper:
 
 ``` r
 tmp <- tempfile(fileext = ".yaml")
@@ -169,9 +164,8 @@ readLines(tmp, n = 6)
 
 ### Import
 
-[`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md)
-reads a contract back, calls
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
+[`from_datacontract()`](../reference/from_datacontract.md) reads a
+contract back, calls [`define_model()`](../reference/define_model.md)
 for every entry, and assigns generated `new_*()` and `update_*()`
 constructors to `envir`.
 
@@ -192,9 +186,9 @@ env$new_Order(order_id = "ORD-1", amount = 42, customer = "Ada")
 
 ### Field metadata
 
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-accepts ODCS-specific metadata that round-trips through the contract but
-has no effect on runtime validation:
+[`field()`](../reference/field.md) accepts ODCS-specific metadata that
+round-trips through the contract but has no effect on runtime
+validation:
 
 | Argument         | Used for                                                                 |
 |------------------|--------------------------------------------------------------------------|
@@ -278,16 +272,16 @@ ls(env)
 #> [1] "new_Address2"     "new_PersonDoc"    "update_Address2"  "update_PersonDoc"
 ```
 
-[`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
-infers the format from the file extension. Pass `format = "json"` (or
-use a `.json` path) for JSON output.
+[`write_openapi()`](../reference/write_openapi.md) infers the format
+from the file extension. Pass `format = "json"` (or use a `.json` path)
+for JSON output.
 
 ## Choosing a bridge
 
-| If you want to…                             | Use                                                                                              |
-|---------------------------------------------|--------------------------------------------------------------------------------------------------|
-| Hand a schema to any JSON-Schema-aware tool | [`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)       |
-| Publish a data product description          | [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)     |
-| Document a JSON HTTP API                    | [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)               |
-| Bring an existing data contract into R      | [`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md) |
-| Bring an existing OpenAPI document into R   | [`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md)           |
+| If you want to…                             | Use                                                        |
+|---------------------------------------------|------------------------------------------------------------|
+| Hand a schema to any JSON-Schema-aware tool | [`to_json_schema()`](../reference/to_json_schema.md)       |
+| Publish a data product description          | [`to_datacontract()`](../reference/to_datacontract.md)     |
+| Document a JSON HTTP API                    | [`to_openapi()`](../reference/to_openapi.md)               |
+| Bring an existing data contract into R      | [`from_datacontract()`](../reference/from_datacontract.md) |
+| Bring an existing OpenAPI document into R   | [`from_openapi()`](../reference/from_openapi.md)           |

@@ -11,13 +11,12 @@ library(typethis)
 
 A *type spec* is a structured, composable type description. The `t_*()`
 constructors build them; they work everywhere a plain type name does —
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md),
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
-[`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md),
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md),
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md),
-and
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md).
+[`is_type()`](../reference/is_type.md),
+[`assert_type()`](../reference/assert_type.md),
+[`validate_type()`](../reference/validate_type.md),
+[`field()`](../reference/field.md),
+[`typed_function()`](../reference/typed_function.md), and
+[`to_json_schema()`](../reference/to_json_schema.md).
 
 Plain character builtins (`"numeric"`) and predicate functions still
 work as type arguments without change. Type specs are an additive layer
@@ -35,9 +34,8 @@ for when those aren’t expressive enough.
 | `t_model(class)`               | an instance of a registered typed model   |
 | `t_predicate(fn, description)` | predicate with a documented description   |
 
-Use
-[`is_type_spec()`](https://fabiandistler.github.io/typethis/reference/is_type_spec.md)
-to detect a composite spec at runtime.
+Use [`is_type_spec()`](../reference/is_type_spec.md) to detect a
+composite spec at runtime.
 
 ## Examples
 
@@ -81,8 +79,8 @@ is_type(1:5, triple)
 #> [1] FALSE
 ```
 
-[`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md)
-accepts any element type spec, including other composites:
+[`t_list_of()`](../reference/t_list_of.md) accepts any element type
+spec, including other composites:
 
 ``` r
 mixed <- t_list_of(t_union("integer", "character"))
@@ -100,15 +98,12 @@ is_type("root",  role)
 #> [1] FALSE
 ```
 
-[`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md)
-is the type-spec sibling of
-[`enum_validator()`](https://fabiandistler.github.io/typethis/reference/enum_validator.md).
-Use the type-spec form when you want the enum to appear as a true type
-in
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-and
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-and to surface in JSON Schema as a typed `enum` keyword.
+[`t_enum()`](../reference/t_enum.md) is the type-spec sibling of
+[`enum_validator()`](../reference/enum_validator.md). Use the type-spec
+form when you want the enum to appear as a true type in
+[`field()`](../reference/field.md) and
+[`typed_function()`](../reference/typed_function.md) and to surface in
+JSON Schema as a typed `enum` keyword.
 
 ### Model references
 
@@ -124,9 +119,9 @@ is_type(new_Address(zip = "10115"), addr)
 
 ### Predicates with a description
 
-[`t_predicate()`](https://fabiandistler.github.io/typethis/reference/t_predicate.md)
-is a thin wrapper around a custom predicate that carries a description.
-The description surfaces in error messages and in JSON Schema output.
+[`t_predicate()`](../reference/t_predicate.md) is a thin wrapper around
+a custom predicate that carries a description. The description surfaces
+in error messages and in JSON Schema output.
 
 ``` r
 positive <- t_predicate(
@@ -177,8 +172,8 @@ greet("hi", n = 3)
 
 ## Coercion
 
-[`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md)
-understands a subset of specs where coercion has a clear meaning:
+[`coerce_type()`](../reference/coerce_type.md) understands a subset of
+specs where coercion has a clear meaning:
 
 - `t_nullable(...)` — `NULL` passes through; otherwise the inner spec
   drives coercion;
@@ -188,12 +183,10 @@ understands a subset of specs where coercion has a clear meaning:
   otherwise the value is coerced to the enum’s value type and
   re-checked.
 
-Other kinds
-([`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md),
-[`t_vector_of()`](https://fabiandistler.github.io/typethis/reference/t_vector_of.md),
-[`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md),
-[`t_predicate()`](https://fabiandistler.github.io/typethis/reference/t_predicate.md))
-raise an explicit error.
+Other kinds ([`t_list_of()`](../reference/t_list_of.md),
+[`t_vector_of()`](../reference/t_vector_of.md),
+[`t_model()`](../reference/t_model.md),
+[`t_predicate()`](../reference/t_predicate.md)) raise an explicit error.
 
 ``` r
 coerce_type("paid", t_enum(c("new", "paid", "shipped")))

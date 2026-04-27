@@ -3,8 +3,7 @@
 Returns a validator closure that accepts a list whose every element
 matches `element_type` and whose length is within
 `[min_length, max_length]`. For an equivalent that doubles as a type
-specification, see
-[`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md).
+specification, see [`t_list_of()`](t_list_of.md).
 
 ## Usage
 
@@ -33,19 +32,16 @@ A validator function `function(value) -> logical`.
 
 ## See also
 
-[`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md)
-for the composable type-spec form.
+[`t_list_of()`](t_list_of.md) for the composable type-spec form.
 
-Other validators:
-[`combine_validators()`](https://fabiandistler.github.io/typethis/reference/combine_validators.md),
-[`dataframe_spec()`](https://fabiandistler.github.io/typethis/reference/dataframe_spec.md),
-[`enum_validator()`](https://fabiandistler.github.io/typethis/reference/enum_validator.md),
-[`nullable()`](https://fabiandistler.github.io/typethis/reference/nullable.md),
-[`numeric_range()`](https://fabiandistler.github.io/typethis/reference/numeric_range.md),
-[`string_length()`](https://fabiandistler.github.io/typethis/reference/string_length.md),
-[`string_pattern()`](https://fabiandistler.github.io/typethis/reference/string_pattern.md),
-[`validator_constraint()`](https://fabiandistler.github.io/typethis/reference/validator_constraint.md),
-[`vector_length()`](https://fabiandistler.github.io/typethis/reference/vector_length.md)
+Other validators: [`combine_validators()`](combine_validators.md),
+[`dataframe_spec()`](dataframe_spec.md),
+[`enum_validator()`](enum_validator.md), [`nullable()`](nullable.md),
+[`numeric_range()`](numeric_range.md),
+[`string_length()`](string_length.md),
+[`string_pattern()`](string_pattern.md),
+[`validator_constraint()`](validator_constraint.md),
+[`vector_length()`](vector_length.md)
 
 ## Examples
 

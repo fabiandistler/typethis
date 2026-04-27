@@ -1,16 +1,13 @@
 # Define a model field
 
 Builds a field definition for use inside
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md).
-A field carries a type, optional default, optional validator, and
-optional nullability — plus a number of metadata slots (`primary_key`,
-`pii`, `tags`, ...) that travel through the
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
-/
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
-/
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
-bridges but have no effect on runtime validation.
+[`define_model()`](define_model.md). A field carries a type, optional
+default, optional validator, and optional nullability — plus a number of
+metadata slots (`primary_key`, `pii`, `tags`, ...) that travel through
+the [`to_datacontract()`](to_datacontract.md) /
+[`to_openapi()`](to_openapi.md) /
+[`to_json_schema()`](to_json_schema.md) bridges but have no effect on
+runtime validation.
 
 ## Usage
 
@@ -104,20 +101,16 @@ A field definition (named list).
 
 - A registered model class name (string).
 
-- Any
-  [type_spec](https://fabiandistler.github.io/typethis/reference/type_spec.md)
-  built with `t_*()`.
+- Any [type_spec](type_spec.md) built with `t_*()`.
 
 ## See also
 
-Other typed models:
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md),
-[`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md),
-[`is_model()`](https://fabiandistler.github.io/typethis/reference/is_model.md),
-[`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md),
-[`print.typed_model()`](https://fabiandistler.github.io/typethis/reference/print.typed_model.md),
-[`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md),
-[`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
+Other typed models: [`define_model()`](define_model.md),
+[`get_schema()`](get_schema.md), [`is_model()`](is_model.md),
+[`model_to_list()`](model_to_list.md),
+[`print.typed_model()`](print.typed_model.md),
+[`update_model()`](update_model.md),
+[`validate_model()`](validate_model.md)
 
 ## Examples
 
@@ -183,8 +176,8 @@ field("integer", validator = numeric_range(0, 120))
 #>     else all(value <= max)
 #>     min_ok && max_ok
 #> }
-#> <bytecode: 0x55c45804e3e8>
-#> <environment: 0x55c459ba3f28>
+#> <bytecode: 0x55b0ee242a10>
+#> <environment: 0x55b0ef82dd50>
 #> attr(,"constraint")
 #> attr(,"constraint")$kind
 #> [1] "numeric_range"

@@ -1,9 +1,8 @@
 # Validate a value's type and return a structured result
 
-Like
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md)
-but returns a list `list(valid, error)` instead of throwing. Use it when
-you want to collect or inspect errors rather than stop execution.
+Like [`assert_type()`](assert_type.md) but returns a list
+`list(valid, error)` instead of throwing. Use it when you want to
+collect or inspect errors rather than stop execution.
 
 ## Usage
 
@@ -35,11 +34,9 @@ Named list with `valid` (logical) and `error` (character or `NULL`).
 
 ## See also
 
-Other type checking:
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
-[`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md),
-[`is_one_of()`](https://fabiandistler.github.io/typethis/reference/is_one_of.md),
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md)
+Other type checking: [`assert_type()`](assert_type.md),
+[`coerce_type()`](coerce_type.md), [`is_one_of()`](is_one_of.md),
+[`is_type()`](is_type.md)
 
 ## Examples
 

@@ -10,12 +10,9 @@ library(typethis)
 ```
 
 This vignette covers the built-in validators and the full
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-/
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-API. If you haven’t read [Getting
-Started](https://fabiandistler.github.io/typethis/articles/getting-started.md)
-yet, start there.
+[`define_model()`](../reference/define_model.md) /
+[`field()`](../reference/field.md) API. If you haven’t read [Getting
+Started](getting-started.md) yet, start there.
 
 ## Validators
 
@@ -106,14 +103,10 @@ status("deleted")
 #> [1] FALSE
 ```
 
-For the equivalent that doubles as a [type
-spec](https://fabiandistler.github.io/typethis/articles/type-specs.md) —
-usable inside
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-and
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-— see
-[`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md).
+For the equivalent that doubles as a [type spec](type-specs.md) — usable
+inside [`field()`](../reference/field.md) and
+[`typed_function()`](../reference/typed_function.md) — see
+[`t_enum()`](../reference/t_enum.md).
 
 ### Combining validators
 
@@ -142,9 +135,9 @@ num_or_str(TRUE)
 
 ### Reading constraint metadata
 
-[`validator_constraint()`](https://fabiandistler.github.io/typethis/reference/validator_constraint.md)
-exposes the structured constraint attached by the built-in factories —
-useful for tooling and for the bridge functions:
+[`validator_constraint()`](../reference/validator_constraint.md) exposes
+the structured constraint attached by the built-in factories — useful
+for tooling and for the bridge functions:
 
 ``` r
 validator_constraint(numeric_range(0, 10))
@@ -168,9 +161,8 @@ validator_constraint(function(x) x > 0)  # NULL for plain user predicates
 
 ## Models
 
-Use
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-to describe a record. It creates a `new_<Class>()` constructor and an
+Use [`define_model()`](../reference/define_model.md) to describe a
+record. It creates a `new_<Class>()` constructor and an
 `update_<Class>()` helper in the calling environment.
 
 ``` r
@@ -264,17 +256,14 @@ new_Person2(
 #>   address: Address = <Address of length 2>
 ```
 
-Use `t_model("Address")` if you want a [type
-spec](https://fabiandistler.github.io/typethis/articles/type-specs.md)
-form that can be combined with
-[`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md)
-or
-[`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md).
+Use `t_model("Address")` if you want a [type spec](type-specs.md) form
+that can be combined with [`t_nullable()`](../reference/t_nullable.md)
+or [`t_list_of()`](../reference/t_list_of.md).
 
 ### Field-level validators
 
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-accepts a `validator` callback that runs after the type check:
+[`field()`](../reference/field.md) accepts a `validator` callback that
+runs after the type check:
 
 ``` r
 define_model("Coupon", fields = list(
@@ -325,19 +314,16 @@ p2$age
 ```
 
 For mutation across models without a class-specific updater, use
-[`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md).
+[`update_model()`](../reference/update_model.md).
 
 ### Field metadata for bridges
 
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-accepts metadata that travels through to the
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md),
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md),
-and
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
-exporters but has no effect on runtime validation. See the
-[interop](https://fabiandistler.github.io/typethis/articles/interop.md)
-vignette for what each key does.
+[`field()`](../reference/field.md) accepts metadata that travels through
+to the [`to_json_schema()`](../reference/to_json_schema.md),
+[`to_datacontract()`](../reference/to_datacontract.md), and
+[`to_openapi()`](../reference/to_openapi.md) exporters but has no effect
+on runtime validation. See the [interop](interop.md) vignette for what
+each key does.
 
 ``` r
 field(
@@ -398,13 +384,12 @@ field(
 Validation has a per-call cost. For hot paths:
 
 - pass `.validate = FALSE` to
-  [`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-  to disable checks at construction;
+  [`define_model()`](../reference/define_model.md) to disable checks at
+  construction;
 - pass `validate = FALSE` to
-  [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-  for the same effect on function calls;
+  [`typed_function()`](../reference/typed_function.md) for the same
+  effect on function calls;
 - check upstream once and trust your boundaries.
 
-You can still call
-[`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
+You can still call [`validate_model()`](../reference/validate_model.md)
 on demand to re-check an instance after a series of unchecked updates.

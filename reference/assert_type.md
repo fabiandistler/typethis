@@ -33,16 +33,12 @@ assert_type(value, type, name = "value", nullable = FALSE)
 
 ## See also
 
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md)
-for a non-throwing check;
-[`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md)
-to get the message back as data.
+[`is_type()`](is_type.md) for a non-throwing check;
+[`validate_type()`](validate_type.md) to get the message back as data.
 
-Other type checking:
-[`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md),
-[`is_one_of()`](https://fabiandistler.github.io/typethis/reference/is_one_of.md),
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md),
-[`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md)
+Other type checking: [`coerce_type()`](coerce_type.md),
+[`is_one_of()`](is_one_of.md), [`is_type()`](is_type.md),
+[`validate_type()`](validate_type.md)
 
 ## Examples
 

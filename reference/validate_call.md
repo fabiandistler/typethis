@@ -30,13 +30,11 @@ Named list `list(valid, errors)`. `errors` is `NULL` on success.
 
 ## See also
 
-Other typed functions:
-[`get_signature()`](https://fabiandistler.github.io/typethis/reference/get_signature.md),
-[`is_typed()`](https://fabiandistler.github.io/typethis/reference/is_typed.md),
-[`signature`](https://fabiandistler.github.io/typethis/reference/signature.md),
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md),
-[`typed_method()`](https://fabiandistler.github.io/typethis/reference/typed_method.md),
-[`with_signature()`](https://fabiandistler.github.io/typethis/reference/with_signature.md)
+Other typed functions: [`get_signature()`](get_signature.md),
+[`is_typed()`](is_typed.md), [`signature`](signature.md),
+[`typed_function()`](typed_function.md),
+[`typed_method()`](typed_method.md),
+[`with_signature()`](with_signature.md)
 
 ## Examples
 

@@ -6,11 +6,9 @@ against `return_spec`. Calls that violate a spec raise an informative
 error before — or just after — `fn` runs.
 
 Argument specs may be character builtins, predicate functions, or any
-[type_spec](https://fabiandistler.github.io/typethis/reference/type_spec.md)
-(e.g.
-[`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md),
-[`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md)).
-Coercion can be enabled per call via `coerce = TRUE`.
+[type_spec](type_spec.md) (e.g. [`t_union()`](t_union.md),
+[`t_list_of()`](t_list_of.md)). Coercion can be enabled per call via
+`coerce = TRUE`.
 
 All R calling conventions are supported: positional, named, reordered
 named, mixed, and `...` passthrough.
@@ -51,8 +49,7 @@ typed_function(
 - coerce:
 
   If `TRUE`, arguments that don't match are first run through
-  [`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md)
-  before assertion.
+  [`coerce_type()`](coerce_type.md) before assertion.
 
 - arg_types, return_type:
 
@@ -66,24 +63,17 @@ A function with the same formals as `fn`. Carries `arg_specs`,
 
 ## See also
 
-[`signature()`](https://fabiandistler.github.io/typethis/reference/signature.md)
-/
-[`with_signature()`](https://fabiandistler.github.io/typethis/reference/with_signature.md)
+[`signature()`](signature.md) / [`with_signature()`](with_signature.md)
 for a separate-then-attach workflow;
-[`validate_call()`](https://fabiandistler.github.io/typethis/reference/validate_call.md)
-to dry-run validation;
-[`is_typed()`](https://fabiandistler.github.io/typethis/reference/is_typed.md)
-/
-[`get_signature()`](https://fabiandistler.github.io/typethis/reference/get_signature.md)
-for introspection.
+[`validate_call()`](validate_call.md) to dry-run validation;
+[`is_typed()`](is_typed.md) / [`get_signature()`](get_signature.md) for
+introspection.
 
-Other typed functions:
-[`get_signature()`](https://fabiandistler.github.io/typethis/reference/get_signature.md),
-[`is_typed()`](https://fabiandistler.github.io/typethis/reference/is_typed.md),
-[`signature`](https://fabiandistler.github.io/typethis/reference/signature.md),
-[`typed_method()`](https://fabiandistler.github.io/typethis/reference/typed_method.md),
-[`validate_call()`](https://fabiandistler.github.io/typethis/reference/validate_call.md),
-[`with_signature()`](https://fabiandistler.github.io/typethis/reference/with_signature.md)
+Other typed functions: [`get_signature()`](get_signature.md),
+[`is_typed()`](is_typed.md), [`signature`](signature.md),
+[`typed_method()`](typed_method.md),
+[`validate_call()`](validate_call.md),
+[`with_signature()`](with_signature.md)
 
 ## Examples
 

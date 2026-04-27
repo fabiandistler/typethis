@@ -37,19 +37,16 @@ validate_type("hello", "numeric", "x")
 #> [1] "Type error: 'x' must be numeric, got character"
 ```
 
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md)
-accepts any of:
+[`is_type()`](../reference/is_type.md) accepts any of:
 
 - a builtin name — `"numeric"`, `"integer"`, `"character"`, `"logical"`,
   `"list"`, `"data.frame"`, `"matrix"`, `"factor"`, `"date"`,
   `"posixct"`, `"function"`, `"environment"`;
 - a predicate function `function(value) -> logical`;
-- a [type
-  spec](https://fabiandistler.github.io/typethis/articles/type-specs.md)
-  such as `t_union("integer", "character")`.
+- a [type spec](type-specs.md) such as
+  `t_union("integer", "character")`.
 
-For safe coercion, use
-[`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md):
+For safe coercion, use [`coerce_type()`](../reference/coerce_type.md):
 
 ``` r
 coerce_type("123", "numeric")
@@ -60,8 +57,8 @@ coerce_type(c(1, 0, 1), "logical")
 
 ## 2. Typed functions
 
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-wraps a function so each call is validated.
+[`typed_function()`](../reference/typed_function.md) wraps a function so
+each call is validated.
 
 ``` r
 greet <- typed_function(
@@ -82,25 +79,21 @@ greet("hi", times = "three")
 #> ! Type error: 'times' must be integer, got character
 ```
 
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-supports every R calling convention — positional, named, mixed,
-reordered, and `...` passthrough — and respects argument defaults. Set
-`coerce = TRUE` to convert mismatches before checking, or
-`validate = FALSE` for hot paths where you’ve already validated
-upstream.
+[`typed_function()`](../reference/typed_function.md) supports every R
+calling convention — positional, named, mixed, reordered, and `...`
+passthrough — and respects argument defaults. Set `coerce = TRUE` to
+convert mismatches before checking, or `validate = FALSE` for hot paths
+where you’ve already validated upstream.
 
 For the full feature set see
-[`?typed_function`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-and the
-[validators-and-models](https://fabiandistler.github.io/typethis/articles/validators-and-models.md)
-vignette.
+[`?typed_function`](../reference/typed_function.md) and the
+[validators-and-models](validators-and-models.md) vignette.
 
 ## 3. Typed models
 
-Use
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-to describe a record type — a configuration object, an API request body,
-a domain entity. It generates a `new_<Class>()` constructor and an
+Use [`define_model()`](../reference/define_model.md) to describe a
+record type — a configuration object, an API request body, a domain
+entity. It generates a `new_<Class>()` constructor and an
 `update_<Class>()` updater in the calling environment.
 
 ``` r
@@ -160,18 +153,16 @@ p$address$city
 ```
 
 For defaults, nullability, strict mode, and validators, see the
-[validators-and-models](https://fabiandistler.github.io/typethis/articles/validators-and-models.md)
-vignette.
+[validators-and-models](validators-and-models.md) vignette.
 
 ## 4. Composable type specs
 
 The `t_*()` family builds richer specifications that work everywhere a
-plain type name does
-([`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md),
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md),
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md),
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)).
+plain type name does ([`is_type()`](../reference/is_type.md),
+[`assert_type()`](../reference/assert_type.md),
+[`field()`](../reference/field.md),
+[`typed_function()`](../reference/typed_function.md),
+[`to_json_schema()`](../reference/to_json_schema.md)).
 
 ``` r
 id <- t_union("integer", "character")
@@ -201,27 +192,21 @@ is_type(list(1L, "two", 3L), mixed)
 #> [1] TRUE
 ```
 
-Use any spec inside a
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-or as
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)’s
-`arg_specs` entry. See the
-[type-specs](https://fabiandistler.github.io/typethis/articles/type-specs.md)
-vignette for the full reference.
+Use any spec inside a [`field()`](../reference/field.md) or as
+[`typed_function()`](../reference/typed_function.md)’s `arg_specs`
+entry. See the [type-specs](type-specs.md) vignette for the full
+reference.
 
 ## Where to go next
 
-- [`validators-and-models`](https://fabiandistler.github.io/typethis/articles/validators-and-models.md)
-  — built-in validators, defaults, nullability, strict mode, the
-  [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-  metadata.
-- [`type-specs`](https://fabiandistler.github.io/typethis/articles/type-specs.md)
-  — every `t_*()` constructor and how they compose.
-- [`interop`](https://fabiandistler.github.io/typethis/articles/interop.md)
-  — JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and
-  import.
+- [`validators-and-models`](validators-and-models.md) — built-in
+  validators, defaults, nullability, strict mode, the
+  [`field()`](../reference/field.md) metadata.
+- [`type-specs`](type-specs.md) — every `t_*()` constructor and how they
+  compose.
+- [`interop`](interop.md) — JSON Schema, Open Data Contract Standard,
+  and OpenAPI 3.1 export and import.
 
-For function reference,
-[`?typethis`](https://fabiandistler.github.io/typethis/reference/typethis-package.md)
+For function reference, [`?typethis`](../reference/typethis-package.md)
 is a topic-grouped index and each function’s help page has a “See also”
 section linking to its family.

@@ -1,7 +1,7 @@
 # Test whether a function was wrapped by `typed_function()`
 
 Test whether a function was wrapped by
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
+[`typed_function()`](typed_function.md)
 
 ## Usage
 
@@ -21,13 +21,11 @@ is_typed(fn)
 
 ## See also
 
-Other typed functions:
-[`get_signature()`](https://fabiandistler.github.io/typethis/reference/get_signature.md),
-[`signature`](https://fabiandistler.github.io/typethis/reference/signature.md),
-[`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md),
-[`typed_method()`](https://fabiandistler.github.io/typethis/reference/typed_method.md),
-[`validate_call()`](https://fabiandistler.github.io/typethis/reference/validate_call.md),
-[`with_signature()`](https://fabiandistler.github.io/typethis/reference/with_signature.md)
+Other typed functions: [`get_signature()`](get_signature.md),
+[`signature`](signature.md), [`typed_function()`](typed_function.md),
+[`typed_method()`](typed_method.md),
+[`validate_call()`](validate_call.md),
+[`with_signature()`](with_signature.md)
 
 ## Examples
 

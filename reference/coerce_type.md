@@ -31,22 +31,17 @@ The coerced value.
 ## Details
 
 Composite type specs are supported for the kinds where coercion has a
-clear meaning:
-[`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md)
-(NULL passes through, otherwise the inner spec drives coercion),
-[`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md)
-(each alternative is tried in order), and
-[`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md)
+clear meaning: [`t_nullable()`](t_nullable.md) (NULL passes through,
+otherwise the inner spec drives coercion), [`t_union()`](t_union.md)
+(each alternative is tried in order), and [`t_enum()`](t_enum.md)
 (values already in the allowed set pass through; otherwise the value is
 coerced to the enum's value type and re-checked).
 
 ## See also
 
-Other type checking:
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
-[`is_one_of()`](https://fabiandistler.github.io/typethis/reference/is_one_of.md),
-[`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md),
-[`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md)
+Other type checking: [`assert_type()`](assert_type.md),
+[`is_one_of()`](is_one_of.md), [`is_type()`](is_type.md),
+[`validate_type()`](validate_type.md)
 
 ## Examples
 

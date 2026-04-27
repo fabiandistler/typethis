@@ -1,11 +1,9 @@
 # Read the constraint descriptor attached to a validator
 
-Builtin validator factories
-([`numeric_range()`](https://fabiandistler.github.io/typethis/reference/numeric_range.md),
-[`string_length()`](https://fabiandistler.github.io/typethis/reference/string_length.md),
-...) attach a structured `constraint` list to the closure they return so
-that tooling can introspect them — most notably
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md),
+Builtin validator factories ([`numeric_range()`](numeric_range.md),
+[`string_length()`](string_length.md), ...) attach a structured
+`constraint` list to the closure they return so that tooling can
+introspect them — most notably [`to_json_schema()`](to_json_schema.md),
 which uses it to emit native `minimum` / `maxLength` / `pattern` keys
 instead of opaque predicate stubs.
 
@@ -31,16 +29,13 @@ Plain user-defined validator functions return `NULL`.
 
 ## See also
 
-Other validators:
-[`combine_validators()`](https://fabiandistler.github.io/typethis/reference/combine_validators.md),
-[`dataframe_spec()`](https://fabiandistler.github.io/typethis/reference/dataframe_spec.md),
-[`enum_validator()`](https://fabiandistler.github.io/typethis/reference/enum_validator.md),
-[`list_of()`](https://fabiandistler.github.io/typethis/reference/list_of.md),
-[`nullable()`](https://fabiandistler.github.io/typethis/reference/nullable.md),
-[`numeric_range()`](https://fabiandistler.github.io/typethis/reference/numeric_range.md),
-[`string_length()`](https://fabiandistler.github.io/typethis/reference/string_length.md),
-[`string_pattern()`](https://fabiandistler.github.io/typethis/reference/string_pattern.md),
-[`vector_length()`](https://fabiandistler.github.io/typethis/reference/vector_length.md)
+Other validators: [`combine_validators()`](combine_validators.md),
+[`dataframe_spec()`](dataframe_spec.md),
+[`enum_validator()`](enum_validator.md), [`list_of()`](list_of.md),
+[`nullable()`](nullable.md), [`numeric_range()`](numeric_range.md),
+[`string_length()`](string_length.md),
+[`string_pattern()`](string_pattern.md),
+[`vector_length()`](vector_length.md)
 
 ## Examples
 

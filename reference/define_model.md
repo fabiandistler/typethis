@@ -10,13 +10,10 @@ calling environment:
 - `update_<ClassName>(instance, …)` — returns a copy with the named
   fields replaced and revalidated.
 
-Define each field with
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md);
-pass them as a named list to `fields`. Fields can use any type accepted
-elsewhere in `typethis` (builtin character names, predicate functions,
-registered model class names, or composite
-[type_spec](https://fabiandistler.github.io/typethis/reference/type_spec.md)
-objects).
+Define each field with [`field()`](field.md); pass them as a named list
+to `fields`. Fields can use any type accepted elsewhere in `typethis`
+(builtin character names, predicate functions, registered model class
+names, or composite [type_spec](type_spec.md) objects).
 
 ## Usage
 
@@ -34,9 +31,8 @@ define_model(..., fields = NULL, .validate = TRUE, .strict = FALSE)
 
 - fields:
 
-  Named list of field definitions built with
-  [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-  (or bare type names).
+  Named list of field definitions built with [`field()`](field.md) (or
+  bare type names).
 
 - .validate:
 
@@ -54,27 +50,19 @@ calling environment.
 
 ## See also
 
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-for declaring a field;
-[`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
-/
-[`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md)
-/
-[`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md)
-/
-[`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md)
-for working with instances;
-[`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md)
-for referencing a model from another field.
+[`field()`](field.md) for declaring a field;
+[`validate_model()`](validate_model.md) /
+[`model_to_list()`](model_to_list.md) /
+[`update_model()`](update_model.md) / [`get_schema()`](get_schema.md)
+for working with instances; [`t_model()`](t_model.md) for referencing a
+model from another field.
 
-Other typed models:
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md),
-[`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md),
-[`is_model()`](https://fabiandistler.github.io/typethis/reference/is_model.md),
-[`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md),
-[`print.typed_model()`](https://fabiandistler.github.io/typethis/reference/print.typed_model.md),
-[`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md),
-[`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
+Other typed models: [`field()`](field.md),
+[`get_schema()`](get_schema.md), [`is_model()`](is_model.md),
+[`model_to_list()`](model_to_list.md),
+[`print.typed_model()`](print.typed_model.md),
+[`update_model()`](update_model.md),
+[`validate_model()`](validate_model.md)
 
 ## Examples
 

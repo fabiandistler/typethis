@@ -1,10 +1,8 @@
 # Update fields on a typed model instance
 
 Generic alternative to the class-specific `update_<ClassName>()`
-produced by
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md).
-Returns a new instance with the named fields replaced and (by default)
-revalidated.
+produced by [`define_model()`](define_model.md). Returns a new instance
+with the named fields replaced and (by default) revalidated.
 
 ## Usage
 
@@ -33,17 +31,14 @@ Updated model instance.
 ## See also
 
 The class-specific `update_<ClassName>()` constructor created by
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-preserves the S3 class chain and is preferred when available.
+[`define_model()`](define_model.md) preserves the S3 class chain and is
+preferred when available.
 
-Other typed models:
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md),
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md),
-[`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md),
-[`is_model()`](https://fabiandistler.github.io/typethis/reference/is_model.md),
-[`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md),
-[`print.typed_model()`](https://fabiandistler.github.io/typethis/reference/print.typed_model.md),
-[`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
+Other typed models: [`define_model()`](define_model.md),
+[`field()`](field.md), [`get_schema()`](get_schema.md),
+[`is_model()`](is_model.md), [`model_to_list()`](model_to_list.md),
+[`print.typed_model()`](print.typed_model.md),
+[`validate_model()`](validate_model.md)
 
 ## Examples
 

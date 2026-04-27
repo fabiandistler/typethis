@@ -1,13 +1,11 @@
 # Import an ODCS contract into the typethis model registry
 
 Reads an ODCS v3 contract (file path, URL, or already-parsed list) and
-calls
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-for every `schema` entry. Nested object properties are registered as
-their own typed models so that
-[`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md)
-references resolve correctly. After import, the generated `new_*()` and
-`update_*()` constructors are available in `envir`.
+calls [`define_model()`](define_model.md) for every `schema` entry.
+Nested object properties are registered as their own typed models so
+that [`t_model()`](t_model.md) references resolve correctly. After
+import, the generated `new_*()` and `update_*()` constructors are
+available in `envir`.
 
 ## Usage
 
@@ -37,15 +35,14 @@ Character vector of registered model class names, invisibly.
 
 ## See also
 
-Other Data Contract:
-[`datacontract`](https://fabiandistler.github.io/typethis/reference/datacontract.md),
-[`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md),
-[`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md),
-[`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md),
-[`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md),
-[`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md),
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md),
-[`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
+Other Data Contract: [`datacontract`](datacontract.md),
+[`datacontract_cli_available()`](datacontract_cli_available.md),
+[`datacontract_export()`](datacontract_export.md),
+[`datacontract_lint()`](datacontract_lint.md),
+[`datacontract_test()`](datacontract_test.md),
+[`read_datacontract()`](read_datacontract.md),
+[`to_datacontract()`](to_datacontract.md),
+[`write_datacontract()`](write_datacontract.md)
 
 ## Examples
 

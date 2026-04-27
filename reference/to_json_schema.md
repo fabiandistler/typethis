@@ -4,9 +4,7 @@ Returns a named R list shaped as a JSON Schema (Draft 2020-12) fragment,
 ready to be serialized with
 [`jsonlite::toJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html).
 Methods exist for typed model instances, model class names, type specs,
-validators, and
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-definitions.
+validators, and [`field()`](field.md) definitions.
 
 ## Usage
 
@@ -19,11 +17,8 @@ to_json_schema(x, ...)
 - x:
 
   A typed model instance, a model constructor, a model class name
-  (character scalar), a
-  [type_spec](https://fabiandistler.github.io/typethis/reference/type_spec.md),
-  a builtin type name, a validator closure, or a
-  [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-  definition list.
+  (character scalar), a [type_spec](type_spec.md), a builtin type name,
+  a validator closure, or a [`field()`](field.md) definition list.
 
 - ...:
 
@@ -35,13 +30,10 @@ A named R list shaped as a JSON Schema fragment.
 
 ## See also
 
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
-and
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
-for related export bridges.
+[`to_datacontract()`](to_datacontract.md) and
+[`to_openapi()`](to_openapi.md) for related export bridges.
 
-Other JSON Schema:
-[`json_schema`](https://fabiandistler.github.io/typethis/reference/json_schema.md)
+Other JSON Schema: [`json_schema`](json_schema.md)
 
 ## Examples
 

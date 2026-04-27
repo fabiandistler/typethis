@@ -1,8 +1,7 @@
 # Write an OpenAPI document to disk
 
-Convenience wrapper around
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md) +
-the appropriate writer
+Convenience wrapper around [`to_openapi()`](to_openapi.md) + the
+appropriate writer
 ([`yaml::write_yaml()`](https://yaml.r-lib.org/reference/write_yaml.html)
 for YAML,
 [`jsonlite::toJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html)
@@ -19,8 +18,7 @@ write_openapi(x, path, info = NULL, paths = NULL, format = NULL, ...)
 
 - x:
 
-  See
-  [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md).
+  See [`to_openapi()`](to_openapi.md).
 
 - path:
 
@@ -29,8 +27,7 @@ write_openapi(x, path, info = NULL, paths = NULL, format = NULL, ...)
 
 - info, paths, ...:
 
-  Forwarded to
-  [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md).
+  Forwarded to [`to_openapi()`](to_openapi.md).
 
 - format:
 
@@ -43,11 +40,9 @@ The OpenAPI document list, invisibly.
 
 ## See also
 
-Other OpenAPI:
-[`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md),
-[`openapi`](https://fabiandistler.github.io/typethis/reference/openapi.md),
-[`read_openapi()`](https://fabiandistler.github.io/typethis/reference/read_openapi.md),
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
+Other OpenAPI: [`from_openapi()`](from_openapi.md),
+[`openapi`](openapi.md), [`read_openapi()`](read_openapi.md),
+[`to_openapi()`](to_openapi.md)
 
 ## Examples
 

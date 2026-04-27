@@ -2,9 +2,9 @@
 
 Builds an OpenAPI 3.1 document fragment from typed models, typed
 functions, or a mixed list. Schemas are produced via
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
-and lifted into `components.schemas`; `$ref` strings are rewritten from
-the JSON Schema convention (`#/$defs/X`) to the OpenAPI convention
+[`to_json_schema()`](to_json_schema.md) and lifted into
+`components.schemas`; `$ref` strings are rewritten from the JSON Schema
+convention (`#/$defs/X`) to the OpenAPI convention
 (`#/components/schemas/X`). Typed functions become a single `paths`
 entry with a JSON `requestBody` carrying the arguments and a `200`
 response carrying the return type.
@@ -50,18 +50,14 @@ To control the path and operation ID for a typed function, set
 
 ## See also
 
-[`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
-for the file-IO convenience wrapper;
-[`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md)
-for the reverse direction;
-[`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
-for the underlying schema export.
+[`write_openapi()`](write_openapi.md) for the file-IO convenience
+wrapper; [`from_openapi()`](from_openapi.md) for the reverse direction;
+[`to_json_schema()`](to_json_schema.md) for the underlying schema
+export.
 
-Other OpenAPI:
-[`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md),
-[`openapi`](https://fabiandistler.github.io/typethis/reference/openapi.md),
-[`read_openapi()`](https://fabiandistler.github.io/typethis/reference/read_openapi.md),
-[`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
+Other OpenAPI: [`from_openapi()`](from_openapi.md),
+[`openapi`](openapi.md), [`read_openapi()`](read_openapi.md),
+[`write_openapi()`](write_openapi.md)
 
 ## Examples
 

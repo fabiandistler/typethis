@@ -1,7 +1,6 @@
 # Write an ODCS v3 contract to a YAML file
 
-Convenience wrapper around
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md) +
+Convenience wrapper around [`to_datacontract()`](to_datacontract.md) +
 [`yaml::write_yaml()`](https://yaml.r-lib.org/reference/write_yaml.html).
 
 ## Usage
@@ -14,8 +13,7 @@ write_datacontract(x, path, info = NULL, servers = NULL, ...)
 
 - x:
 
-  See
-  [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md).
+  See [`to_datacontract()`](to_datacontract.md).
 
 - path:
 
@@ -23,13 +21,11 @@ write_datacontract(x, path, info = NULL, servers = NULL, ...)
 
 - info, servers:
 
-  See
-  [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md).
+  See [`to_datacontract()`](to_datacontract.md).
 
 - ...:
 
-  Forwarded to
-  [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md).
+  Forwarded to [`to_datacontract()`](to_datacontract.md).
 
 ## Value
 
@@ -37,15 +33,14 @@ The contract list, invisibly.
 
 ## See also
 
-Other Data Contract:
-[`datacontract`](https://fabiandistler.github.io/typethis/reference/datacontract.md),
-[`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md),
-[`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md),
-[`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md),
-[`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md),
-[`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md),
-[`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md),
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
+Other Data Contract: [`datacontract`](datacontract.md),
+[`datacontract_cli_available()`](datacontract_cli_available.md),
+[`datacontract_export()`](datacontract_export.md),
+[`datacontract_lint()`](datacontract_lint.md),
+[`datacontract_test()`](datacontract_test.md),
+[`from_datacontract()`](from_datacontract.md),
+[`read_datacontract()`](read_datacontract.md),
+[`to_datacontract()`](to_datacontract.md)
 
 ## Examples
 

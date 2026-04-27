@@ -61,8 +61,7 @@
 <blockquote>
 <p>Runtime type safety and validation for R — inspired by Python’s <code>pydantic</code> and <code>mypy</code>.</p>
 </blockquote>
-<p><a href="https://github.com/fabiandistler/typethis/actions" class="external-link"><img src="https://github.com/fabiandistler/typethis/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></p>
-<p><a href="https://fabiandistler.github.io/typethis/" class="uri">https://fabiandistler.github.io/typethis/</a></p>
+<p><!-- badges: start --> <a href="https://github.com/fabiandistler/typethis/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/fabiandistler/typethis/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <!-- badges: end --></p>
 <p><code>typethis</code> lets you describe what your data and your functions expect, and checks it at runtime — clearly, with helpful error messages, and without leaving plain R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"User"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -108,7 +107,7 @@
 <h2 id="a-30-second-tour">A 30-second tour<a class="anchor" aria-label="anchor" href="#a-30-second-tour"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://fabiandistler.github.io/typethis/">typethis</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://fabiandistler.github.io/typethis/" class="external-link">typethis</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Type checks</span></span>
 <span><span class="fu"><a href="reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="st">"integer"</span><span class="op">)</span>            <span class="co"># TRUE</span></span>

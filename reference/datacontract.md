@@ -17,31 +17,25 @@ extension keys so the bridge round-trips through typethis-aware tooling.
 
 Key entry points:
 
-- [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
-  /
-  [`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
-  — export.
+- [`to_datacontract()`](to_datacontract.md) /
+  [`write_datacontract()`](write_datacontract.md) — export.
 
-- [`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md)
-  /
-  [`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md)
-  — import.
+- [`read_datacontract()`](read_datacontract.md) /
+  [`from_datacontract()`](from_datacontract.md) — import.
 
-- [`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md)
-  /
-  [`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md)
-  /
-  [`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md)
-  — thin wrappers around the upstream CLI.
+- [`datacontract_lint()`](datacontract_lint.md) /
+  [`datacontract_test()`](datacontract_test.md) /
+  [`datacontract_export()`](datacontract_export.md) — thin wrappers
+  around the upstream CLI.
 
 ## See also
 
 Other Data Contract:
-[`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md),
-[`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md),
-[`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md),
-[`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md),
-[`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md),
-[`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md),
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md),
-[`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
+[`datacontract_cli_available()`](datacontract_cli_available.md),
+[`datacontract_export()`](datacontract_export.md),
+[`datacontract_lint()`](datacontract_lint.md),
+[`datacontract_test()`](datacontract_test.md),
+[`from_datacontract()`](from_datacontract.md),
+[`read_datacontract()`](read_datacontract.md),
+[`to_datacontract()`](to_datacontract.md),
+[`write_datacontract()`](write_datacontract.md)

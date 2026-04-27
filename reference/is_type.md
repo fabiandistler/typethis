@@ -2,9 +2,8 @@
 
 Returns `TRUE` if `value` matches `type`, `FALSE` otherwise. `type` may
 be a builtin name (`"numeric"`, `"character"`, ...), a registered model
-class, a predicate function, or a
-[type_spec](https://fabiandistler.github.io/typethis/reference/type_spec.md)
-built with the `t_*()` constructors.
+class, a predicate function, or a [type_spec](type_spec.md) built with
+the `t_*()` constructors.
 
 ## Usage
 
@@ -32,11 +31,9 @@ is_type(value, type, nullable = FALSE)
 
 ## See also
 
-Other type checking:
-[`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
-[`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md),
-[`is_one_of()`](https://fabiandistler.github.io/typethis/reference/is_one_of.md),
-[`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md)
+Other type checking: [`assert_type()`](assert_type.md),
+[`coerce_type()`](coerce_type.md), [`is_one_of()`](is_one_of.md),
+[`validate_type()`](validate_type.md)
 
 ## Examples
 

@@ -21,14 +21,11 @@ Named list `list(valid, errors)`. `errors` is `NULL` on success.
 
 ## See also
 
-Other typed models:
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md),
-[`field()`](https://fabiandistler.github.io/typethis/reference/field.md),
-[`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md),
-[`is_model()`](https://fabiandistler.github.io/typethis/reference/is_model.md),
-[`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md),
-[`print.typed_model()`](https://fabiandistler.github.io/typethis/reference/print.typed_model.md),
-[`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md)
+Other typed models: [`define_model()`](define_model.md),
+[`field()`](field.md), [`get_schema()`](get_schema.md),
+[`is_model()`](is_model.md), [`model_to_list()`](model_to_list.md),
+[`print.typed_model()`](print.typed_model.md),
+[`update_model()`](update_model.md)
 
 ## Examples
 

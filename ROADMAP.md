@@ -4,24 +4,19 @@
 
 A single feature lands in v0.5:
 
-1.  **OpenAPI 3.1 bridge.**
-    [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
-    /
-    [`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md)
-    lift typed models into `components.schemas` (with `$ref` rewriting
-    from `#/$defs/X` to `#/components/schemas/X`) and turn typed
-    functions into `paths` entries with a JSON `requestBody` and a `200`
-    response.
-    [`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
-    /
-    [`read_openapi()`](https://fabiandistler.github.io/typethis/reference/read_openapi.md)
-    are convenience wrappers around `yaml` and `jsonlite`; the format is
-    inferred from the file extension. Composite type specs (`t_union`,
-    `t_list_of`, `t_nullable`, `t_enum`) and
-    [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
+1.  **OpenAPI 3.1 bridge.** [`to_openapi()`](reference/to_openapi.md) /
+    [`from_openapi()`](reference/from_openapi.md) lift typed models into
+    `components.schemas` (with `$ref` rewriting from `#/$defs/X` to
+    `#/components/schemas/X`) and turn typed functions into `paths`
+    entries with a JSON `requestBody` and a `200` response.
+    [`write_openapi()`](reference/write_openapi.md) /
+    [`read_openapi()`](reference/read_openapi.md) are convenience
+    wrappers around `yaml` and `jsonlite`; the format is inferred from
+    the file extension. Composite type specs (`t_union`, `t_list_of`,
+    `t_nullable`, `t_enum`) and [`field()`](reference/field.md)
     validator constraints (`numeric_range`, `string_pattern`, …) flow
     through unchanged via
-    [`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md).
+    [`to_json_schema()`](reference/to_json_schema.md).
 
 This sits alongside the v0.4 ODCS bridge: typethis models can now be
 exported to either standard, and either standard can be loaded back into
@@ -32,20 +27,17 @@ typethis.
 A single feature lands in v0.4:
 
 1.  **Data Contract (ODCS v3) bridge.**
-    [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
-    /
-    [`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md)
-    map typed models to and from the Open Data Contract Standard v3.x.
-    [`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
-    /
-    [`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md)
-    are convenience wrappers around `yaml`.
-    [`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md)
-    / `_test()` / `_export()` are thin shells over the upstream
-    `datacontract` CLI.
-    [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-    gained ODCS metadata arguments (`primary_key`, `unique`, `pii`,
-    `classification`, `tags`, `examples`, `references`, `quality`).
+    [`to_datacontract()`](reference/to_datacontract.md) /
+    [`from_datacontract()`](reference/from_datacontract.md) map typed
+    models to and from the Open Data Contract Standard v3.x.
+    [`write_datacontract()`](reference/write_datacontract.md) /
+    [`read_datacontract()`](reference/read_datacontract.md) are
+    convenience wrappers around `yaml`.
+    [`datacontract_lint()`](reference/datacontract_lint.md) / `_test()`
+    / `_export()` are thin shells over the upstream `datacontract` CLI.
+    [`field()`](reference/field.md) gained ODCS metadata arguments
+    (`primary_key`, `unique`, `pii`, `classification`, `tags`,
+    `examples`, `references`, `quality`).
 
 This closes the gap to Pydantic, which can be generated from a contract
 via `datacontract export --format pydantic-model`. typethis works the
@@ -56,24 +48,20 @@ same way in both directions for R.
 Two features land in v0.3, both rooted in the v0.2 foundation:
 
 1.  **Composite type specs.** A structured `type_spec` S3 class with
-    constructors
-    [`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md),
-    [`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md),
-    [`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md),
-    [`t_vector_of()`](https://fabiandistler.github.io/typethis/reference/t_vector_of.md),
-    [`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md),
-    [`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md),
-    [`t_predicate()`](https://fabiandistler.github.io/typethis/reference/t_predicate.md).
-    Composes freely; backward compatible with character names and
-    predicate functions.
+    constructors [`t_union()`](reference/t_union.md),
+    [`t_nullable()`](reference/t_nullable.md),
+    [`t_list_of()`](reference/t_list_of.md),
+    [`t_vector_of()`](reference/t_vector_of.md),
+    [`t_enum()`](reference/t_enum.md),
+    [`t_model()`](reference/t_model.md),
+    [`t_predicate()`](reference/t_predicate.md). Composes freely;
+    backward compatible with character names and predicate functions.
 2.  **JSON Schema export.**
-    [`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
-    produces JSON Schema (Draft 2020-12) fragments from typed models,
-    composite specs, validators, and
-    [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
-    definitions. Builtin validators expose a `constraint` attribute that
-    the exporter reads to emit `minimum`/`maxLength`/`pattern`/`enum`
-    etc.
+    [`to_json_schema()`](reference/to_json_schema.md) produces JSON
+    Schema (Draft 2020-12) fragments from typed models, composite specs,
+    validators, and [`field()`](reference/field.md) definitions. Builtin
+    validators expose a `constraint` attribute that the exporter reads
+    to emit `minimum`/`maxLength`/`pattern`/`enum` etc.
 
 These features are the foundation for follow-up work (OpenAPI export,
 RStudio addins for signature display, type inference helpers).
@@ -119,10 +107,8 @@ solid, the rest of the package becomes easier to trust.
 
 1.  Bind arguments against the wrapped function’s signature instead of
     only looking at supplied names.
-2.  Make
-    [`validate_call()`](https://fabiandistler.github.io/typethis/reference/validate_call.md)
-    follow the same binding rules as
-    [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md).
+2.  Make [`validate_call()`](reference/validate_call.md) follow the same
+    binding rules as [`typed_function()`](reference/typed_function.md).
 3.  Preserve wrapper metadata without clobbering the type information
     stored on the wrapper.
 4.  Add tests for positional calls, default arguments, missing
@@ -132,10 +118,9 @@ solid, the rest of the package becomes easier to trust.
 
 ## 2. Keep typed classes as validated records
 
-The current
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-API is useful, but it is closer to a **validated record** abstraction
-than a full class system.
+The current [`define_model()`](reference/define_model.md) API is useful,
+but it is closer to a **validated record** abstraction than a full class
+system.
 
 ### Recommendation
 
@@ -156,8 +141,8 @@ validated records.
 1.  Formalize the `typed_model` contract: construction, validation,
     printing, and conversion.
 2.  Make safe mutation explicit through
-    [`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md)
-    and revalidation helpers.
+    [`update_model()`](reference/update_model.md) and revalidation
+    helpers.
 3.  Support nested models and field defaults consistently.
 4.  Honor field metadata such as `nullable` consistently.
 5.  Defer S4/R6 unless a concrete use case appears.
@@ -174,10 +159,8 @@ users do not expect a full static type checker.
 - show examples that use positional arguments, defaults, and nested data
   structures
 - document what type specifications are supported today
-- explain when to use
-  [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
-  versus
-  [`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
+- explain when to use [`typed_function()`](reference/typed_function.md)
+  versus [`define_model()`](reference/define_model.md)
 
 ## 4. Proposed v0.2 sequencing
 

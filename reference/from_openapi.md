@@ -1,14 +1,12 @@
 # Import OpenAPI components into the typethis model registry
 
 Reads an OpenAPI 3.x document (file path, URL, or already-parsed list)
-and calls
-[`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
-for every entry under `components.schemas`. Nested `object` properties
-with their own `properties` block are registered as their own typed
-models so that
-[`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md)
-references resolve correctly. After import, the generated `new_*()` and
-`update_*()` constructors are available in `envir`.
+and calls [`define_model()`](define_model.md) for every entry under
+`components.schemas`. Nested `object` properties with their own
+`properties` block are registered as their own typed models so that
+[`t_model()`](t_model.md) references resolve correctly. After import,
+the generated `new_*()` and `update_*()` constructors are available in
+`envir`.
 
 ## Usage
 
@@ -38,11 +36,9 @@ Character vector of registered model class names, invisibly.
 
 ## See also
 
-Other OpenAPI:
-[`openapi`](https://fabiandistler.github.io/typethis/reference/openapi.md),
-[`read_openapi()`](https://fabiandistler.github.io/typethis/reference/read_openapi.md),
-[`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md),
-[`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
+Other OpenAPI: [`openapi`](openapi.md),
+[`read_openapi()`](read_openapi.md), [`to_openapi()`](to_openapi.md),
+[`write_openapi()`](write_openapi.md)
 
 ## Examples
 

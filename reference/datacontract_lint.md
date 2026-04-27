@@ -2,7 +2,7 @@
 
 Thin wrapper around the upstream CLI. Requires the `datacontract` binary
 on `PATH` — guard with
-[`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md).
+[`datacontract_cli_available()`](datacontract_cli_available.md).
 
 ## Usage
 
@@ -27,15 +27,14 @@ non-zero CLI exit, an error is signalled.
 
 ## See also
 
-Other Data Contract:
-[`datacontract`](https://fabiandistler.github.io/typethis/reference/datacontract.md),
-[`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md),
-[`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md),
-[`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md),
-[`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md),
-[`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md),
-[`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md),
-[`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
+Other Data Contract: [`datacontract`](datacontract.md),
+[`datacontract_cli_available()`](datacontract_cli_available.md),
+[`datacontract_export()`](datacontract_export.md),
+[`datacontract_test()`](datacontract_test.md),
+[`from_datacontract()`](from_datacontract.md),
+[`read_datacontract()`](read_datacontract.md),
+[`to_datacontract()`](to_datacontract.md),
+[`write_datacontract()`](write_datacontract.md)
 
 ## Examples
 
