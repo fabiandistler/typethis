@@ -135,7 +135,7 @@ t_nullable <- function(type) {
 #' is_type(list("a", "b"), spec)
 #' is_type(list(), spec)
 t_list_of <- function(type, min_length = 0, max_length = Inf,
-                     exact_length = NULL) {
+                      exact_length = NULL) {
   new_type_spec(
     "list_of",
     element = as_type_spec(type),
@@ -160,7 +160,7 @@ t_list_of <- function(type, min_length = 0, max_length = Inf,
 #' spec <- t_vector_of("integer", exact_length = 3L)
 #' is_type(1:3, spec)
 t_vector_of <- function(type, min_length = 0, max_length = Inf,
-                       exact_length = NULL) {
+                        exact_length = NULL) {
   inner <- as_type_spec(type)
   if (inner$kind != "builtin") {
     stop(

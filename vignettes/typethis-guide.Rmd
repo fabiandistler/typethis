@@ -513,7 +513,8 @@ define_model("Account",
   fields = list(
     id      = field("integer", validator = numeric_range(min = 1L)),
     email   = field("character", validator = string_pattern("^[^@]+@[^@]+$")),
-    role    = field("character", validator = enum_validator(c("admin", "user"))),
+    role    = field("character",
+                    validator = enum_validator(c("admin", "user"))),
     tags    = field(t_list_of("character"), default = list())
   )
 )
@@ -573,6 +574,56 @@ if (datacontract_cli_available()) {
   datacontract_lint(tmp)
 }
 ```
+
+## OpenAPI 3.1 Export (v0.5+)
+
+OpenAPI 3.1 is JSON-Schema-Draft-2020-12-compatible, so the same machinery that backs `to_json_schema()` also drives `to_openapi()`. Models become entries under `components.schemas`; nested-model `$ref` strings are rewritten from JSON Schema's `#/$defs/X` form to OpenAPI's `#/components/schemas/X` form. Typed functions become a single `paths` entry whose `requestBody` carries the arguments as a JSON object and whose `200` response carries the return type.
+
+```{r openapi-models, eval = requireNamespace("yaml", quietly = TRUE)}
+define_model("Address", fields = list(
+  street = field("character"),
+  city   = field("character")
+))
+define_model("Person", fields = list(
+  id      = field("integer", primary_key = TRUE,
+                  validator = numeric_range(min = 1L)),
+  name    = field("character"),
+  address = field("Address")
+))
+
+doc <- to_openapi(list("Person", "Address"),
+                  info = list(title = "People API", version = "1.0.0"))
+str(doc, max.level = 3)
+```
+
+Typed functions can be added to the same document. Set `attr(fn, "openapi_op_id")` to control the operation id (and the path); otherwise the default is `/operation`.
+
+```{r openapi-function, eval = requireNamespace("yaml", quietly = TRUE)}
+greet <- typed_function(
+  function(name, greeting = "Hi") paste(greeting, name),
+  arg_specs = list(name = "character", greeting = "character"),
+  return_spec = "character"
+)
+attr(greet, "openapi_op_id") <- "greet"
+
+doc <- to_openapi(list("Person", greet),
+                  info = list(title = "People API", version = "1.0.0"))
+names(doc$paths)
+```
+
+Round-trip through disk works the same way as the Data Contract bridge:
+
+```{r openapi-roundtrip, eval = requireNamespace("yaml", quietly = TRUE)}
+tmp <- tempfile(fileext = ".yaml")
+write_openapi("Person", tmp,
+              info = list(title = "People API", version = "1.0.0"))
+
+env <- new.env()
+from_openapi(tmp, envir = env)
+ls(env)
+```
+
+`write_openapi()` infers the format from the file extension — pass `format = "json"` (or use a `.json` path) for JSON output, `format = "yaml"` for YAML.
 
 ## Real-World Examples
 

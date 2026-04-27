@@ -1,5 +1,41 @@
 # typethis (development version)
 
+## typethis 0.5.0
+
+### New Features
+
+#### OpenAPI 3.1 Bridge
+
+- `to_openapi()` (S3 generic) converts typed models, model
+  constructors, instances, typed functions, and mixed lists into an
+  OpenAPI 3.1 document fragment. Schemas land under
+  `components.schemas`; `$ref` strings are rewritten from JSON
+  Schema's `#/$defs/X` form to OpenAPI's `#/components/schemas/X`
+  form. Typed functions become a `paths` entry with a JSON
+  `requestBody` (each `arg_specs` entry as a property; arguments
+  without defaults end up in `required`) and a `200` response derived
+  from `return_spec`.
+- `from_openapi()` reads an OpenAPI 3.x document (path, URL, or
+  parsed list) and registers each entry under `components.schemas`
+  as a typed model with generated `new_*()` / `update_*()`
+  constructors. `$ref`s to `components.schemas` resolve to
+  `t_model()` references; inline `object` properties are registered
+  as their own typed models.
+- `write_openapi()` / `read_openapi()` wrap file IO. Format is
+  inferred from the file extension (`.yaml`/`.yml` → YAML via
+  `yaml`, `.json` → JSON via `jsonlite`); pass `format = "yaml"` /
+  `"json"` to override.
+
+The bridge sits on top of `to_json_schema()` (v0.3) — composite
+type specs and validator constraints flow through unchanged, with no
+new mapping code needed.
+
+### Dependencies
+
+- `jsonlite` is now also used (in addition to JSON Schema export) for
+  `write_openapi(format = "json")` / `read_openapi()` on `.json`
+  paths. Still in `Suggests`.
+
 ## typethis 0.4.1
 
 ### Improvements

@@ -13,7 +13,7 @@
 #' @name json_schema
 NULL
 
-JSON_SCHEMA_DRAFT <- "https://json-schema.org/draft/2020-12/schema"
+json_schema_draft <- "https://json-schema.org/draft/2020-12/schema"
 
 #' Convert a typethis schema to JSON Schema
 #'
@@ -441,7 +441,7 @@ model_to_json_schema <- function(class_name, defs = NULL) {
   body <- model_to_json_schema_body(class_name, defs)
   schema <- c(
     list(
-      `$schema` = JSON_SCHEMA_DRAFT,
+      `$schema` = json_schema_draft,
       title = class_name
     ),
     body

@@ -13,6 +13,7 @@
 - **Composable Type Specs (v0.3+)**: `t_union()`, `t_nullable()`, `t_list_of()`, `t_vector_of()`, `t_enum()`, `t_model()`, `t_predicate()`
 - **JSON Schema Export (v0.3+)**: `to_json_schema()` produces JSON Schema (Draft 2020-12) fragments from typed models, type specs, and validators
 - **Data Contract Bridge (v0.4+)**: `to_datacontract()` / `from_datacontract()` map typed models to and from the Open Data Contract Standard v3
+- **OpenAPI 3.1 Bridge (v0.5+)**: `to_openapi()` / `from_openapi()` lift typed models into `components.schemas` and turn typed functions into `paths` entries with JSON request bodies and responses
 - **Type Coercion**: Safe type conversion with validation
 - **Custom Validators**: Easy to create custom validation logic
 

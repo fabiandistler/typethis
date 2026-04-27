@@ -1,6 +1,25 @@
 # typethis Roadmap
 
-## v0.4 (current)
+## v0.5 (current)
+
+A single feature lands in v0.5:
+
+1. **OpenAPI 3.1 bridge.** `to_openapi()` / `from_openapi()` lift typed
+   models into `components.schemas` (with `$ref` rewriting from
+   `#/$defs/X` to `#/components/schemas/X`) and turn typed functions
+   into `paths` entries with a JSON `requestBody` and a `200` response.
+   `write_openapi()` / `read_openapi()` are convenience wrappers around
+   `yaml` and `jsonlite`; the format is inferred from the file
+   extension. Composite type specs (`t_union`, `t_list_of`,
+   `t_nullable`, `t_enum`) and `field()` validator constraints
+   (`numeric_range`, `string_pattern`, ...) flow through unchanged via
+   `to_json_schema()`.
+
+This sits alongside the v0.4 ODCS bridge: typethis models can now be
+exported to either standard, and either standard can be loaded back
+into typethis.
+
+## v0.4
 
 A single feature lands in v0.4:
 

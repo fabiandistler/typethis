@@ -200,4 +200,3 @@ test_that("validator behaviour unchanged after constraint attribute", {
   expect_false(v(11))
   expect_true(is.function(v))
 })
-
