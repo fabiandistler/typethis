@@ -13,10 +13,24 @@ t_enum(values)
 A \code{type_spec} of kind \code{"enum"}.
 }
 \description{
-Matches when the value is \code{\%in\%} the allowed set.
+Matches when every element of the value is in the allowed set.
 }
 \examples{
-spec <- t_enum(c("admin", "user", "guest"))
-is_type("admin", spec)
-is_type("root", spec)
+role <- t_enum(c("admin", "user", "guest"))
+is_type("admin", role)
+is_type("root", role)
 }
+\seealso{
+\code{\link[=enum_validator]{enum_validator()}} for a validator-only form.
+
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

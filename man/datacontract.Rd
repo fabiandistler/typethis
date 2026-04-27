@@ -2,17 +2,37 @@
 % Please edit documentation in R/datacontract.R
 \name{datacontract}
 \alias{datacontract}
-\title{Data Contract Integration}
+\title{Open Data Contract Standard (ODCS v3) bridge}
 \description{
-Convert typed models to and from the Open Data Contract Standard
-(ODCS v3.x) YAML format, and run the \code{datacontract} CLI from R.
+Convert typed models to and from the \href{https://bitol-io.github.io/open-data-contract-standard/}{Open Data Contract Standard (ODCS) v3} YAML
+format, and run the \code{datacontract} CLI from R.
 
-Pydantic has the same kind of bridge: \verb{datacontract export --format pydantic-model} generates Pydantic source code from a contract.
-typethis closes the loop for R: typed models can be exported to ODCS
-YAML, and existing ODCS contracts can be loaded back into the typethis
-model registry at runtime.
+Pydantic has the same kind of bridge: \verb{datacontract export --format pydantic-model} generates Pydantic source code from a contract. typethis
+closes the loop for R: typed models can be exported to ODCS YAML, and
+existing ODCS contracts can be loaded back into the model registry at
+runtime as \verb{new_*()} / \verb{update_*()} constructors.
 
 Constructs without a native ODCS representation (data frames, factors,
 unions, custom predicate functions) are emitted with \verb{x-typethis-*}
 extension keys so the bridge round-trips through typethis-aware tooling.
+
+Key entry points:
+\itemize{
+\item \code{\link[=to_datacontract]{to_datacontract()}} / \code{\link[=write_datacontract]{write_datacontract()}} — export.
+\item \code{\link[=read_datacontract]{read_datacontract()}} / \code{\link[=from_datacontract]{from_datacontract()}} — import.
+\item \code{\link[=datacontract_lint]{datacontract_lint()}} / \code{\link[=datacontract_test]{datacontract_test()}} / \code{\link[=datacontract_export]{datacontract_export()}}
+— thin wrappers around the upstream CLI.
 }
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

@@ -1,36 +1,55 @@
-#' JSON Schema Export
+#' JSON Schema export
 #'
 #' @description
 #' Convert typed models, type specs, validators, and field definitions
-#' into JSON Schema (Draft 2020-12) fragments. The result is an R list
-#' that can be serialized via `jsonlite::toJSON(..., auto_unbox = TRUE)`.
+#' into [JSON Schema (Draft
+#' 2020-12)](https://json-schema.org/draft/2020-12/release-notes) fragments.
+#' The result is an R list ready for `jsonlite::toJSON(..., auto_unbox =
+#' TRUE)`.
 #'
-#' Constructs that have no canonical JSON Schema representation (data
-#' frames, factors, environments, custom predicate functions) are
-#' emitted with `x-typethis-*` extension keys so they round-trip through
-#' typethis-aware tooling without losing information.
+#' Builtin validator factories ([numeric_range()], [string_length()],
+#' [string_pattern()], [vector_length()], [enum_validator()]) attach a
+#' `constraint` attribute that the exporter reads — so range and pattern
+#' constraints surface as native `minimum` / `maxLength` / `pattern` keys
+#' rather than opaque predicate stubs.
+#'
+#' Constructs without a canonical JSON Schema representation (data frames,
+#' factors, environments, custom predicate functions) are emitted with
+#' `x-typethis-*` extension keys so they round-trip through typethis-aware
+#' tooling without losing information.
 #'
 #' @name json_schema
+#' @family JSON Schema
 NULL
 
 json_schema_draft <- "https://json-schema.org/draft/2020-12/schema"
 
-#' Convert a typethis schema to JSON Schema
+#' Export a typed model or spec to JSON Schema
 #'
-#' @param x A typed model instance, a model constructor (`new_<Class>()`),
-#'   a model class name (character scalar), a `type_spec`, a builtin type
+#' Returns a named R list shaped as a JSON Schema (Draft 2020-12) fragment,
+#' ready to be serialized with `jsonlite::toJSON()`. Methods exist for
+#' typed model instances, model class names, type specs, validators, and
+#' [field()] definitions.
+#'
+#' @param x A typed model instance, a model constructor, a model class
+#'   name (character scalar), a [type_spec][type_spec], a builtin type
 #'   name, a validator closure, or a `field()` definition list.
 #' @param ... Reserved for method extension.
 #' @return A named R list shaped as a JSON Schema fragment.
+#' @family JSON Schema
+#' @seealso [to_datacontract()] and [to_openapi()] for related export
+#'   bridges.
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("Person", fields = list(
 #'   name = field("character", nullable = FALSE),
 #'   age  = field("integer", validator = numeric_range(0, 120))
 #' ))
 #' schema <- to_json_schema("Person")
-#' jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
+#' str(schema, max.level = 2)
+#'
+#' if (requireNamespace("jsonlite", quietly = TRUE)) {
+#'   cat(jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE))
 #' }
 to_json_schema <- function(x, ...) {
   UseMethod("to_json_schema")
@@ -107,49 +126,53 @@ attach_defs <- function(schema, defs) {
 #' @keywords internal
 #' @noRd
 builtin_to_json_schema <- function(name) {
-  switch(name,
-    "numeric"   = list(type = "number"),
-    "double"    = list(type = "number"),
-    "integer"   = list(type = "integer"),
+  switch(
+    name,
+    "numeric" = list(type = "number"),
+    "double" = list(type = "number"),
+    "integer" = list(type = "integer"),
     "character" = list(type = "string"),
-    "logical"   = list(type = "boolean"),
-    "list"      = list(type = "array"),
+    "logical" = list(type = "boolean"),
+    "list" = list(type = "array"),
     "data.frame" = list(
       type = "array",
       items = list(type = "object"),
       `x-typethis-kind` = "data.frame"
     ),
-    "matrix"    = list(
+    "matrix" = list(
       type = "array",
       items = list(type = "array"),
       `x-typethis-kind` = "matrix"
     ),
-    "factor"    = list(type = "string", `x-typethis-kind` = "factor"),
-    "date"      = list(type = "string", format = "date"),
-    "posixct"   = list(type = "string", format = "date-time"),
-    "function"  = list(`x-typethis-kind` = "function"),
+    "factor" = list(type = "string", `x-typethis-kind` = "factor"),
+    "date" = list(type = "string", format = "date"),
+    "posixct" = list(type = "string", format = "date-time"),
+    "function" = list(`x-typethis-kind` = "function"),
     "environment" = list(`x-typethis-kind` = "environment"),
-    stop(sprintf("Unknown builtin type for JSON Schema: %s", name),
-         call. = FALSE)
+    stop(
+      sprintf("Unknown builtin type for JSON Schema: %s", name),
+      call. = FALSE
+    )
   )
 }
 
 #' @keywords internal
 #' @noRd
 type_spec_to_json_schema <- function(spec, defs) {
-  switch(spec$kind,
-    "builtin"   = builtin_to_json_schema(spec$name),
+  switch(
+    spec$kind,
+    "builtin" = builtin_to_json_schema(spec$name),
     "predicate" = list(
       `x-typethis-kind` = "predicate",
       description = spec$description %||% "custom validator"
     ),
-    "nullable"  = nullable_to_json_schema(spec$inner, defs),
-    "union"     = list(
+    "nullable" = nullable_to_json_schema(spec$inner, defs),
+    "union" = list(
       oneOf = lapply(spec$alternatives, type_spec_to_json_schema, defs = defs)
     ),
-    "enum"      = enum_to_json_schema(spec),
+    "enum" = enum_to_json_schema(spec),
     "model_ref" = model_ref_to_json_schema(spec$class_name, defs),
-    "list_of"   = list_of_to_json_schema(spec, defs),
+    "list_of" = list_of_to_json_schema(spec, defs),
     "vector_of" = list_of_to_json_schema(spec, defs),
     stop(sprintf("Unknown type_spec kind: %s", spec$kind), call. = FALSE)
   )
@@ -159,8 +182,9 @@ type_spec_to_json_schema <- function(spec, defs) {
 #' @noRd
 nullable_to_json_schema <- function(inner_spec, defs) {
   inner <- type_spec_to_json_schema(inner_spec, defs)
-  if (is.character(inner$type) && length(inner$type) == 1L &&
-        length(inner) == 1L) {
+  if (
+    is.character(inner$type) && length(inner$type) == 1L && length(inner) == 1L
+  ) {
     inner$type <- c(inner$type, "null")
     return(inner)
   }
@@ -170,11 +194,12 @@ nullable_to_json_schema <- function(inner_spec, defs) {
 #' @keywords internal
 #' @noRd
 enum_to_json_schema <- function(spec) {
-  type_str <- switch(spec$value_type,
+  type_str <- switch(
+    spec$value_type,
     "character" = "string",
-    "integer"   = "integer",
-    "numeric"   = "number",
-    "logical"   = "boolean",
+    "integer" = "integer",
+    "numeric" = "number",
+    "logical" = "boolean",
     "string"
   )
   list(type = type_str, enum = as.list(spec$values))
@@ -225,14 +250,15 @@ register_model_def <- function(class_name, defs) {
     defs$.defs[[class_name]] <- list(
       `x-typethis-kind` = "unresolved-model-ref",
       description = sprintf(
-        "Model class '%s' not registered at export time", class_name
+        "Model class '%s' not registered at export time",
+        class_name
       )
     )
     return(invisible())
   }
 
   defs$.in_progress <- c(defs$.in_progress, class_name)
-  defs$.defs[[class_name]] <- list()  # stub before recursion
+  defs$.defs[[class_name]] <- list() # stub before recursion
   defs$.defs[[class_name]] <- model_to_json_schema_body(class_name, defs)
   defs$.in_progress <- setdiff(defs$.in_progress, class_name)
   invisible()
@@ -241,19 +267,21 @@ register_model_def <- function(class_name, defs) {
 #' @keywords internal
 #' @noRd
 constraint_to_json_schema <- function(constraint) {
-  switch(constraint$kind,
-    "numeric_range"   = numeric_range_constraint(constraint),
-    "string_length"   = string_length_constraint(constraint),
-    "string_pattern"  = list(
-      type = "string", pattern = constraint$pattern
+  switch(
+    constraint$kind,
+    "numeric_range" = numeric_range_constraint(constraint),
+    "string_length" = string_length_constraint(constraint),
+    "string_pattern" = list(
+      type = "string",
+      pattern = constraint$pattern
     ),
-    "vector_length"   = vector_length_constraint(constraint),
-    "enum"            = list(enum = as.list(constraint$values)),
-    "list_of"         = list(
+    "vector_length" = vector_length_constraint(constraint),
+    "enum" = list(enum = as.list(constraint$values)),
+    "list_of" = list(
       type = "array",
       items = to_json_schema(constraint$element_type)
     ),
-    "dataframe_spec"  = list(
+    "dataframe_spec" = list(
       type = "array",
       items = list(type = "object"),
       `x-typethis-dataframe` = list(
@@ -266,8 +294,8 @@ constraint_to_json_schema <- function(constraint) {
         }
       )
     ),
-    "nullable"        = nullable_constraint(constraint),
-    "combine"         = combine_constraint(constraint),
+    "nullable" = nullable_constraint(constraint),
+    "combine" = combine_constraint(constraint),
     list()
   )
 }
@@ -314,7 +342,9 @@ vector_length_constraint <- function(c) {
     out$minItems <- c$exact_len
     out$maxItems <- c$exact_len
   } else {
-    if (!is.null(c$min_len) && c$min_len > 0) out$minItems <- c$min_len
+    if (!is.null(c$min_len) && c$min_len > 0) {
+      out$minItems <- c$min_len
+    }
     if (!is.null(c$max_len) && is.finite(c$max_len)) {
       out$maxItems <- c$max_len
     }
@@ -382,7 +412,8 @@ field_to_json_schema <- function(field_def, defs = NULL) {
     constraint <- attr(field_def$validator, "constraint")
     if (!is.null(constraint)) {
       type_part <- merge_schema_fragments(
-        type_part, constraint_to_json_schema(constraint)
+        type_part,
+        constraint_to_json_schema(constraint)
       )
     } else {
       type_part$`x-typethis-kind` <- "predicate"
@@ -420,8 +451,12 @@ wrap_nullable_fragment <- function(fragment) {
 #' @keywords internal
 #' @noRd
 merge_schema_fragments <- function(base, refinement) {
-  if (length(refinement) == 0L) return(base)
-  if (length(base) == 0L) return(refinement)
+  if (length(refinement) == 0L) {
+    return(base)
+  }
+  if (length(base) == 0L) {
+    return(refinement)
+  }
   out <- base
   for (key in names(refinement)) {
     if (identical(key, "type")) {

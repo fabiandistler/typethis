@@ -2,7 +2,7 @@
 % Please edit documentation in R/validators.R
 \name{numeric_range}
 \alias{numeric_range}
-\title{Numeric range validator}
+\title{Validate a numeric range}
 \usage{
 numeric_range(
   min = -Inf,
@@ -12,22 +12,42 @@ numeric_range(
 )
 }
 \arguments{
-\item{min}{Minimum value (inclusive)}
+\item{min}{Lower bound (inclusive unless \code{exclusive_min = TRUE}).}
 
-\item{max}{Maximum value (inclusive)}
+\item{max}{Upper bound (inclusive unless \code{exclusive_max = TRUE}).}
 
-\item{exclusive_min}{Minimum is exclusive}
+\item{exclusive_min}{If \code{TRUE}, the lower bound is excluded.}
 
-\item{exclusive_max}{Maximum is exclusive}
+\item{exclusive_max}{If \code{TRUE}, the upper bound is excluded.}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Numeric range validator
+Returns a validator closure that accepts numeric values inside the
+\verb{[min, max]} interval. Endpoints can be excluded with \code{exclusive_min}
+or \code{exclusive_max}.
 }
 \examples{
-age_validator <- numeric_range(min = 0, max = 120)
-age_validator(25) # TRUE
-age_validator(150) # FALSE
+age <- numeric_range(0, 120)
+age(25)
+age(150)
+
+# Probability in (0, 1) — both endpoints excluded
+p <- numeric_range(0, 1, exclusive_min = TRUE, exclusive_max = TRUE)
+p(0.5)
+p(0)
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

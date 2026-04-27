@@ -9,18 +9,33 @@ t_predicate(fn, description = NULL)
 \arguments{
 \item{fn}{Predicate function — \verb{function(value) -> logical}.}
 
-\item{description}{Optional description string.}
+\item{description}{Optional description string (used in error messages).}
 }
 \value{
 A \code{type_spec} of kind \code{"predicate"}.
 }
 \description{
-Equivalent to passing a bare function to \code{is_type()}, but lets you attach
-a description that surfaces in error messages and JSON Schema output.
+Equivalent to passing a bare predicate function as a type, but lets you
+attach a description that surfaces in error messages and JSON Schema
+output.
 }
 \examples{
-spec <- t_predicate(function(x) is.numeric(x) && x > 0,
-                    description = "positive number")
-is_type(5, spec)
-is_type(-1, spec)
+positive <- t_predicate(
+  function(x) is.numeric(x) && all(x > 0),
+  description = "positive number"
+)
+is_type(5, positive)
+is_type(-1, positive)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

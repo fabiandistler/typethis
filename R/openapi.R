@@ -1,13 +1,23 @@
-# OpenAPI 3.1 Bridge ---------------------------------------------------------
-#
-# Maps typed models and typed functions to OpenAPI 3.1 components/paths and
-# back. OpenAPI 3.1 is JSON-Schema-Draft-2020-12-compatible, so the schema
-# fragments produced by to_json_schema() can be lifted directly into
-# components.schemas with two adjustments: $defs are flattened into
-# components.schemas, and $ref strings are rewritten from #/$defs/X to
-# #/components/schemas/X.
-#
-# Naming and file IO mirror the ODCS bridge in R/datacontract.R.
+#' OpenAPI 3.1 bridge
+#'
+#' @description
+#' Convert typed models and typed functions to and from [OpenAPI 3.1
+#' documents](https://spec.openapis.org/oas/v3.1.0). OpenAPI 3.1 is
+#' JSON-Schema-Draft-2020-12-compatible, so the schema fragments produced
+#' by [to_json_schema()] are lifted directly into `components.schemas`;
+#' `$ref` strings are rewritten from `#/$defs/X` to
+#' `#/components/schemas/X`. Typed functions become a single `paths` entry
+#' whose `requestBody` carries the arguments as a JSON object and whose
+#' `200` response carries the return type.
+#'
+#' Key entry points:
+#'
+#' - [to_openapi()] / [write_openapi()] — export.
+#' - [read_openapi()] / [from_openapi()] — import.
+#'
+#' @name openapi
+#' @family OpenAPI
+NULL
 
 openapi_version <- "3.1.0"
 
@@ -21,9 +31,12 @@ openapi_version <- "3.1.0"
 #' functions, or a mixed list. Schemas are produced via [to_json_schema()]
 #' and lifted into `components.schemas`; `$ref` strings are rewritten from
 #' the JSON Schema convention (`#/$defs/X`) to the OpenAPI convention
-#' (`#/components/schemas/X`). Typed functions become a single
-#' `paths` entry with a JSON `requestBody` carrying the arguments and a
-#' `200` response carrying the return type.
+#' (`#/components/schemas/X`). Typed functions become a single `paths`
+#' entry with a JSON `requestBody` carrying the arguments and a `200`
+#' response carrying the return type.
+#'
+#' To control the path and operation ID for a typed function, set
+#' `attr(fn, "openapi_op_id") <- "yourId"` before passing it in.
 #'
 #' @param x A model class name (character scalar), a model constructor or
 #'   instance, a typed function, or a list mixing any of the above.
@@ -32,16 +45,21 @@ openapi_version <- "3.1.0"
 #' @param paths Optional named list of additional `paths` entries to merge
 #'   in (e.g. for typed functions added by name).
 #' @param ... Forwarded to method dispatch.
-#' @return A list ready for [yaml::write_yaml()] or [jsonlite::toJSON()].
+#' @return A list ready for `yaml::write_yaml()` or `jsonlite::toJSON()`.
+#' @family OpenAPI
+#' @seealso [write_openapi()] for the file-IO convenience wrapper;
+#'   [from_openapi()] for the reverse direction; [to_json_schema()] for
+#'   the underlying schema export.
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("User", fields = list(
 #'   id   = field("integer", primary_key = TRUE),
 #'   name = field("character")
 #' ))
-#' to_openapi("User", info = list(title = "Users API", version = "1.0.0"))
-#' }
+#' doc <- to_openapi("User",
+#'   info = list(title = "Users API", version = "1.0.0"))
+#' names(doc)
+#' names(doc$components$schemas)
 to_openapi <- function(x, info = NULL, paths = NULL, ...) {
   UseMethod("to_openapi")
 }
@@ -87,27 +105,51 @@ to_openapi.list <- function(x, info = NULL, paths = NULL, ...) {
   }
   doc <- build_openapi(models, info = info, paths = paths)
   for (entry in fn_paths) {
-    doc <- merge_function_into_openapi(doc, entry$fn,
-                                       path = entry$path,
-                                       op_id = entry$name)
+    doc <- merge_function_into_openapi(
+      doc,
+      entry$fn,
+      path = entry$path,
+      op_id = entry$name
+    )
   }
   doc
 }
 
 #' Write an OpenAPI document to disk
 #'
+#' Convenience wrapper around [to_openapi()] + the appropriate writer
+#' (`yaml::write_yaml()` for YAML, `jsonlite::toJSON()` for JSON). The
+#' output format is inferred from the file extension and can be overridden.
+#'
 #' @param x See [to_openapi()].
-#' @param path Destination file path. Use `.yaml`/`.yml` for YAML output,
-#'   `.json` for JSON. The format is inferred from the extension; pass
-#'   `format = "yaml"` or `"json"` to override.
+#' @param path Destination file path. Use `.yaml`/`.yml` for YAML output
+#'   or `.json` for JSON.
 #' @param info,paths,... Forwarded to [to_openapi()].
 #' @param format Output format: `"yaml"` (default for `.yaml`/`.yml`) or
 #'   `"json"` (default for `.json`). Defaults to YAML if the extension is
 #'   ambiguous.
 #' @return The OpenAPI document list, invisibly.
+#' @family OpenAPI
 #' @export
-write_openapi <- function(x, path, info = NULL, paths = NULL,
-                          format = NULL, ...) {
+#' @examples
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("User", fields = list(
+#'     id   = field("integer", primary_key = TRUE),
+#'     name = field("character")
+#'   ))
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_openapi("User", tmp,
+#'     info = list(title = "Users API", version = "1.0.0"))
+#'   readLines(tmp, n = 5)
+#' }
+write_openapi <- function(
+  x,
+  path,
+  info = NULL,
+  paths = NULL,
+  format = NULL,
+  ...
+) {
   doc <- to_openapi(x, info = info, paths = paths, ...)
   fmt <- format %||% openapi_format_from_path(path)
   if (identical(fmt, "json")) {
@@ -129,11 +171,12 @@ write_openapi <- function(x, path, info = NULL, paths = NULL,
 
 #' Read an OpenAPI document into an R list
 #'
-#' Pure parsing helper; does not register anything. Use [from_openapi()]
+#' Pure parsing helper — does not register anything. Use [from_openapi()]
 #' for the full import pipeline.
 #'
 #' @param path File path or URL.
 #' @return Parsed OpenAPI list.
+#' @family OpenAPI
 #' @export
 read_openapi <- function(path) {
   fmt <- openapi_format_from_path(path)
@@ -152,33 +195,44 @@ read_openapi <- function(path) {
   }
 }
 
-#' Load an OpenAPI document into the typethis model registry
+#' Import OpenAPI components into the typethis model registry
 #'
 #' Reads an OpenAPI 3.x document (file path, URL, or already-parsed list)
 #' and calls [define_model()] for every entry under `components.schemas`.
 #' Nested `object` properties with their own `properties` block are
-#' registered as their own typed models so that `t_model()` references
-#' resolve correctly.
+#' registered as their own typed models so that [t_model()] references
+#' resolve correctly. After import, the generated `new_*()` and
+#' `update_*()` constructors are available in `envir`.
 #'
 #' @param x Path, URL, or parsed list.
-#' @param register If `TRUE` (default) define the models; if `FALSE` only
-#'   parse and return the resolved field definitions on the result attribute.
-#' @param envir Environment in which `new_<Class>()`/`update_<Class>()`
+#' @param register If `TRUE` (default), define the models; if `FALSE`,
+#'   only parse and return the resolved field definitions on the result
+#'   attribute.
+#' @param envir Environment in which `new_<Class>()` / `update_<Class>()`
 #'   constructors are assigned. Defaults to the calling environment.
 #' @return Character vector of registered model class names, invisibly.
+#' @family OpenAPI
 #' @export
 #' @examples
-#' \dontrun{
-#' from_openapi("api.yaml")
-#' new_User(id = 1L, name = "Alice")
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("User", fields = list(
+#'     id   = field("integer", primary_key = TRUE),
+#'     name = field("character")
+#'   ))
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_openapi("User", tmp,
+#'     info = list(title = "Users API", version = "1.0.0"))
+#'
+#'   env <- new.env()
+#'   from_openapi(tmp, envir = env)
+#'   ls(env)  # new_User, update_User
 #' }
 from_openapi <- function(x, register = TRUE, envir = parent.frame()) {
   doc <- if (is.list(x)) x else read_openapi(x)
 
   schemas <- doc$components$schemas
   if (is.null(schemas) || !is.list(schemas) || length(schemas) == 0L) {
-    stop("OpenAPI document has no `components.schemas` section",
-         call. = FALSE)
+    stop("OpenAPI document has no `components.schemas` section", call. = FALSE)
   }
 
   ctx <- list(envir = envir, register = isTRUE(register))
@@ -237,19 +291,35 @@ build_openapi <- function(class_names, info = NULL, paths = NULL) {
 
 #' @keywords internal
 #' @noRd
-build_openapi_from_function <- function(fn, info = NULL, paths = NULL,
-                                        path = NULL, op_id = NULL,
-                                        method = "post", ...) {
+build_openapi_from_function <- function(
+  fn,
+  info = NULL,
+  paths = NULL,
+  path = NULL,
+  op_id = NULL,
+  method = "post",
+  ...
+) {
   info <- normalise_openapi_info(info, fallback_title = "typethis function")
   doc <- build_openapi(character(0), info = info)
-  merge_function_into_openapi(doc, fn, path = path, op_id = op_id,
-                              method = method)
+  merge_function_into_openapi(
+    doc,
+    fn,
+    path = path,
+    op_id = op_id,
+    method = method
+  )
 }
 
 #' @keywords internal
 #' @noRd
-merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
-                                        method = "post") {
+merge_function_into_openapi <- function(
+  doc,
+  fn,
+  path = NULL,
+  op_id = NULL,
+  method = "post"
+) {
   sig <- get_signature(fn)
   if (is.null(sig)) {
     stop("merge_function_into_openapi(): not a typed function", call. = FALSE)
@@ -275,7 +345,9 @@ merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
     type = "object",
     properties = request_props
   )
-  if (length(required) > 0L) request_schema$required <- as.list(required)
+  if (length(required) > 0L) {
+    request_schema$required <- as.list(required)
+  }
 
   response_schema <- if (!is.null(sig$return)) {
     spec_to_inline_schema(sig$return, defs_env)
@@ -324,7 +396,9 @@ merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
 #' @keywords internal
 #' @noRd
 spec_to_inline_schema <- function(spec, defs_env) {
-  if (is.null(spec)) return(list())
+  if (is.null(spec)) {
+    return(list())
+  }
   if (inherits(spec, "type_spec")) {
     return(type_spec_to_json_schema(spec, defs_env))
   }
@@ -337,7 +411,9 @@ spec_to_inline_schema <- function(spec, defs_env) {
   }
   if (is.function(spec)) {
     constraint <- attr(spec, "constraint")
-    if (!is.null(constraint)) return(constraint_to_json_schema(constraint))
+    if (!is.null(constraint)) {
+      return(constraint_to_json_schema(constraint))
+    }
     return(list(`x-typethis-kind` = "predicate"))
   }
   list()
@@ -368,8 +444,12 @@ rewrite_refs_to_components <- function(x) {
 #' @noRd
 normalise_openapi_info <- function(info, fallback_title) {
   info <- info %||% list()
-  if (is.null(info$title))   info$title   <- fallback_title
-  if (is.null(info$version)) info$version <- "0.1.0"
+  if (is.null(info$title)) {
+    info$title <- fallback_title
+  }
+  if (is.null(info$version)) {
+    info$version <- "0.1.0"
+  }
   info
 }
 
@@ -380,13 +460,17 @@ resolve_openapi_entry <- function(entry) {
     return(list(kind = "model", name = entry))
   }
   if (is_model(entry)) {
-    return(list(kind = "model",
-                name = attr(entry, "model_class_name") %||% "Model"))
+    return(list(
+      kind = "model",
+      name = attr(entry, "model_class_name") %||% "Model"
+    ))
   }
   if (is.function(entry)) {
     if (isTRUE(attr(entry, "model_class"))) {
-      return(list(kind = "model",
-                  name = attr(entry, "class_name") %||% "Model"))
+      return(list(
+        kind = "model",
+        name = attr(entry, "class_name") %||% "Model"
+      ))
     }
     if (isTRUE(attr(entry, "typed"))) {
       op_id <- attr(entry, "openapi_op_id") %||% "operation"
@@ -412,7 +496,8 @@ openapi_schema_to_fields <- function(schema, ctx) {
   for (prop_name in names(schema$properties)) {
     prop <- schema$properties[[prop_name]]
     fields[[prop_name]] <- openapi_property_to_field(
-      prop_name, prop,
+      prop_name,
+      prop,
       required = prop_name %in% required,
       ctx = ctx
     )
@@ -482,16 +567,21 @@ openapi_to_type_spec_or_name <- function(prop_name, prop, ctx) {
 #' @noRd
 builtin_from_openapi_type <- function(type, format = NULL) {
   if (identical(type, "string")) {
-    if (identical(format, "date")) return("date")
-    if (identical(format, "date-time")) return("posixct")
+    if (identical(format, "date")) {
+      return("date")
+    }
+    if (identical(format, "date-time")) {
+      return("posixct")
+    }
     return("character")
   }
-  switch(type,
+  switch(
+    type,
     "integer" = "integer",
-    "number"  = "numeric",
+    "number" = "numeric",
     "boolean" = "logical",
-    "array"   = "list",
-    "object"  = "list",
+    "array" = "list",
+    "object" = "list",
     "character"
   )
 }
@@ -500,26 +590,40 @@ builtin_from_openapi_type <- function(type, format = NULL) {
 #' @noRd
 openapi_to_validator <- function(prop) {
   validators <- list()
-  if (!is.null(prop$minimum) || !is.null(prop$maximum) ||
-        !is.null(prop$exclusiveMinimum) || !is.null(prop$exclusiveMaximum)) {
-    validators <- c(validators, list(numeric_range(
-      min = prop$exclusiveMinimum %||% prop$minimum %||% -Inf,
-      max = prop$exclusiveMaximum %||% prop$maximum %||% Inf,
-      exclusive_min = !is.null(prop$exclusiveMinimum),
-      exclusive_max = !is.null(prop$exclusiveMaximum)
-    )))
+  if (
+    !is.null(prop$minimum) ||
+      !is.null(prop$maximum) ||
+      !is.null(prop$exclusiveMinimum) ||
+      !is.null(prop$exclusiveMaximum)
+  ) {
+    validators <- c(
+      validators,
+      list(numeric_range(
+        min = prop$exclusiveMinimum %||% prop$minimum %||% -Inf,
+        max = prop$exclusiveMaximum %||% prop$maximum %||% Inf,
+        exclusive_min = !is.null(prop$exclusiveMinimum),
+        exclusive_max = !is.null(prop$exclusiveMaximum)
+      ))
+    )
   }
   if (!is.null(prop$minLength) || !is.null(prop$maxLength)) {
-    validators <- c(validators, list(string_length(
-      min_length = prop$minLength %||% 0,
-      max_length = prop$maxLength %||% Inf
-    )))
+    validators <- c(
+      validators,
+      list(string_length(
+        min_length = prop$minLength %||% 0,
+        max_length = prop$maxLength %||% Inf
+      ))
+    )
   }
   if (!is.null(prop$pattern)) {
     validators <- c(validators, list(string_pattern(prop$pattern)))
   }
-  if (length(validators) == 0L) return(NULL)
-  if (length(validators) == 1L) return(validators[[1L]])
+  if (length(validators) == 0L) {
+    return(NULL)
+  }
+  if (length(validators) == 1L) {
+    return(validators[[1L]])
+  }
   do.call(combine_validators, c(validators, list(all_of = TRUE)))
 }
 
@@ -531,8 +635,12 @@ openapi_to_validator <- function(prop) {
 #' @noRd
 openapi_format_from_path <- function(path) {
   ext <- tolower(tools::file_ext(path))
-  if (ext %in% c("yaml", "yml")) return("yaml")
-  if (ext == "json") return("json")
+  if (ext %in% c("yaml", "yml")) {
+    return("yaml")
+  }
+  if (ext == "json") {
+    return("json")
+  }
   "yaml"
 }
 

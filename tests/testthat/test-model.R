@@ -146,7 +146,8 @@ test_that("model_to_list converts model", {
 # =============================================================================
 
 test_that("new-style define_model creates new_<ClassName> function", {
-  define_model("Person",
+  define_model(
+    "Person",
     fields = list(
       name = field("character", nullable = FALSE),
       age = field("integer", nullable = FALSE, default = 0L)
@@ -158,7 +159,8 @@ test_that("new-style define_model creates new_<ClassName> function", {
 })
 
 test_that("new-style define_model creates update_<ClassName> function", {
-  define_model("Employee",
+  define_model(
+    "Employee",
     fields = list(
       name = field("character", nullable = FALSE),
       salary = field("numeric", nullable = FALSE)
@@ -170,7 +172,8 @@ test_that("new-style define_model creates update_<ClassName> function", {
 })
 
 test_that("new-style constructor creates valid instance", {
-  define_model("Person",
+  define_model(
+    "Person",
     fields = list(
       name = field("character", nullable = FALSE),
       age = field("integer", nullable = FALSE, default = 0L)
@@ -186,7 +189,8 @@ test_that("new-style constructor creates valid instance", {
 })
 
 test_that("new-style missing required field error", {
-  define_model("RequiredTest",
+  define_model(
+    "RequiredTest",
     fields = list(
       name = field("character", nullable = FALSE),
       value = field("numeric", nullable = FALSE)
@@ -200,7 +204,8 @@ test_that("new-style missing required field error", {
 })
 
 test_that("new-style default values applied", {
-  define_model("DefaultTest",
+  define_model(
+    "DefaultTest",
     fields = list(
       name = field("character", nullable = FALSE),
       count = field("integer", nullable = FALSE, default = 42L)
@@ -212,7 +217,8 @@ test_that("new-style default values applied", {
 })
 
 test_that("new-style type validation works", {
-  define_model("TypeTest",
+  define_model(
+    "TypeTest",
     fields = list(
       name = field("character", nullable = FALSE),
       age = field("integer", nullable = FALSE)
@@ -226,7 +232,8 @@ test_that("new-style type validation works", {
 })
 
 test_that("new-style update function works", {
-  define_model("UpdateTest",
+  define_model(
+    "UpdateTest",
     fields = list(
       name = field("character", nullable = FALSE),
       age = field("integer", nullable = FALSE, default = 0L)
@@ -241,7 +248,8 @@ test_that("new-style update function works", {
 })
 
 test_that("new-style update validates type", {
-  define_model("UpdateValidate",
+  define_model(
+    "UpdateValidate",
     fields = list(
       name = field("character", nullable = FALSE),
       age = field("integer", nullable = FALSE)
@@ -257,7 +265,8 @@ test_that("new-style update validates type", {
 })
 
 test_that("new-style nullable fields accept NULL", {
-  define_model("NullableTest",
+  define_model(
+    "NullableTest",
     fields = list(
       name = field("character", nullable = FALSE),
       nickname = field("character", nullable = TRUE)
@@ -270,7 +279,8 @@ test_that("new-style nullable fields accept NULL", {
 })
 
 test_that("new-style non-nullable fields reject NULL", {
-  define_model("NonNullableTest",
+  define_model(
+    "NonNullableTest",
     fields = list(
       name = field("character", nullable = FALSE)
     )
@@ -284,7 +294,8 @@ test_that("new-style non-nullable fields reject NULL", {
 
 test_that("new-style nested model support", {
   # Define inner model first
-  define_model("Address",
+  define_model(
+    "Address",
     fields = list(
       street = field("character", nullable = FALSE),
       city = field("character", nullable = FALSE)
@@ -292,7 +303,8 @@ test_that("new-style nested model support", {
   )
 
   # Define outer model with nested model field
-  define_model("PersonWithAddress",
+  define_model(
+    "PersonWithAddress",
     fields = list(
       name = field("character", nullable = FALSE),
       address = field("Address", nullable = FALSE)
@@ -310,14 +322,16 @@ test_that("new-style nested model support", {
 
 test_that("new-style nested model validates type", {
   # Define inner model
-  define_model("InnerModel",
+  define_model(
+    "InnerModel",
     fields = list(
       value = field("numeric", nullable = FALSE)
     )
   )
 
   # Define outer model
-  define_model("OuterModel",
+  define_model(
+    "OuterModel",
     fields = list(
       inner = field("InnerModel", nullable = FALSE)
     )
@@ -330,7 +344,8 @@ test_that("new-style nested model validates type", {
   )
 
   # Should fail with wrong model class
-  define_model("WrongModel",
+  define_model(
+    "WrongModel",
     fields = list(x = field("numeric", nullable = FALSE))
   )
   wrong <- new_WrongModel(x = 1)
@@ -342,10 +357,12 @@ test_that("new-style nested model validates type", {
 })
 
 test_that("new-style custom validator works", {
-  define_model("ValidatedModel",
+  define_model(
+    "ValidatedModel",
     fields = list(
-      age = field("integer", nullable = FALSE,
-                  validator = function(x) x >= 0 && x <= 120)
+      age = field("integer", nullable = FALSE, validator = function(x) {
+        x >= 0 && x <= 120
+      })
     )
   )
 
@@ -359,7 +376,8 @@ test_that("new-style custom validator works", {
 })
 
 test_that("new-style with fields parameter", {
-  define_model("FieldsParam",
+  define_model(
+    "FieldsParam",
     fields = list(
       x = field("numeric", nullable = FALSE),
       y = field("character", nullable = FALSE, default = "default")
@@ -372,7 +390,8 @@ test_that("new-style with fields parameter", {
 })
 
 test_that("new-style strict mode rejects extra fields", {
-  define_model("StrictModel",
+  define_model(
+    "StrictModel",
     fields = list(
       name = field("character", nullable = FALSE)
     ),
@@ -386,7 +405,8 @@ test_that("new-style strict mode rejects extra fields", {
 })
 
 test_that("model field accepts t_union spec", {
-  define_model("TM_Mixed",
+  define_model(
+    "TM_Mixed",
     fields = list(value = field(t_union("integer", "character")))
   )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
@@ -396,7 +416,8 @@ test_that("model field accepts t_union spec", {
 })
 
 test_that("model field accepts t_list_of spec with defaults", {
-  define_model("TM_Tagged",
+  define_model(
+    "TM_Tagged",
     fields = list(
       tags = field(t_list_of("character"), default = list())
     )
@@ -404,12 +425,16 @@ test_that("model field accepts t_list_of spec with defaults", {
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   expect_equal(new_TM_Tagged()$tags, list())
   expect_equal(new_TM_Tagged(tags = list("a", "b"))$tags, list("a", "b"))
-  expect_error(new_TM_Tagged(tags = list("a", 1L)), "list_of<character>",
-               fixed = TRUE)
+  expect_error(
+    new_TM_Tagged(tags = list("a", 1L)),
+    "list_of<character>",
+    fixed = TRUE
+  )
 })
 
 test_that("model field accepts t_enum spec", {
-  define_model("TM_Roled",
+  define_model(
+    "TM_Roled",
     fields = list(role = field(t_enum(c("admin", "user", "guest"))))
   )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
@@ -419,9 +444,7 @@ test_that("model field accepts t_enum spec", {
 
 test_that("model field accepts t_model() reference", {
   define_model("TM_Addr", fields = list(zip = field("character")))
-  define_model("TM_Person",
-    fields = list(addr = field(t_model("TM_Addr")))
-  )
+  define_model("TM_Person", fields = list(addr = field(t_model("TM_Addr"))))
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   a <- new_TM_Addr(zip = "12345")
   p <- new_TM_Person(addr = a)
@@ -433,9 +456,7 @@ test_that("regression: bare type_spec passed to fields= works", {
   # Footgun: type_spec is a list. Without the inherits() guard in
   # define_model_new_style(), this would silently be misinterpreted as a
   # full field definition list and fail with "must have a 'type' specification".
-  define_model("TM_Reg",
-    fields = list(value = t_union("integer", "character"))
-  )
+  define_model("TM_Reg", fields = list(value = t_union("integer", "character")))
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   expect_equal(new_TM_Reg(value = 1L)$value, 1L)
   expect_equal(new_TM_Reg(value = "x")$value, "x")

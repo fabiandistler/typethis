@@ -2,14 +2,25 @@
 % Please edit documentation in R/json_schema.R
 \name{json_schema}
 \alias{json_schema}
-\title{JSON Schema Export}
+\title{JSON Schema export}
 \description{
 Convert typed models, type specs, validators, and field definitions
-into JSON Schema (Draft 2020-12) fragments. The result is an R list
-that can be serialized via \code{jsonlite::toJSON(..., auto_unbox = TRUE)}.
+into \href{https://json-schema.org/draft/2020-12/release-notes}{JSON Schema (Draft 2020-12)} fragments.
+The result is an R list ready for \code{jsonlite::toJSON(..., auto_unbox = TRUE)}.
 
-Constructs that have no canonical JSON Schema representation (data
-frames, factors, environments, custom predicate functions) are
-emitted with \verb{x-typethis-*} extension keys so they round-trip through
-typethis-aware tooling without losing information.
+Builtin validator factories (\code{\link[=numeric_range]{numeric_range()}}, \code{\link[=string_length]{string_length()}},
+\code{\link[=string_pattern]{string_pattern()}}, \code{\link[=vector_length]{vector_length()}}, \code{\link[=enum_validator]{enum_validator()}}) attach a
+\code{constraint} attribute that the exporter reads — so range and pattern
+constraints surface as native \code{minimum} / \code{maxLength} / \code{pattern} keys
+rather than opaque predicate stubs.
+
+Constructs without a canonical JSON Schema representation (data frames,
+factors, environments, custom predicate functions) are emitted with
+\verb{x-typethis-*} extension keys so they round-trip through typethis-aware
+tooling without losing information.
 }
+\seealso{
+Other JSON Schema: 
+\code{\link{to_json_schema}()}
+}
+\concept{JSON Schema}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/datacontract.R
 \name{write_datacontract}
 \alias{write_datacontract}
-\title{Write a typethis schema to a Data Contract YAML file}
+\title{Write an ODCS v3 contract to a YAML file}
 \usage{
 write_datacontract(x, path, info = NULL, servers = NULL, ...)
 }
@@ -19,5 +19,29 @@ write_datacontract(x, path, info = NULL, servers = NULL, ...)
 The contract list, invisibly.
 }
 \description{
-Write a typethis schema to a Data Contract YAML file
+Convenience wrapper around \code{\link[=to_datacontract]{to_datacontract()}} + \code{yaml::write_yaml()}.
 }
+\examples{
+if (requireNamespace("yaml", quietly = TRUE)) {
+  define_model("Customer", fields = list(
+    customer_id = field("integer", primary_key = TRUE),
+    name        = field("character")
+  ))
+  tmp <- tempfile(fileext = ".yaml")
+  write_datacontract("Customer", tmp,
+    info = list(name = "customers", version = "1.0.0"))
+  readLines(tmp, n = 5)
+}
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()}
+}
+\concept{Data Contract}

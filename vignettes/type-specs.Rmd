@@ -1,0 +1,170 @@
+---
+title: "Composable type specifications"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Composable type specifications}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(typethis)
+```
+
+A *type spec* is a structured, composable type description. The `t_*()`
+constructors build them; they work everywhere a plain type name does —
+`is_type()`, `assert_type()`, `validate_type()`, `field()`,
+`typed_function()`, and `to_json_schema()`.
+
+Plain character builtins (`"numeric"`) and predicate functions still work
+as type arguments without change. Type specs are an additive layer for
+when those aren't expressive enough.
+
+## The constructors
+
+| Constructor | Matches |
+| --- | --- |
+| `t_union(...)` | any of the alternatives |
+| `t_nullable(type)` | `type` or `NULL` |
+| `t_list_of(type, …)` | a list whose every element matches `type` |
+| `t_vector_of(type, …)` | an atomic vector of a builtin type |
+| `t_enum(values)` | values in a fixed allowed set |
+| `t_model(class)` | an instance of a registered typed model |
+| `t_predicate(fn, description)` | predicate with a documented description |
+
+Use `is_type_spec()` to detect a composite spec at runtime.
+
+## Examples
+
+### Union
+
+```{r}
+id <- t_union("integer", "character")
+is_type(1L,    id)
+is_type("u-1", id)
+is_type(1.5,   id)
+```
+
+### Nullable
+
+```{r}
+maybe_int <- t_nullable("integer")
+is_type(NULL, maybe_int)
+is_type(1L,   maybe_int)
+is_type("hi", maybe_int)
+```
+
+### Lists and vectors
+
+```{r}
+tags <- t_list_of("character", min_length = 1L)
+is_type(list("alpha", "beta"), tags)
+is_type(list(),                tags)
+
+triple <- t_vector_of("integer", exact_length = 3L)
+is_type(1:3, triple)
+is_type(1:5, triple)
+```
+
+`t_list_of()` accepts any element type spec, including other composites:
+
+```{r}
+mixed <- t_list_of(t_union("integer", "character"))
+is_type(list(1L, "two", 3L), mixed)
+```
+
+### Enum
+
+```{r}
+role <- t_enum(c("admin", "user", "guest"))
+is_type("admin", role)
+is_type("root",  role)
+```
+
+`t_enum()` is the type-spec sibling of [`enum_validator()`](
+../reference/enum_validator.html). Use the type-spec form when you want
+the enum to appear as a true type in `field()` and `typed_function()` and
+to surface in JSON Schema as a typed `enum` keyword.
+
+### Model references
+
+References resolve at validation time, which makes forward references
+(and cycles) possible:
+
+```{r}
+define_model("Address", fields = list(zip = field("character")))
+addr <- t_model("Address")
+is_type(new_Address(zip = "10115"), addr)
+```
+
+### Predicates with a description
+
+`t_predicate()` is a thin wrapper around a custom predicate that carries
+a description. The description surfaces in error messages and in JSON
+Schema output.
+
+```{r}
+positive <- t_predicate(
+  function(x) is.numeric(x) && all(x > 0),
+  description = "positive number"
+)
+is_type(5,  positive)
+is_type(-1, positive)
+```
+
+## Using specs in models and functions
+
+Anywhere `type =` or `arg_specs =` accepts a builtin name, it also
+accepts a spec.
+
+```{r}
+define_model("Order", fields = list(
+  id     = field(t_union("integer", "character")),
+  status = field(t_enum(c("new", "paid", "shipped")), default = "new"),
+  tags   = field(t_list_of("character"), default = list())
+))
+
+ord <- new_Order(id = "ord-1", tags = list("priority", "rush"))
+ord$status
+ord$tags
+```
+
+```{r}
+greet <- typed_function(
+  function(name, n = 1L) paste(rep(name, n), collapse = " "),
+  arg_specs = list(
+    name = "character",
+    n    = t_union("integer", "numeric")
+  ),
+  return_spec = "character"
+)
+greet("hi", n = 3)
+```
+
+## Coercion
+
+`coerce_type()` understands a subset of specs where coercion has a clear
+meaning:
+
+- `t_nullable(...)` — `NULL` passes through; otherwise the inner spec
+  drives coercion;
+- `t_union(...)` — each alternative is tried in order; the first that
+  coerces and validates wins;
+- `t_enum(...)` — values already in the allowed set pass through;
+  otherwise the value is coerced to the enum's value type and re-checked.
+
+Other kinds (`t_list_of()`, `t_vector_of()`, `t_model()`, `t_predicate()`)
+raise an explicit error.
+
+```{r}
+coerce_type("paid", t_enum(c("new", "paid", "shipped")))
+coerce_type(NULL,   t_nullable("integer"))
+coerce_type("123",  t_union("integer", "character"))
+```

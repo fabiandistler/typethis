@@ -2,21 +2,36 @@
 % Please edit documentation in R/model.R
 \name{validate_model}
 \alias{validate_model}
-\title{Validate model instance}
+\title{Validate a model instance against its schema}
 \usage{
 validate_model(instance)
 }
 \arguments{
-\item{instance}{Model instance}
+\item{instance}{A model instance.}
 }
 \value{
-list with valid (logical) and errors (character vector)
+Named list \code{list(valid, errors)}. \code{errors} is \code{NULL} on success.
 }
 \description{
-Validate model instance
+Runs every field through type and validator checks and returns a list
+\code{list(valid, errors)} rather than throwing.
 }
 \examples{
-User <- define_model(name = "character", age = "numeric")
-user <- User(name = "John", age = 30, .validate_instance = FALSE)
-validate_model(user)
+define_model("Person", fields = list(
+  name = field("character"),
+  age  = field("integer", validator = numeric_range(0, 120))
+))
+p <- new_Person(name = "Ada", age = 36L)
+validate_model(p)
 }
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()}
+}
+\concept{typed models}

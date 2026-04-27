@@ -12,3 +12,18 @@ datacontract_cli_available()
 \description{
 Check whether the \code{datacontract} CLI is available on PATH
 }
+\examples{
+datacontract_cli_available()
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

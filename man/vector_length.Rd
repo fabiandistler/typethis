@@ -2,25 +2,44 @@
 % Please edit documentation in R/validators.R
 \name{vector_length}
 \alias{vector_length}
-\title{Vector length validator}
+\title{Validate vector or list length}
 \usage{
 vector_length(min_len = 0, max_len = Inf, exact_len = NULL)
 }
 \arguments{
-\item{min_len}{Minimum length}
+\item{min_len}{Minimum length (inclusive).}
 
-\item{max_len}{Maximum length}
+\item{max_len}{Maximum length (inclusive, defaults to \code{Inf}).}
 
-\item{exact_len}{Exact length required}
+\item{exact_len}{If non-\code{NULL}, the value must have exactly this length.}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Vector length validator
+Returns a validator closure that accepts values whose \code{length()} matches
+the requested constraint. Pass either \code{min_len} / \code{max_len}, or a single
+\code{exact_len} (which overrides the bounds).
 }
 \examples{
-pair_validator <- vector_length(exact_len = 2)
-pair_validator(c(1, 2)) # TRUE
-pair_validator(c(1, 2, 3)) # FALSE
+pair <- vector_length(exact_len = 2)
+pair(c(1, 2))
+pair(c(1, 2, 3))
+
+nonempty <- vector_length(min_len = 1)
+nonempty(integer())
+nonempty(1:5)
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()}
+}
+\concept{validators}

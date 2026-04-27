@@ -2,27 +2,50 @@
 % Please edit documentation in R/validators.R
 \name{combine_validators}
 \alias{combine_validators}
-\title{Custom validator combinator}
+\title{Combine multiple validators}
 \usage{
 combine_validators(..., all_of = TRUE)
 }
 \arguments{
-\item{...}{Validator functions}
+\item{...}{Validator functions.}
 
-\item{all_of}{If TRUE, all validators must pass; if FALSE, any can pass}
+\item{all_of}{If \code{TRUE}, all must pass; if \code{FALSE}, any one suffices.}
 }
 \value{
-Combined validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Custom validator combinator
+Returns a single validator that delegates to each of \code{...}. With
+\code{all_of = TRUE} (the default) every validator must pass; with
+\code{all_of = FALSE} any one of them is enough.
 }
 \examples{
-validator <- combine_validators(
-  is_numeric <- function(x) is.numeric(x),
-  is_positive <- function(x) all(x > 0),
-  all_of = TRUE
+positive_num <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) all(x > 0)
 )
-validator(5) # TRUE
-validator(-5) # FALSE
+positive_num(5)
+positive_num(-5)
+
+num_or_str <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) is.character(x),
+  all_of = FALSE
+)
+num_or_str(5)
+num_or_str("hi")
+num_or_str(TRUE)
 }
+\seealso{
+Other validators: 
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

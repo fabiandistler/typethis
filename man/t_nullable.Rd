@@ -2,7 +2,7 @@
 % Please edit documentation in R/type_spec.R
 \name{t_nullable}
 \alias{t_nullable}
-\title{Nullable wrapper}
+\title{Allow \code{NULL} in addition to an inner type}
 \usage{
 t_nullable(type)
 }
@@ -13,10 +13,23 @@ t_nullable(type)
 A \code{type_spec} of kind \code{"nullable"}.
 }
 \description{
-Accepts \code{NULL} in addition to whatever the inner spec accepts.
+Allow \code{NULL} in addition to an inner type
 }
 \examples{
-spec <- t_nullable("integer")
-is_type(NULL, spec)
-is_type(1L, spec)
+maybe_int <- t_nullable("integer")
+is_type(NULL, maybe_int)
+is_type(1L, maybe_int)
+is_type("hi", maybe_int)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

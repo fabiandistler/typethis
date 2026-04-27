@@ -2,20 +2,24 @@
 % Please edit documentation in R/model.R
 \name{validate_field_value}
 \alias{validate_field_value}
-\title{Validate a field value against its definition}
+\title{Validate a single field value against its definition}
 \usage{
 validate_field_value(fname, value, field_def, class_name = "model")
 }
 \arguments{
-\item{fname}{Field name}
+\item{fname}{Field name (used only for error messages).}
 
-\item{value}{Field value}
+\item{value}{Value to validate.}
 
-\item{field_def}{Field definition list}
+\item{field_def}{Field definition list, as produced by \code{\link[=field]{field()}}.}
 
-\item{class_name}{Model class name for error messages}
+\item{class_name}{Owning model class name (used only for error messages).}
+}
+\value{
+\code{invisible(TRUE)} on success; an error otherwise.
 }
 \description{
-Validate a field value against its definition
+Internal helper used by \code{\link[=define_model]{define_model()}} and the generated \verb{update_*()}
+functions. Exported for advanced use cases (custom model machinery).
 }
 \keyword{internal}

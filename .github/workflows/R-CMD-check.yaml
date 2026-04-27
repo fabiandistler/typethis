@@ -59,8 +59,20 @@ jobs:
           error-on: '"warning"'
           build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")'
 
+  style:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: posit-dev/setup-air@v1
+
+      - name: Check formatting with air
+        run: air format --check .
+
   lint:
     runs-on: ubuntu-latest
+    needs: style
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -74,7 +86,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::lintr, local::.
+          extra-packages: any::lintr, any::cyclocomp, local::.
           needs: lint
 
       - name: Lint

@@ -1,40 +1,84 @@
-#' Typed Function Decorators
+#' Wrap a function with input/output type checks
 #'
 #' @description
-#' Create type-safe functions with automatic validation of inputs and outputs.
-#' Similar to Python type hints with runtime enforcement.
-
-#' Create a typed function with input/output validation
+#' Returns a wrapped version of `fn` that validates each argument against
+#' the spec in `arg_specs` on every call, and (optionally) the return value
+#' against `return_spec`. Calls that violate a spec raise an informative
+#' error before — or just after — `fn` runs.
 #'
-#' @param fn The function to wrap
-#' @param arg_types Named list of argument types (use arg_specs instead)
-#' @param return_type Expected return type (use return_spec instead)
-#' @param validate If TRUE, validate at runtime
-#' @param coerce If TRUE, attempt type coercion
-#' @param arg_specs Named character vector of argument type specifications
-#' @param return_spec Expected return type specification
-#' @return Wrapped function with type checking
+#' Argument specs may be character builtins, predicate functions, or any
+#' [type_spec][type_spec] (e.g. [t_union()], [t_list_of()]). Coercion can
+#' be enabled per call via `coerce = TRUE`.
+#'
+#' All R calling conventions are supported: positional, named, reordered
+#' named, mixed, and `...` passthrough.
+#'
+#' @param fn The underlying function.
+#' @param arg_specs Named list (or character vector) of argument
+#'   specifications. Names must match argument names of `fn`.
+#' @param return_spec Specification for the return value, or `NULL` to skip.
+#' @param validate If `FALSE`, type checks are skipped (useful for hot paths).
+#' @param coerce If `TRUE`, arguments that don't match are first run through
+#'   [coerce_type()] before assertion.
+#' @param arg_types,return_type Deprecated aliases for `arg_specs` /
+#'   `return_spec`. New code should use the latter.
+#' @return A function with the same formals as `fn`. Carries `arg_specs`,
+#'   `return_spec`, and `typed = TRUE` as attributes.
+#' @family typed functions
+#' @seealso [signature()] / [with_signature()] for a separate-then-attach
+#'   workflow; [validate_call()] to dry-run validation; [is_typed()] /
+#'   [get_signature()] for introspection.
 #' @export
 #' @examples
-#' add_numbers <- typed_function(
-#'   fn = function(x, y) x + y,
+#' add <- typed_function(
+#'   function(x, y) x + y,
 #'   arg_specs = c(x = "numeric", y = "numeric"),
 #'   return_spec = "numeric"
 #' )
-#' add_numbers(5, 3) # 8
-#' \dontrun{
-#' add_numbers("a", "b") # Error: type mismatch
-#' }
-typed_function <- function(fn, arg_types = NULL, return_type = NULL,
-                           validate = TRUE, coerce = FALSE,
-                           arg_specs = NULL, return_spec = NULL) {
+#' add(2, 3)
+#' add(x = 2, y = 3)
+#' add(y = 3, x = 2)
+#'
+#' # Argument violation
+#' err <- tryCatch(add("a", "b"), error = function(e) conditionMessage(e))
+#' err
+#'
+#' # ... passthrough
+#' total <- typed_function(
+#'   function(x, ...) sum(x, ...),
+#'   arg_specs = c(x = "numeric")
+#' )
+#' total(c(1, NA, 3), na.rm = TRUE)
+#'
+#' # Coercion
+#' add_lenient <- typed_function(
+#'   function(x, y) x + y,
+#'   arg_specs = c(x = "numeric", y = "numeric"),
+#'   coerce = TRUE
+#' )
+#' add_lenient("5", "3")
+typed_function <- function(
+  fn,
+  arg_specs = NULL,
+  return_spec = NULL,
+  validate = TRUE,
+  coerce = FALSE,
+  arg_types = NULL,
+  return_type = NULL
+) {
   if (!is.function(fn)) {
     stop("fn must be a function")
   }
 
-  if (is.null(arg_specs)) arg_specs <- arg_types
-  if (is.null(arg_specs)) arg_specs <- list()
-  if (is.null(return_spec)) return_spec <- return_type
+  if (is.null(arg_specs)) {
+    arg_specs <- arg_types
+  }
+  if (is.null(arg_specs)) {
+    arg_specs <- list()
+  }
+  if (is.null(return_spec)) {
+    return_spec <- return_type
+  }
 
   fn_formals <- formals(fn)
   has_dots <- "..." %in% names(fn_formals)
@@ -58,10 +102,14 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
             tryCatch(
               provided[[param_name]] <- coerce_type(val, expected),
               error = function(e) {
-                stop(sprintf(
-                  "Argument '%s': %s",
-                  param_name, e$message
-                ), call. = FALSE)
+                stop(
+                  sprintf(
+                    "Argument '%s': %s",
+                    param_name,
+                    e$message
+                  ),
+                  call. = FALSE
+                )
               }
             )
           } else {
@@ -72,10 +120,7 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
 
       for (param_name in names(arg_specs)) {
         if (!param_name %in% names(provided)) {
-          # Check if formal exists and has no default
-          # Use as.list() to avoid triggering evaluation of empty symbols
           formal_val <- as.list(fn_formals)[[param_name]]
-          # An empty symbol means "no default" - use tryCatch to handle safely
           has_no_default <- tryCatch(
             {
               is.symbol(formal_val) && as.character(formal_val) == ""
@@ -104,15 +149,17 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
     result
   }
 
-  # Copy formals preserves original signature including empty symbols
-  # (empty symbol = no default, NULL = default is NULL - these are different!)
   formals(wrapper) <- fn_formals
 
   fn_attrs <- attributes(fn)
   if (!is.null(fn_attrs)) {
     protected <- c(
-      "arg_specs", "return_spec", "arg_types",
-      "return_type", "typed", "formals_orig"
+      "arg_specs",
+      "return_spec",
+      "arg_types",
+      "return_type",
+      "typed",
+      "formals_orig"
     )
     for (nm in setdiff(names(fn_attrs), protected)) {
       attr(wrapper, nm) <- fn_attrs[[nm]]
@@ -129,14 +176,21 @@ typed_function <- function(fn, arg_types = NULL, return_type = NULL,
   wrapper
 }
 
-#' Define function signature with types
+#' Build a function signature object
 #'
-#' @param ... Named arguments with type specifications
-#' @param .return Return type specification
-#' @return Function signature object
+#' Bundles argument types and an optional return type into a single object
+#' that can be applied to one or more functions via [with_signature()].
+#' Useful when several functions share the same shape.
+#'
+#' @param ... Named type specifications (one per argument).
+#' @param .return Return-type specification, or `NULL`.
+#' @return A `type_signature` object.
+#' @family typed functions
 #' @export
 #' @examples
 #' sig <- signature(x = "numeric", y = "numeric", .return = "numeric")
+#' add <- with_signature(function(x, y) x + y, sig)
+#' add(2, 3)
 signature <- function(..., .return = NULL) {
   args <- list(...)
 
@@ -149,15 +203,19 @@ signature <- function(..., .return = NULL) {
   )
 }
 
-#' Apply type signature to function
+#' Apply a signature to a function
 #'
-#' @param fn Function to type
-#' @param sig Signature object from signature()
-#' @return Typed function
+#' Equivalent to passing `sig$args` and `sig$return` to [typed_function()].
+#'
+#' @param fn Function to wrap.
+#' @param sig A `type_signature` object from [signature()].
+#' @return A typed function.
+#' @family typed functions
 #' @export
 #' @examples
 #' sig <- signature(x = "numeric", y = "numeric", .return = "numeric")
-#' add <- with_signature(function(x, y) x + y, sig)
+#' multiply <- with_signature(function(x, y) x * y, sig)
+#' multiply(5, 3)
 with_signature <- function(fn, sig) {
   if (!inherits(sig, "type_signature")) {
     stop("sig must be a type_signature object")
@@ -170,24 +228,29 @@ with_signature <- function(fn, sig) {
   )
 }
 
-#' Check if function is typed
+#' Test whether a function was wrapped by `typed_function()`
 #'
-#' @param fn Function to check
-#' @return logical
+#' @param fn Function to test.
+#' @return `TRUE` if `fn` carries the typed-function metadata.
+#' @family typed functions
 #' @export
 #' @examples
-#' f1 <- function(x) x + 1
-#' f2 <- typed_function(f1, arg_specs = c(x = "numeric"))
-#' is_typed(f1) # FALSE
-#' is_typed(f2) # TRUE
+#' f <- function(x) x + 1
+#' g <- typed_function(f, arg_specs = c(x = "numeric"))
+#' is_typed(f)
+#' is_typed(g)
 is_typed <- function(fn) {
   isTRUE(attr(fn, "typed"))
 }
 
-#' Get function signature
+#' Inspect the signature of a typed function
 #'
-#' @param fn Typed function
-#' @return Signature information or NULL
+#' Returns the argument specs, return spec, and original formals attached
+#' by [typed_function()]. Returns `NULL` for plain functions.
+#'
+#' @param fn A typed function.
+#' @return Named list with `args`, `return`, and `formals`, or `NULL`.
+#' @family typed functions
 #' @export
 #' @examples
 #' f <- typed_function(
@@ -202,9 +265,13 @@ get_signature <- function(fn) {
   }
 
   arg_specs <- attr(fn, "arg_specs")
-  if (is.null(arg_specs)) arg_specs <- attr(fn, "arg_types")
+  if (is.null(arg_specs)) {
+    arg_specs <- attr(fn, "arg_types")
+  }
   return_spec <- attr(fn, "return_spec")
-  if (is.null(return_spec)) return_spec <- attr(fn, "return_type")
+  if (is.null(return_spec)) {
+    return_spec <- attr(fn, "return_type")
+  }
 
   list(
     args = arg_specs,
@@ -213,16 +280,34 @@ get_signature <- function(fn) {
   )
 }
 
-#' Create method validator for R6 or S3 classes
+#' Build a typed-method decorator
 #'
-#' @param class_name Name of the class
-#' @param method_name Name of the method
-#' @param arg_types Argument types
-#' @param return_type Return type
-#' @return Typed method wrapper
+#' Returns a function that wraps an underlying method with type checks
+#' suitable for S3 or R6 classes. The returned decorator is a thin shim
+#' over [typed_function()] that ignores `class_name` / `method_name` at
+#' runtime — they are kept as documentation hooks.
+#'
+#' @param class_name Class name (informational).
+#' @param method_name Method name (informational).
+#' @param arg_types Named list of argument type specifications.
+#' @param return_type Return-type specification.
+#' @return A decorator: `function(fn) -> typed function`.
+#' @family typed functions
 #' @export
-typed_method <- function(class_name, method_name, arg_types = list(),
-                         return_type = NULL) {
+#' @examples
+#' decorate <- typed_method(
+#'   "Point", "translate",
+#'   arg_types = list(dx = "numeric", dy = "numeric"),
+#'   return_type = "list"
+#' )
+#' translate <- decorate(function(dx, dy) list(dx = dx, dy = dy))
+#' translate(1, 2)
+typed_method <- function(
+  class_name,
+  method_name,
+  arg_types = list(),
+  return_type = NULL
+) {
   function(fn) {
     typed_function(
       fn = fn,
@@ -232,12 +317,17 @@ typed_method <- function(class_name, method_name, arg_types = list(),
   }
 }
 
-#' Validate function call without executing
+#' Validate a call to a typed function without executing it
 #'
-#' @param fn Typed function
-#' @param ... Arguments to validate
-#' @param return_spec Return type specification (unused, for API parity)
-#' @return list with valid (logical) and errors (character vector)
+#' Runs the same checks as a real call but returns the outcome as a list
+#' instead of executing the body. Useful for validating user input before
+#' performing side effects.
+#'
+#' @param fn A typed function.
+#' @param ... Arguments to validate against `fn`'s spec.
+#' @param return_spec Reserved for API parity; currently unused.
+#' @return Named list `list(valid, errors)`. `errors` is `NULL` on success.
+#' @family typed functions
 #' @export
 #' @examples
 #' f <- typed_function(
@@ -253,7 +343,9 @@ validate_call <- function(fn, ..., return_spec = NULL) {
 
   args <- list(...)
   arg_specs <- attr(fn, "arg_specs")
-  if (is.null(arg_specs)) arg_specs <- attr(fn, "arg_types")
+  if (is.null(arg_specs)) {
+    arg_specs <- attr(fn, "arg_types")
+  }
   errors <- character(0)
 
   for (param_name in names(arg_specs)) {

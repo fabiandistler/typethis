@@ -2,20 +2,41 @@
 % Please edit documentation in R/type_spec.R
 \name{type_spec}
 \alias{type_spec}
-\title{Composite Type Specifications}
+\title{Composable type specifications}
 \description{
-Structured, composable type specifications for use with \code{is_type()},
-\code{assert_type()}, \code{validate_type()}, \code{field()}, \code{typed_function()},
-and \code{to_json_schema()}.
-
-Composite specs let you express types that go beyond a single builtin
-name: unions, nullable wrappers, lists/vectors of a given element type,
-enums, and explicit references to registered model classes.
-
-All constructors return objects of class \code{type_spec}. They compose:
+Structured, composable type specifications. They work everywhere a type
+name does — \code{\link[=is_type]{is_type()}}, \code{\link[=assert_type]{assert_type()}}, \code{\link[=validate_type]{validate_type()}}, \code{\link[=field]{field()}},
+\code{\link[=typed_function]{typed_function()}}, \code{\link[=to_json_schema]{to_json_schema()}} — and they compose:
 \code{t_list_of(t_union("integer", "character"))} is valid.
-
-Plain character strings (e.g. \code{"numeric"}) and predicate functions
-continue to work as type arguments without change. Internally they are
-normalized to \code{type_spec} objects via \code{as_type_spec()}.
 }
+\details{
+All constructors return objects of class \code{type_spec}. Plain character
+strings (e.g. \code{"numeric"}) and predicate functions continue to work as
+type arguments without change; internally they are normalized to
+\code{type_spec} objects.
+
+Available constructors:
+\itemize{
+\item \code{\link[=t_union]{t_union()}} — match any of several alternatives.
+\item \code{\link[=t_nullable]{t_nullable()}} — also accept \code{NULL}.
+\item \code{\link[=t_list_of]{t_list_of()}} — list of elements of a given type, with optional length.
+\item \code{\link[=t_vector_of]{t_vector_of()}} — atomic vector of a given builtin type, with length.
+\item \code{\link[=t_enum]{t_enum()}} — value in a fixed set.
+\item \code{\link[=t_model]{t_model()}} — instance of a registered typed model.
+\item \code{\link[=t_predicate]{t_predicate()}} — wrap a predicate function with a description.
+}
+
+Use \code{\link[=is_type_spec]{is_type_spec()}} to detect a composite spec at runtime.
+}
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()}
+}
+\concept{type specifications}

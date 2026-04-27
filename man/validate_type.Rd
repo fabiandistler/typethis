@@ -2,26 +2,36 @@
 % Please edit documentation in R/type_check.R
 \name{validate_type}
 \alias{validate_type}
-\title{Validate type with detailed error message}
+\title{Validate a value's type and return a structured result}
 \usage{
 validate_type(value, type, name = "value", nullable = FALSE)
 }
 \arguments{
-\item{value}{The value to check}
+\item{value}{Value to test.}
 
-\item{type}{The expected type}
+\item{type}{Expected type — character, function, or \code{type_spec}.}
 
-\item{name}{Variable name}
+\item{name}{Variable name used in the error message.}
 
-\item{nullable}{Allow NULL}
+\item{nullable}{If \code{TRUE}, \code{NULL} is accepted.}
 }
 \value{
-list with valid (logical) and error (character or NULL)
+Named list with \code{valid} (logical) and \code{error} (character or \code{NULL}).
 }
 \description{
-Validate type with detailed error message
+Like \code{\link[=assert_type]{assert_type()}} but returns a list \code{list(valid, error)} instead of
+throwing. Use it when you want to collect or inspect errors rather than
+stop execution.
 }
 \examples{
 validate_type(5, "numeric", "x")
 validate_type("hello", "numeric", "x")
 }
+\seealso{
+Other type checking: 
+\code{\link{assert_type}()},
+\code{\link{coerce_type}()},
+\code{\link{is_one_of}()},
+\code{\link{is_type}()}
+}
+\concept{type checking}

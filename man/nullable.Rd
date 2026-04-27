@@ -2,21 +2,38 @@
 % Please edit documentation in R/validators.R
 \name{nullable}
 \alias{nullable}
-\title{Nullable type validator}
+\title{Make a validator accept \code{NULL}}
 \usage{
 nullable(validator)
 }
 \arguments{
-\item{validator}{Base validator function}
+\item{validator}{Underlying validator function.}
 }
 \value{
-Validator that also accepts NULL
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Nullable type validator
+Wraps \code{validator} so that \code{NULL} is also accepted. Useful for optional
+fields. For a composable type-spec equivalent, see \code{\link[=t_nullable]{t_nullable()}}.
 }
 \examples{
 optional_num <- nullable(function(x) is.numeric(x))
-optional_num(5) # TRUE
-optional_num(NULL) # TRUE
+optional_num(5)
+optional_num(NULL)
+optional_num("hi")
 }
+\seealso{
+\code{\link[=t_nullable]{t_nullable()}} for the composable type-spec form.
+
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

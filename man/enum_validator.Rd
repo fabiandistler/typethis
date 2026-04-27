@@ -2,21 +2,40 @@
 % Please edit documentation in R/validators.R
 \name{enum_validator}
 \alias{enum_validator}
-\title{Create enum validator}
+\title{Validate a value against a fixed set of allowed values}
 \usage{
 enum_validator(allowed_values)
 }
 \arguments{
-\item{allowed_values}{Vector of allowed values}
+\item{allowed_values}{Atomic vector of allowed values.}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Create enum validator
+Returns a validator closure that accepts values where every element is
+in \code{allowed_values}. For an equivalent that doubles as a type
+specification (usable with \code{\link[=field]{field()}} and \code{\link[=typed_function]{typed_function()}}) see
+\code{\link[=t_enum]{t_enum()}}.
 }
 \examples{
-status_validator <- enum_validator(c("active", "inactive", "pending"))
-status_validator("active") # TRUE
-status_validator("deleted") # FALSE
+status <- enum_validator(c("active", "inactive", "pending"))
+status("active")
+status("deleted")
+status(c("active", "pending"))
 }
+\seealso{
+\code{\link[=t_enum]{t_enum()}} for the composable type-spec form.
+
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

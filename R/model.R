@@ -1,98 +1,111 @@
-#' Type-Safe Models
+#' Define a typed data model
 #'
 #' @description
-#' Create type-safe data models similar to Pydantic in Python.
-#' Models validate data structure and types at creation time.
-
-#' Define a typed model schema
+#' Defines a model class — a record type with named fields, types, optional
+#' validators, defaults, and nullability — and creates two helpers in the
+#' calling environment:
 #'
-#' @description
-#' Two API styles are supported:
+#' - `new_<ClassName>()` — constructor. Validates each argument against
+#'   the field spec and applies defaults.
+#' - `update_<ClassName>(instance, …)` — returns a copy with the named
+#'   fields replaced and revalidated.
 #'
-#' **New-style (v0.2+)**: `define_model("ClassName", fields = list(...))`
-#' Creates `new_ClassName()` and `update_ClassName()` functions in the
-#' calling environment.
+#' Define each field with [field()]; pass them as a named list to `fields`.
+#' Fields can use any type accepted elsewhere in `typethis` (builtin
+#' character names, predicate functions, registered model class names,
+#' or composite [type_spec][type_spec] objects).
 #'
-#' **Old-style**: `define_model(name = "type", ...)`
-#' Returns a constructor function that creates model instances.
-#'
-#' @param ... For new-style: first argument is class name (character).
-#'           For old-style: field definitions (name = type or name = field())
-#' @param fields Named list of field definitions (new-style only)
-#' @param .validate Enable validation on creation
-#' @param .strict Strict mode - no extra fields allowed
-#' @return For old-style: Model class constructor.
-#'         For new-style: invisibly NULL (functions assigned to calling env)
+#' @param ... The class name as the first positional argument (a single
+#'   character scalar). Field definitions can also be passed here as
+#'   `name = field(...)` arguments instead of via `fields`.
+#' @param fields Named list of field definitions built with [field()] (or
+#'   bare type names).
+#' @param .validate If `FALSE`, validation is skipped on construction
+#'   (useful for hot paths).
+#' @param .strict If `TRUE`, the constructor rejects unknown fields.
+#' @return Invisibly `NULL`. The constructor and updater are assigned in
+#'   the calling environment.
+#' @family typed models
+#' @seealso [field()] for declaring a field; [validate_model()] /
+#'   [model_to_list()] / [update_model()] / [get_schema()] for working
+#'   with instances; [t_model()] for referencing a model from another
+#'   field.
 #' @export
 #' @examples
-#' # New-style API (v0.2+)
-#' define_model("Person",
-#'   fields = list(
-#'     name = field("character", nullable = FALSE),
-#'     age = field("integer", nullable = FALSE, default = 0L)
-#'   )
-#' )
-#' p <- new_Person(name = "Alice", age = 30L)
-#' p2 <- update_Person(p, age = 31L)
+#' define_model("User", fields = list(
+#'   name  = field("character"),
+#'   age   = field("integer", validator = numeric_range(0, 120),
+#'                 default = 0L),
+#'   email = field("character",
+#'                 validator = string_pattern("^[^@]+@[^@]+$"))
+#' ))
 #'
-#' # Old-style API (backward compatible)
-#' User <- define_model(
-#'   name = "character",
-#'   age = "numeric",
-#'   email = "character",
-#'   .validate = TRUE
+#' u <- new_User(name = "Ada", email = "ada@example.com")
+#' u$age   # default applied
+#'
+#' u2 <- update_User(u, age = 36L)
+#' u2$age
+#'
+#' # Strict mode rejects unknown fields
+#' define_model("StrictPoint", fields = list(
+#'   x = field("numeric"),
+#'   y = field("numeric")
+#' ), .strict = TRUE)
+#'
+#' tryCatch(
+#'   new_StrictPoint(x = 1, y = 2, z = 3),
+#'   error = function(e) conditionMessage(e)
 #' )
-#' user <- User(name = "John", age = 30, email = "john@example.com")
-define_model <- function(..., fields = NULL, .validate = TRUE,
-                         .strict = FALSE) {
+define_model <- function(
+  ...,
+  fields = NULL,
+  .validate = TRUE,
+  .strict = FALSE
+) {
   args <- list(...)
   arg_names <- names(args)
 
-  # Detect new-style API:
-  # - First argument is UNNAMED character string (class name)
-  # - Old-style has all named arguments
   first_arg_unnamed <- is.null(arg_names) || arg_names[1] == ""
 
-  if (length(args) >= 1 && first_arg_unnamed &&
-        is.character(args[[1]]) && length(args[[1]]) == 1) {
+  if (
+    length(args) >= 1 &&
+      first_arg_unnamed &&
+      is.character(args[[1]]) &&
+      length(args[[1]]) == 1
+  ) {
     class_name <- args[[1]]
 
-    # Get fields from explicit fields argument or from remaining ... args
     if (!is.null(fields)) {
       field_defs <- fields
     } else if (length(args) > 1) {
-      # Remaining args after class name should be named field definitions
       field_defs <- args[-1]
     } else {
       stop(
-        "New-style define_model() requires 'fields' argument",
+        "define_model() requires either a `fields` argument",
         " or named field definitions"
       )
     }
 
-    # Dispatch to new-style implementation
     define_model_new_style(class_name, field_defs, .validate, .strict)
     return(invisible(NULL))
   }
 
-  # Old-style API: all args are field definitions (all named)
+  # Legacy: define_model(name = "type", ...) returning a constructor.
+  # Kept for backward compatibility; not part of the documented API.
   field_names <- arg_names
-  fields <- args # Use args instead of fields for old-style
+  fields <- args
 
   if (is.null(field_names) || any(field_names == "")) {
     stop("All fields must be named")
   }
 
-  # Create model constructor (old-style)
   constructor <- function(..., .validate_instance = .validate) {
     values <- list(...)
     value_names <- names(values)
 
-    # Check for missing required fields
     required_fields <- field_names
     missing <- setdiff(required_fields, value_names)
 
-    # Handle default values
     for (fname in field_names) {
       if (!(fname %in% value_names)) {
         field_def <- fields[[fname]]
@@ -102,10 +115,8 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
       }
     }
 
-    # Check again for missing required fields
     missing <- setdiff(required_fields, names(values))
     if (length(missing) > 0) {
-      # Check if missing fields have defaults
       missing_no_default <- character(0)
       for (fname in missing) {
         field_def <- fields[[fname]]
@@ -115,32 +126,35 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
       }
 
       if (length(missing_no_default) > 0) {
-        stop(sprintf(
-          "Missing required fields: %s",
-          paste(missing_no_default, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Missing required fields: %s",
+            paste(missing_no_default, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
-    # Check for extra fields in strict mode
     if (.strict) {
       extra <- setdiff(value_names, field_names)
       if (length(extra) > 0) {
-        stop(sprintf(
-          "Extra fields not allowed: %s",
-          paste(extra, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Extra fields not allowed: %s",
+            paste(extra, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
-    # Validate each field
     if (.validate_instance) {
       for (fname in names(values)) {
         if (fname %in% field_names) {
           field_def <- fields[[fname]]
           value <- values[[fname]]
 
-          # Extract type and validator
           if (is.list(field_def)) {
             field_type <- field_def$type
             validator <- field_def$validator
@@ -149,36 +163,33 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
             validator <- NULL
           }
 
-          # Type check
           if (!is.null(field_type)) {
             assert_type(value, field_type, fname)
           }
 
-          # Custom validator
           if (!is.null(validator) && is.function(validator)) {
             if (!validator(value)) {
-              stop(sprintf(
-                "Validation failed for field '%s'",
-                fname
-              ), call. = FALSE)
+              stop(
+                sprintf(
+                  "Validation failed for field '%s'",
+                  fname
+                ),
+                call. = FALSE
+              )
             }
           }
         }
       }
     }
 
-    # Create model instance
-    instance <- structure(
+    structure(
       values,
       class = c("typed_model", "list"),
       schema = fields,
       strict = .strict
     )
-
-    instance
   }
 
-  # Add metadata
   attr(constructor, "fields") <- fields
   attr(constructor, "strict") <- .strict
   attr(constructor, "model_class") <- TRUE
@@ -187,28 +198,31 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
 }
 
 #' @noRd
-define_model_new_style <- function(class_name, fields,
-                                   .validate = TRUE, .strict = FALSE) {
+define_model_new_style <- function(
+  class_name,
+  fields,
+  .validate = TRUE,
+  .strict = FALSE
+) {
   field_names <- names(fields)
 
   if (is.null(field_names) || any(field_names == "")) {
     stop("All fields must be named")
   }
 
-  # Validate each field definition
   for (fname in field_names) {
     field_def <- fields[[fname]]
-    # type_spec IS a list — must be detected before the generic list branch
-    if (!is.list(field_def) || inherits(field_def, "type_spec") ||
-          is.function(field_def)) {
-      # Convert simple type spec to field definition
+    if (
+      !is.list(field_def) ||
+        inherits(field_def, "type_spec") ||
+        is.function(field_def)
+    ) {
       fields[[fname]] <- list(type = field_def, nullable = FALSE)
     } else if (is.null(field_def$type)) {
       stop(sprintf("Field '%s' must have a 'type' specification", fname))
     }
   }
 
-  # Store model schema in a registry for nested model support
   model_registry <- getOption("typethis_model_registry", list())
   model_registry[[class_name]] <- list(
     fields = fields,
@@ -217,14 +231,11 @@ define_model_new_style <- function(class_name, fields,
   )
   options(typethis_model_registry = model_registry)
 
-  # Create new_<ClassName>() constructor function
   new_func_name <- paste0("new_", class_name)
   new_func <- function(...) {
-    # Capture arguments
     values <- list(...)
     value_names <- names(values)
 
-    # Handle default values
     for (fname in field_names) {
       if (!(fname %in% value_names)) {
         field_def <- fields[[fname]]
@@ -234,10 +245,8 @@ define_model_new_style <- function(class_name, fields,
       }
     }
 
-    # Check for missing required fields
     missing <- setdiff(field_names, names(values))
     if (length(missing) > 0) {
-      # Check if missing fields have defaults
       missing_no_default <- character(0)
       for (fname in missing) {
         field_def <- fields[[fname]]
@@ -247,27 +256,31 @@ define_model_new_style <- function(class_name, fields,
       }
 
       if (length(missing_no_default) > 0) {
-        stop(sprintf(
-          "Missing required fields for %s: %s",
-          class_name,
-          paste(missing_no_default, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Missing required fields for %s: %s",
+            class_name,
+            paste(missing_no_default, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
-    # Check for extra fields in strict mode
     if (.strict) {
       extra <- setdiff(value_names, field_names)
       if (length(extra) > 0) {
-        stop(sprintf(
-          "Extra fields not allowed for %s: %s",
-          class_name,
-          paste(extra, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Extra fields not allowed for %s: %s",
+            class_name,
+            paste(extra, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
-    # Validate each field
     if (.validate) {
       for (fname in names(values)) {
         if (fname %in% field_names) {
@@ -279,37 +292,32 @@ define_model_new_style <- function(class_name, fields,
       }
     }
 
-    # Create model instance with class-specific S3 class
-    instance <- structure(
+    structure(
       values,
       class = c(class_name, "typed_model", "list"),
       schema = fields,
       strict = .strict,
       model_class_name = class_name
     )
-
-    instance
   }
 
-  # Add metadata to constructor
   attr(new_func, "fields") <- fields
   attr(new_func, "strict") <- .strict
   attr(new_func, "model_class") <- TRUE
   attr(new_func, "class_name") <- class_name
 
-  # Create update_<ClassName>() function
   update_func_name <- paste0("update_", class_name)
   update_func <- function(instance, ...) {
     if (!inherits(instance, class_name)) {
       stop(sprintf(
         "Expected %s instance, got %s",
-        class_name, class(instance)[1]
+        class_name,
+        class(instance)[1]
       ))
     }
 
     updates <- list(...)
 
-    # Merge updates onto instance fields
     for (fname in names(updates)) {
       if (fname %in% field_names) {
         instance[[fname]] <- updates[[fname]]
@@ -320,7 +328,6 @@ define_model_new_style <- function(class_name, fields,
       }
     }
 
-    # Revalidate all fields that were updated
     if (.validate) {
       for (fname in names(updates)) {
         if (fname %in% field_names) {
@@ -335,7 +342,6 @@ define_model_new_style <- function(class_name, fields,
     instance
   }
 
-  # Assign functions to calling environment
   caller_env <- parent.frame(2)
   assign(new_func_name, new_func, envir = caller_env)
   assign(update_func_name, update_func, envir = caller_env)
@@ -343,108 +349,151 @@ define_model_new_style <- function(class_name, fields,
   invisible(NULL)
 }
 
-#' Validate a field value against its definition
-#' @param fname Field name
-#' @param value Field value
-#' @param field_def Field definition list
-#' @param class_name Model class name for error messages
+#' Validate a single field value against its definition
+#'
+#' Internal helper used by [define_model()] and the generated `update_*()`
+#' functions. Exported for advanced use cases (custom model machinery).
+#'
+#' @param fname Field name (used only for error messages).
+#' @param value Value to validate.
+#' @param field_def Field definition list, as produced by [field()].
+#' @param class_name Owning model class name (used only for error messages).
+#' @return `invisible(TRUE)` on success; an error otherwise.
 #' @keywords internal
-validate_field_value <- function(fname, value, field_def,
-                                 class_name = "model") {
+validate_field_value <- function(
+  fname,
+  value,
+  field_def,
+  class_name = "model"
+) {
   field_type <- field_def$type
   nullable <- isTRUE(field_def$nullable)
   validator <- field_def$validator
 
-  # Handle NULL values
   if (is.null(value)) {
     if (!nullable) {
-      stop(sprintf(
-        "Field '%s' in %s cannot be NULL (nullable = FALSE)",
-        fname, class_name
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "Field '%s' in %s cannot be NULL (nullable = FALSE)",
+          fname,
+          class_name
+        ),
+        call. = FALSE
+      )
     }
     return(invisible(TRUE))
   }
 
-  # Composite type_spec: dispatch through assert_type directly
   if (inherits(field_type, "type_spec")) {
     assert_type(value, field_type, fname)
   } else if (is.character(field_type) && length(field_type) == 1L) {
-    # Check if type refers to a registered model class (nested model support)
     model_registry <- getOption("typethis_model_registry", list())
     if (field_type %in% names(model_registry)) {
-      # Validate as nested model
       if (!is_model(value)) {
-        stop(sprintf(
-          "Field '%s' in %s must be a typed model, got %s",
-          fname, class_name, class(value)[1]
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Field '%s' in %s must be a typed model, got %s",
+            fname,
+            class_name,
+            class(value)[1]
+          ),
+          call. = FALSE
+        )
       }
       if (!inherits(value, field_type)) {
-        stop(sprintf(
-          "Field '%s' in %s must be of class '%s', got '%s'",
-          fname, class_name, field_type, class(value)[1]
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Field '%s' in %s must be of class '%s', got '%s'",
+            fname,
+            class_name,
+            field_type,
+            class(value)[1]
+          ),
+          call. = FALSE
+        )
       }
     } else {
       assert_type(value, field_type, fname)
     }
   } else if (!is.null(field_type)) {
-    # Function predicate or other — delegate to assert_type
     assert_type(value, field_type, fname)
   }
 
-  # Custom validator
   if (!is.null(validator) && is.function(validator)) {
     if (!validator(value)) {
-      stop(sprintf(
-        "Validation failed for field '%s' in %s",
-        fname, class_name
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "Validation failed for field '%s' in %s",
+          fname,
+          class_name
+        ),
+        call. = FALSE
+      )
     }
   }
 
   invisible(TRUE)
 }
 
-#' Define a field with validation and defaults
+#' Define a model field
 #'
-#' @param type Type specification. Accepts a character builtin name
-#'   (`"numeric"`, `"character"`, ...), a registered model class name,
-#'   a predicate function, or a composite spec built with `t_union()`,
-#'   `t_list_of()`, `t_nullable()`, `t_enum()`, `t_model()`, etc.
-#' @param default Default value.
-#' @param validator Custom validator function.
-#' @param nullable Allow NULL values.
-#' @param description Field description.
-#' @param primary_key Logical. Field is part of the primary key. ODCS metadata
-#'   only — has no effect on runtime validation.
-#' @param unique Logical. Values must be unique. ODCS metadata only.
-#' @param pii Logical. Field contains personally identifiable information.
-#'   ODCS metadata only.
-#' @param classification Optional character scalar (e.g. `"public"`,
-#'   `"internal"`, `"confidential"`). ODCS metadata only.
+#' Builds a field definition for use inside [define_model()]. A field
+#' carries a type, optional default, optional validator, and optional
+#' nullability — plus a number of metadata slots (`primary_key`, `pii`,
+#' `tags`, ...) that travel through the [to_datacontract()] /
+#' [to_openapi()] / [to_json_schema()] bridges but have no effect on
+#' runtime validation.
+#'
+#' `type` accepts:
+#'
+#' - A character builtin name (`"numeric"`, `"character"`, `"integer"`, ...).
+#' - A predicate function `function(value) -> logical`.
+#' - A registered model class name (string).
+#' - Any [type_spec][type_spec] built with `t_*()`.
+#'
+#' @param type Type specification.
+#' @param default Default value when the field is omitted at construction.
+#' @param validator Optional value-level validator function.
+#' @param nullable If `TRUE`, the field accepts `NULL`.
+#' @param description Free-text description; surfaces in JSON Schema and
+#'   ODCS export.
+#' @param primary_key Logical. ODCS metadata only.
+#' @param unique Logical. ODCS metadata only.
+#' @param pii Logical. ODCS metadata only.
+#' @param classification Optional classification label
+#'   (`"public"`, `"internal"`, `"confidential"`, ...). ODCS metadata only.
 #' @param tags Optional character vector of free-form tags.
-#' @param examples Optional list/vector of example values for documentation.
+#' @param examples Optional list/vector of example values.
 #' @param references Optional named list `list(model = "Order", field = "id")`
 #'   describing a foreign-key style reference. ODCS metadata only.
 #' @param quality Optional list of quality checks (each a named list with
 #'   `type`, `description`, and engine-specific keys like `query`).
-#' @return Field specification.
+#' @return A field definition (named list).
+#' @family typed models
 #' @export
 #' @examples
-#' field("numeric", default = 0, validator = function(x) x >= 0)
+#' field("numeric", default = 0)
+#' field("integer", validator = numeric_range(0, 120))
 #' field(t_union("integer", "character"))
 #' field(t_list_of("character"), default = list())
 #' field(t_enum(c("admin", "user")))
 #' field("character", primary_key = TRUE, pii = TRUE,
 #'       classification = "confidential")
-field <- function(type, default = NULL, validator = NULL,
-                  nullable = FALSE, description = "",
-                  primary_key = FALSE, unique = FALSE,
-                  pii = FALSE, classification = NULL,
-                  tags = NULL, examples = NULL,
-                  references = NULL, quality = NULL) {
+field <- function(
+  type,
+  default = NULL,
+  validator = NULL,
+  nullable = FALSE,
+  description = "",
+  primary_key = FALSE,
+  unique = FALSE,
+  pii = FALSE,
+  classification = NULL,
+  tags = NULL,
+  examples = NULL,
+  references = NULL,
+  quality = NULL
+) {
   list(
     type = type,
     default = default,
@@ -462,25 +511,36 @@ field <- function(type, default = NULL, validator = NULL,
   )
 }
 
-#' Check if object is a typed model
+#' Test whether an object is a typed model instance
 #'
-#' @param x Object to check
-#' @return logical
+#' @param x Object to test.
+#' @return `TRUE` or `FALSE`.
+#' @family typed models
 #' @export
+#' @examples
+#' define_model("Tag", fields = list(name = field("character")))
+#' is_model(new_Tag(name = "alpha"))
+#' is_model(list(name = "alpha"))
 is_model <- function(x) {
   inherits(x, "typed_model")
 }
 
-#' Get model schema
+#' Retrieve a model's schema
 #'
-#' @param model Model instance or constructor
-#' @return Schema definition
+#' Returns the named list of field definitions for a model instance or
+#' constructor. `NULL` for objects that aren't models.
+#'
+#' @param model Model instance or constructor.
+#' @return Named list of field definitions, or `NULL`.
+#' @family typed models
 #' @export
 #' @examples
-#' User <- define_model(name = "character", age = "numeric")
-#' user <- User(name = "John", age = 30)
-#' get_schema(user)
-#' get_schema(User)
+#' define_model("Person", fields = list(
+#'   name = field("character"),
+#'   age  = field("integer")
+#' ))
+#' p <- new_Person(name = "Ada", age = 36L)
+#' names(get_schema(p))
 get_schema <- function(model) {
   if (is_model(model)) {
     attr(model, "schema")
@@ -491,15 +551,22 @@ get_schema <- function(model) {
   }
 }
 
-#' Validate model instance
+#' Validate a model instance against its schema
 #'
-#' @param instance Model instance
-#' @return list with valid (logical) and errors (character vector)
+#' Runs every field through type and validator checks and returns a list
+#' `list(valid, errors)` rather than throwing.
+#'
+#' @param instance A model instance.
+#' @return Named list `list(valid, errors)`. `errors` is `NULL` on success.
+#' @family typed models
 #' @export
 #' @examples
-#' User <- define_model(name = "character", age = "numeric")
-#' user <- User(name = "John", age = 30, .validate_instance = FALSE)
-#' validate_model(user)
+#' define_model("Person", fields = list(
+#'   name = field("character"),
+#'   age  = field("integer", validator = numeric_range(0, 120))
+#' ))
+#' p <- new_Person(name = "Ada", age = 36L)
+#' validate_model(p)
 validate_model <- function(instance) {
   if (!is_model(instance)) {
     return(list(valid = FALSE, errors = "Not a typed model"))
@@ -513,7 +580,6 @@ validate_model <- function(instance) {
       field_def <- schema[[fname]]
       value <- instance[[fname]]
 
-      # Extract type and validator
       if (is.list(field_def)) {
         field_type <- field_def$type
         validator <- field_def$validator
@@ -522,7 +588,6 @@ validate_model <- function(instance) {
         validator <- NULL
       }
 
-      # Type validation
       if (!is.null(field_type)) {
         validation <- validate_type(value, field_type, fname)
         if (!validation$valid) {
@@ -530,7 +595,6 @@ validate_model <- function(instance) {
         }
       }
 
-      # Custom validator
       if (!is.null(validator) && is.function(validator)) {
         if (!validator(value)) {
           errors <- c(
@@ -548,11 +612,19 @@ validate_model <- function(instance) {
   )
 }
 
-#' Convert model to list
+#' Convert a typed model instance to a plain list
 #'
-#' @param model Model instance
-#' @return list
+#' @param model A model instance.
+#' @return A plain list with the model's field values.
+#' @family typed models
 #' @export
+#' @examples
+#' define_model("Point", fields = list(
+#'   x = field("numeric"),
+#'   y = field("numeric")
+#' ))
+#' p <- new_Point(x = 1, y = 2)
+#' model_to_list(p)
 model_to_list <- function(model) {
   if (!is_model(model)) {
     stop("Not a typed model")
@@ -561,17 +633,28 @@ model_to_list <- function(model) {
   as.list(model)
 }
 
-#' Update model fields
+#' Update fields on a typed model instance
 #'
-#' @param model Model instance
-#' @param ... Fields to update
-#' @param .validate Validate after update
-#' @return Updated model instance
+#' Generic alternative to the class-specific `update_<ClassName>()` produced
+#' by [define_model()]. Returns a new instance with the named fields
+#' replaced and (by default) revalidated.
+#'
+#' @param model A model instance.
+#' @param ... Fields to update, as `name = value`.
+#' @param .validate If `FALSE`, skip revalidation.
+#' @return Updated model instance.
+#' @family typed models
+#' @seealso The class-specific `update_<ClassName>()` constructor created by
+#'   [define_model()] preserves the S3 class chain and is preferred when
+#'   available.
 #' @export
 #' @examples
-#' User <- define_model(name = "character", age = "numeric")
-#' user <- User(name = "John", age = 30)
-#' user <- update_model(user, age = 31)
+#' define_model("Person", fields = list(
+#'   name = field("character"),
+#'   age  = field("integer")
+#' ))
+#' p <- new_Person(name = "Ada", age = 36L)
+#' update_model(p, age = 37L)$age
 update_model <- function(model, ..., .validate = TRUE) {
   if (!is_model(model)) {
     stop("Not a typed model")
@@ -580,12 +663,10 @@ update_model <- function(model, ..., .validate = TRUE) {
   updates <- list(...)
   schema <- attr(model, "schema")
 
-  # Update fields
   for (fname in names(updates)) {
     if (fname %in% names(schema)) {
       value <- updates[[fname]]
 
-      # Validate if needed
       if (.validate) {
         field_def <- schema[[fname]]
 
@@ -619,13 +700,20 @@ update_model <- function(model, ..., .validate = TRUE) {
   model
 }
 
-#' Print method for typed models
+#' Print method for typed model instances
 #'
-#' @param x Model instance
-#' @param ... Additional arguments
+#' @param x Model instance.
+#' @param ... Unused.
+#' @return Invisibly `x`.
+#' @family typed models
 #' @export
+#' @examples
+#' define_model("Point", fields = list(
+#'   x = field("numeric"),
+#'   y = field("numeric")
+#' ))
+#' new_Point(x = 1, y = 2)
 print.typed_model <- function(x, ...) {
-  # Get class name if available (new-style models)
   class_name <- attr(x, "model_class_name")
   if (!is.null(class_name)) {
     cat(sprintf("<Typed Model: %s>\n", class_name))

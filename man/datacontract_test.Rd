@@ -17,5 +17,23 @@ datacontract_test(path, server = NULL, ...)
 List with \code{success}, \code{status}, \code{stdout}, \code{stderr}.
 }
 \description{
-Run \verb{datacontract test} on a contract file
+Thin wrapper around the upstream CLI. Requires the \code{datacontract}
+binary on \code{PATH} — guard with \code{\link[=datacontract_cli_available]{datacontract_cli_available()}}.
 }
+\examples{
+if (datacontract_cli_available()) {
+  datacontract_test("orders.yaml", server = "production")
+}
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

@@ -2,24 +2,48 @@
 % Please edit documentation in R/type_check.R
 \name{coerce_type}
 \alias{coerce_type}
-\title{Type coercion with validation}
+\title{Coerce a value to a target type}
 \usage{
 coerce_type(value, type, strict = FALSE)
 }
 \arguments{
-\item{value}{The value to coerce}
+\item{value}{Value to coerce.}
 
-\item{type}{Target type}
+\item{type}{Target type — character builtin, or a supported \code{type_spec}.}
 
-\item{strict}{If TRUE, fail on coercion warnings}
+\item{strict}{If \code{TRUE}, fail when coercion introduces \code{NA}.}
 }
 \value{
-Coerced value or error
+The coerced value.
 }
 \description{
-Type coercion with validation
+Attempts to convert \code{value} to \code{type} using the standard \verb{as.*()}
+coercions. With \code{strict = TRUE}, coercion that introduces \code{NA} (e.g.
+\code{as.numeric("abc")}) raises an error instead of returning silently.
+}
+\details{
+Composite type specs are supported for the kinds where coercion has a
+clear meaning: \code{\link[=t_nullable]{t_nullable()}} (NULL passes through, otherwise the inner
+spec drives coercion), \code{\link[=t_union]{t_union()}} (each alternative is tried in order),
+and \code{\link[=t_enum]{t_enum()}} (values already in the allowed set pass through; otherwise
+the value is coerced to the enum's value type and re-checked).
 }
 \examples{
 coerce_type("123", "numeric")
 coerce_type(c(1, 2, 3), "character")
+coerce_type("yes", "logical")
+
+err <- tryCatch(
+  coerce_type("abc", "numeric", strict = TRUE),
+  error = function(e) conditionMessage(e)
+)
+err
 }
+\seealso{
+Other type checking: 
+\code{\link{assert_type}()},
+\code{\link{is_one_of}()},
+\code{\link{is_type}()},
+\code{\link{validate_type}()}
+}
+\concept{type checking}

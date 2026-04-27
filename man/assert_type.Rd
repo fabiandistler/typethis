@@ -2,28 +2,43 @@
 % Please edit documentation in R/type_check.R
 \name{assert_type}
 \alias{assert_type}
-\title{Assert that a value has the correct type}
+\title{Assert that a value has an expected type}
 \usage{
 assert_type(value, type, name = "value", nullable = FALSE)
 }
 \arguments{
-\item{value}{The value to check}
+\item{value}{Value to test.}
 
-\item{type}{The expected type}
+\item{type}{Expected type — character, function, or \code{type_spec}.}
 
-\item{name}{Variable name for error messages}
+\item{name}{Variable name used in the error message.}
 
-\item{nullable}{Allow NULL values}
+\item{nullable}{If \code{TRUE}, \code{NULL} is accepted.}
 }
 \value{
-invisible(TRUE) or throws error
+\code{invisible(TRUE)} on success; an error otherwise.
 }
 \description{
-Assert that a value has the correct type
+Throws an informative error if \code{value} does not match \code{type}. Use this
+at function boundaries to fail fast with a useful message.
 }
 \examples{
-assert_type(5, "numeric", "my_var")
-\dontrun{
-assert_type("hello", "numeric", "my_var") # throws error
+assert_type(5, "numeric", "x")
+
+err <- tryCatch(
+  assert_type("hello", "numeric", "x"),
+  error = function(e) conditionMessage(e)
+)
+err
 }
+\seealso{
+\code{\link[=is_type]{is_type()}} for a non-throwing check; \code{\link[=validate_type]{validate_type()}} to get
+the message back as data.
+
+Other type checking: 
+\code{\link{coerce_type}()},
+\code{\link{is_one_of}()},
+\code{\link{is_type}()},
+\code{\link{validate_type}()}
 }
+\concept{type checking}

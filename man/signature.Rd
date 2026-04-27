@@ -2,21 +2,35 @@
 % Please edit documentation in R/typed_function.R
 \name{signature}
 \alias{signature}
-\title{Define function signature with types}
+\title{Build a function signature object}
 \usage{
 signature(..., .return = NULL)
 }
 \arguments{
-\item{...}{Named arguments with type specifications}
+\item{...}{Named type specifications (one per argument).}
 
-\item{.return}{Return type specification}
+\item{.return}{Return-type specification, or \code{NULL}.}
 }
 \value{
-Function signature object
+A \code{type_signature} object.
 }
 \description{
-Define function signature with types
+Bundles argument types and an optional return type into a single object
+that can be applied to one or more functions via \code{\link[=with_signature]{with_signature()}}.
+Useful when several functions share the same shape.
 }
 \examples{
 sig <- signature(x = "numeric", y = "numeric", .return = "numeric")
+add <- with_signature(function(x, y) x + y, sig)
+add(2, 3)
 }
+\seealso{
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{is_typed}()},
+\code{\link{typed_function}()},
+\code{\link{typed_method}()},
+\code{\link{validate_call}()},
+\code{\link{with_signature}()}
+}
+\concept{typed functions}

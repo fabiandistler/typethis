@@ -2,7 +2,7 @@
 % Please edit documentation in R/type_spec.R
 \name{is_type_spec}
 \alias{is_type_spec}
-\title{Test whether an object is a type_spec}
+\title{Test whether an object is a type spec}
 \usage{
 is_type_spec(x)
 }
@@ -10,12 +10,24 @@ is_type_spec(x)
 \item{x}{Object to test.}
 }
 \value{
-\code{TRUE} if \code{x} inherits from class \code{type_spec}, otherwise \code{FALSE}.
+\code{TRUE} or \code{FALSE}.
 }
 \description{
-Test whether an object is a type_spec
+Returns \code{TRUE} if \code{x} was created by one of the \verb{t_*()} constructors.
 }
 \examples{
 is_type_spec(t_union("numeric", "character"))
 is_type_spec("numeric")
 }
+\seealso{
+Other type specifications: 
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

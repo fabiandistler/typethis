@@ -1,0 +1,282 @@
+---
+title: "Validators and models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Validators and models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(typethis)
+```
+
+This vignette covers the built-in validators and the full `define_model()`
+/ `field()` API. If you haven't read [Getting
+Started](getting-started.html) yet, start there.
+
+## Validators
+
+A validator is just a function `function(value) -> logical`. The package
+ships with factories for the most common rules; their results carry a
+`constraint` attribute so that bridges (JSON Schema, ODCS, OpenAPI) can
+emit native keywords (`minimum`, `maxLength`, `pattern`, ...) instead of
+opaque predicate stubs.
+
+### Numeric ranges
+
+```{r}
+age <- numeric_range(0, 120)
+age(25)
+age(150)
+
+# Probability strictly in (0, 1)
+prob <- numeric_range(0, 1, exclusive_min = TRUE, exclusive_max = TRUE)
+prob(0.5)
+prob(0)
+```
+
+### Strings
+
+```{r}
+name <- string_length(min_length = 1, max_length = 50)
+name("Ada Lovelace")
+name("")
+
+email <- string_pattern("^[^@]+@[^@]+\\.[^@]+$")
+email("user@example.com")
+email("not-an-email")
+```
+
+### Vectors and lists
+
+```{r}
+pair <- vector_length(exact_len = 2)
+pair(c(1, 2))
+pair(c(1, 2, 3))
+
+nums <- list_of("numeric", min_length = 1)
+nums(list(1, 2, 3))
+nums(list("a"))
+
+# Optional values: wrap any validator with `nullable()`
+optional_num <- nullable(function(x) is.numeric(x))
+optional_num(NULL)
+optional_num(5)
+```
+
+### Data frames
+
+```{r}
+is_orders <- dataframe_spec(
+  required_cols = c("id", "amount"),
+  min_rows = 1
+)
+is_orders(data.frame(id = 1:3, amount = c(10, 20, 30)))
+is_orders(data.frame(id = integer()))
+is_orders(data.frame(name = "Ada"))
+```
+
+### Enums
+
+```{r}
+status <- enum_validator(c("active", "inactive", "pending"))
+status("active")
+status("deleted")
+```
+
+For the equivalent that doubles as a [type
+spec](type-specs.html) — usable inside `field()` and `typed_function()` —
+see `t_enum()`.
+
+### Combining validators
+
+```{r}
+positive_num <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) all(x > 0)
+)
+positive_num(5)
+positive_num(-1)
+
+num_or_str <- combine_validators(
+  function(x) is.numeric(x),
+  function(x) is.character(x),
+  all_of = FALSE
+)
+num_or_str(5)
+num_or_str("hi")
+num_or_str(TRUE)
+```
+
+### Reading constraint metadata
+
+`validator_constraint()` exposes the structured constraint attached by
+the built-in factories — useful for tooling and for the bridge functions:
+
+```{r}
+validator_constraint(numeric_range(0, 10))
+validator_constraint(function(x) x > 0)  # NULL for plain user predicates
+```
+
+## Models
+
+Use `define_model()` to describe a record. It creates a `new_<Class>()`
+constructor and an `update_<Class>()` helper in the calling environment.
+
+```{r}
+define_model("Person", fields = list(
+  name = field("character"),
+  age  = field("integer", validator = numeric_range(0, 120)),
+  email = field("character",
+                validator = string_pattern("^[^@]+@[^@]+$"))
+))
+
+p <- new_Person(name = "Ada", age = 36L, email = "ada@example.com")
+p
+```
+
+### Defaults
+
+```{r}
+define_model("Config", fields = list(
+  host  = field("character", default = "localhost"),
+  port  = field("integer",   default = 8080L),
+  debug = field("logical",   default = FALSE)
+))
+
+new_Config()$host
+new_Config(host = "api.example.com", port = 443L)$port
+```
+
+### Nullable fields
+
+A field with `nullable = TRUE` is allowed to be `NULL` (and to be
+omitted at construction without a default). Without it, omission is an
+error unless a default is set.
+
+```{r}
+define_model("Profile", fields = list(
+  name = field("character"),
+  bio  = field("character", nullable = TRUE)
+))
+
+new_Profile(name = "Ada")$bio
+new_Profile(name = "Ada", bio = "Mathematician")$bio
+```
+
+### Strict mode
+
+`.strict = TRUE` rejects unknown fields at construction:
+
+```{r, error = TRUE}
+define_model("StrictPoint", fields = list(
+  x = field("numeric"),
+  y = field("numeric")
+), .strict = TRUE)
+
+new_StrictPoint(x = 1, y = 2, z = 3)
+```
+
+### Nested models
+
+A field's `type` may be a registered model class name. The constructor
+will check that the value is an instance of that class.
+
+```{r}
+define_model("Address", fields = list(
+  street = field("character"),
+  city   = field("character")
+))
+
+define_model("Person2", fields = list(
+  name    = field("character"),
+  address = field("Address")
+))
+
+new_Person2(
+  name    = "Ada",
+  address = new_Address(street = "Newstead", city = "Nottingham")
+)
+```
+
+Use `t_model("Address")` if you want a [type spec](type-specs.html) form
+that can be combined with `t_nullable()` or `t_list_of()`.
+
+### Field-level validators
+
+`field()` accepts a `validator` callback that runs after the type check:
+
+```{r, error = TRUE}
+define_model("Coupon", fields = list(
+  code     = field("character",
+                   validator = string_length(min_length = 4, max_length = 12)),
+  discount = field("numeric",
+                   validator = numeric_range(0, 1, exclusive_max = TRUE))
+))
+
+new_Coupon(code = "SAVE20", discount = 0.2)
+new_Coupon(code = "AB", discount = 0.2)
+```
+
+### Working with instances
+
+```{r}
+schema_keys <- names(get_schema(p))
+schema_keys
+
+is_model(p)
+model_to_list(p)
+
+result <- validate_model(p)
+result$valid
+```
+
+`update_<Class>()` is the preferred way to mutate — it preserves the S3
+class and revalidates:
+
+```{r}
+p2 <- update_Person(p, age = 37L)
+p2$age
+```
+
+For mutation across models without a class-specific updater, use
+`update_model()`.
+
+### Field metadata for bridges
+
+`field()` accepts metadata that travels through to the `to_json_schema()`,
+`to_datacontract()`, and `to_openapi()` exporters but has no effect on
+runtime validation. See the [interop](interop.html) vignette for what
+each key does.
+
+```{r}
+field(
+  "character",
+  primary_key    = TRUE,
+  pii            = TRUE,
+  classification = "confidential",
+  tags           = c("audit", "lifecycle"),
+  examples       = list("ORD-1", "ORD-2")
+)
+```
+
+## Performance
+
+Validation has a per-call cost. For hot paths:
+
+- pass `.validate = FALSE` to `define_model()` to disable checks at
+  construction;
+- pass `validate = FALSE` to `typed_function()` for the same effect on
+  function calls;
+- check upstream once and trust your boundaries.
+
+You can still call `validate_model()` on demand to re-check an instance
+after a series of unchecked updates.
