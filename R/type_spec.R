@@ -80,11 +80,22 @@ new_type_spec <- function(kind, ...) {
 #' @keywords internal
 #' @noRd
 is_known_builtin <- function(name) {
-  name %in% c(
-    "numeric", "integer", "double", "character", "logical",
-    "list", "data.frame", "matrix", "factor", "date", "posixct",
-    "function", "environment"
-  )
+  name %in%
+    c(
+      "numeric",
+      "integer",
+      "double",
+      "character",
+      "logical",
+      "list",
+      "data.frame",
+      "matrix",
+      "factor",
+      "date",
+      "posixct",
+      "function",
+      "environment"
+    )
 }
 
 #' Union of type specifications
@@ -144,8 +155,12 @@ t_nullable <- function(type) {
 #' # Mixed-type list
 #' mixed <- t_list_of(t_union("integer", "character"))
 #' is_type(list(1L, "two", 3L), mixed)
-t_list_of <- function(type, min_length = 0, max_length = Inf,
-                      exact_length = NULL) {
+t_list_of <- function(
+  type,
+  min_length = 0,
+  max_length = Inf,
+  exact_length = NULL
+) {
   new_type_spec(
     "list_of",
     element = as_type_spec(type),
@@ -171,8 +186,12 @@ t_list_of <- function(type, min_length = 0, max_length = Inf,
 #' triple <- t_vector_of("integer", exact_length = 3L)
 #' is_type(1:3, triple)
 #' is_type(1:5, triple)
-t_vector_of <- function(type, min_length = 0, max_length = Inf,
-                        exact_length = NULL) {
+t_vector_of <- function(
+  type,
+  min_length = 0,
+  max_length = Inf,
+  exact_length = NULL
+) {
   inner <- as_type_spec(type)
   if (inner$kind != "builtin") {
     stop(
@@ -268,8 +287,9 @@ t_predicate <- function(fn, description = NULL) {
 
 #' @export
 format.type_spec <- function(x, ...) {
-  switch(x$kind,
-    "builtin"   = x$name,
+  switch(
+    x$kind,
+    "builtin" = x$name,
     "model_ref" = x$class_name,
     "predicate" = if (!is.null(x$description)) {
       sprintf("predicate<%s>", x$description)
@@ -277,13 +297,13 @@ format.type_spec <- function(x, ...) {
       "predicate"
     },
     "nullable" = sprintf("nullable<%s>", format(x$inner)),
-    "union"    = sprintf(
+    "union" = sprintf(
       "union<%s>",
       paste(vapply(x$alternatives, format, character(1)), collapse = ", ")
     ),
-    "list_of"  = sprintf("list_of<%s>", format(x$element)),
+    "list_of" = sprintf("list_of<%s>", format(x$element)),
     "vector_of" = sprintf("vector_of<%s>", format(x$element)),
-    "enum"     = sprintf(
+    "enum" = sprintf(
       "enum<%s>",
       paste(utils::head(as.character(x$values), 5L), collapse = ", ")
     ),
@@ -300,18 +320,19 @@ print.type_spec <- function(x, ...) {
 #' @keywords internal
 #' @noRd
 check_type_spec <- function(value, spec) {
-  switch(spec$kind,
-    "builtin"   = check_builtin_type(value, spec$name),
+  switch(
+    spec$kind,
+    "builtin" = check_builtin_type(value, spec$name),
     "predicate" = isTRUE(spec$fn(value)),
-    "nullable"  = is.null(value) || is_type(value, spec$inner),
-    "union"     = any(vapply(
+    "nullable" = is.null(value) || is_type(value, spec$inner),
+    "union" = any(vapply(
       spec$alternatives,
       function(a) is_type(value, a),
       logical(1)
     )),
-    "enum"      = all(value %in% spec$values),
+    "enum" = all(value %in% spec$values),
     "model_ref" = check_model_ref(value, spec$class_name),
-    "list_of"   = check_list_of(value, spec),
+    "list_of" = check_list_of(value, spec),
     "vector_of" = check_vector_of(value, spec),
     stop(sprintf("Unknown type_spec kind: %s", spec$kind), call. = FALSE)
   )

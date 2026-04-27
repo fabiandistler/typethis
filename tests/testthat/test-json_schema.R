@@ -7,10 +7,11 @@ test_that("builtin types map to JSON Schema", {
 })
 
 test_that("date and posixct map to string with format", {
-  expect_equal(to_json_schema("date"),
-               list(type = "string", format = "date"))
-  expect_equal(to_json_schema("posixct"),
-               list(type = "string", format = "date-time"))
+  expect_equal(to_json_schema("date"), list(type = "string", format = "date"))
+  expect_equal(
+    to_json_schema("posixct"),
+    list(type = "string", format = "date-time")
+  )
 })
 
 test_that("data.frame and factor map with x-typethis extensions", {
@@ -112,15 +113,17 @@ test_that("field default and description are propagated", {
 })
 
 test_that("model export produces top-level object schema", {
-  define_model("JS_Person", fields = list(
-    name = field("character", nullable = FALSE),
-    age = field("integer", validator = numeric_range(0, 120)),
-    role = field(t_enum(c("admin", "user")), default = "user")
-  ))
+  define_model(
+    "JS_Person",
+    fields = list(
+      name = field("character", nullable = FALSE),
+      age = field("integer", validator = numeric_range(0, 120)),
+      role = field(t_enum(c("admin", "user")), default = "user")
+    )
+  )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   s <- to_json_schema("JS_Person")
-  expect_equal(s$`$schema`,
-               "https://json-schema.org/draft/2020-12/schema")
+  expect_equal(s$`$schema`, "https://json-schema.org/draft/2020-12/schema")
   expect_equal(s$title, "JS_Person")
   expect_equal(s$type, "object")
   expect_named(s$properties, c("name", "age", "role"))
@@ -135,10 +138,7 @@ test_that("model export produces top-level object schema", {
 })
 
 test_that("strict mode flips additionalProperties to FALSE", {
-  define_model("JS_Strict",
-    fields = list(x = field("integer")),
-    .strict = TRUE
-  )
+  define_model("JS_Strict", fields = list(x = field("integer")), .strict = TRUE)
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   s <- to_json_schema("JS_Strict")
   expect_false(s$additionalProperties)
@@ -146,9 +146,12 @@ test_that("strict mode flips additionalProperties to FALSE", {
 
 test_that("nested model becomes $ref + $defs entry", {
   define_model("JS_Addr", fields = list(zip = field("character")))
-  define_model("JS_User", fields = list(
-    addr = field(t_model("JS_Addr"))
-  ))
+  define_model(
+    "JS_User",
+    fields = list(
+      addr = field(t_model("JS_Addr"))
+    )
+  )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   s <- to_json_schema("JS_User")
   expect_equal(s$properties$addr$`$ref`, "#/$defs/JS_Addr")
@@ -166,12 +169,18 @@ test_that("model registered as character field name auto-creates $ref", {
 })
 
 test_that("cyclic models terminate via stub-then-fill protocol", {
-  define_model("JS_A", fields = list(
-    b = field(t_nullable(t_model("JS_B")))
-  ))
-  define_model("JS_B", fields = list(
-    a = field(t_nullable(t_model("JS_A")))
-  ))
+  define_model(
+    "JS_A",
+    fields = list(
+      b = field(t_nullable(t_model("JS_B")))
+    )
+  )
+  define_model(
+    "JS_B",
+    fields = list(
+      a = field(t_nullable(t_model("JS_A")))
+    )
+  )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   s <- to_json_schema("JS_A")
   expect_true("JS_B" %in% names(s$`$defs`))
@@ -189,10 +198,13 @@ test_that("typed_model instance dispatches to class name", {
 
 test_that("jsonlite roundtrip serializes without error", {
   skip_if_not_installed("jsonlite")
-  define_model("JS_Round", fields = list(
-    name = field("character"),
-    tags = field(t_list_of("character"), default = list())
-  ))
+  define_model(
+    "JS_Round",
+    fields = list(
+      name = field("character"),
+      tags = field(t_list_of("character"), default = list())
+    )
+  )
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   s <- to_json_schema("JS_Round")
   out <- jsonlite::toJSON(s, auto_unbox = TRUE)

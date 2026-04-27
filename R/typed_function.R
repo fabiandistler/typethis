@@ -57,16 +57,28 @@
 #'   coerce = TRUE
 #' )
 #' add_lenient("5", "3")
-typed_function <- function(fn, arg_specs = NULL, return_spec = NULL,
-                           validate = TRUE, coerce = FALSE,
-                           arg_types = NULL, return_type = NULL) {
+typed_function <- function(
+  fn,
+  arg_specs = NULL,
+  return_spec = NULL,
+  validate = TRUE,
+  coerce = FALSE,
+  arg_types = NULL,
+  return_type = NULL
+) {
   if (!is.function(fn)) {
     stop("fn must be a function")
   }
 
-  if (is.null(arg_specs)) arg_specs <- arg_types
-  if (is.null(arg_specs)) arg_specs <- list()
-  if (is.null(return_spec)) return_spec <- return_type
+  if (is.null(arg_specs)) {
+    arg_specs <- arg_types
+  }
+  if (is.null(arg_specs)) {
+    arg_specs <- list()
+  }
+  if (is.null(return_spec)) {
+    return_spec <- return_type
+  }
 
   fn_formals <- formals(fn)
   has_dots <- "..." %in% names(fn_formals)
@@ -90,10 +102,14 @@ typed_function <- function(fn, arg_specs = NULL, return_spec = NULL,
             tryCatch(
               provided[[param_name]] <- coerce_type(val, expected),
               error = function(e) {
-                stop(sprintf(
-                  "Argument '%s': %s",
-                  param_name, e$message
-                ), call. = FALSE)
+                stop(
+                  sprintf(
+                    "Argument '%s': %s",
+                    param_name,
+                    e$message
+                  ),
+                  call. = FALSE
+                )
               }
             )
           } else {
@@ -138,8 +154,12 @@ typed_function <- function(fn, arg_specs = NULL, return_spec = NULL,
   fn_attrs <- attributes(fn)
   if (!is.null(fn_attrs)) {
     protected <- c(
-      "arg_specs", "return_spec", "arg_types",
-      "return_type", "typed", "formals_orig"
+      "arg_specs",
+      "return_spec",
+      "arg_types",
+      "return_type",
+      "typed",
+      "formals_orig"
     )
     for (nm in setdiff(names(fn_attrs), protected)) {
       attr(wrapper, nm) <- fn_attrs[[nm]]
@@ -245,9 +265,13 @@ get_signature <- function(fn) {
   }
 
   arg_specs <- attr(fn, "arg_specs")
-  if (is.null(arg_specs)) arg_specs <- attr(fn, "arg_types")
+  if (is.null(arg_specs)) {
+    arg_specs <- attr(fn, "arg_types")
+  }
   return_spec <- attr(fn, "return_spec")
-  if (is.null(return_spec)) return_spec <- attr(fn, "return_type")
+  if (is.null(return_spec)) {
+    return_spec <- attr(fn, "return_type")
+  }
 
   list(
     args = arg_specs,
@@ -278,8 +302,12 @@ get_signature <- function(fn) {
 #' )
 #' translate <- decorate(function(dx, dy) list(dx = dx, dy = dy))
 #' translate(1, 2)
-typed_method <- function(class_name, method_name, arg_types = list(),
-                         return_type = NULL) {
+typed_method <- function(
+  class_name,
+  method_name,
+  arg_types = list(),
+  return_type = NULL
+) {
   function(fn) {
     typed_function(
       fn = fn,
@@ -315,7 +343,9 @@ validate_call <- function(fn, ..., return_spec = NULL) {
 
   args <- list(...)
   arg_specs <- attr(fn, "arg_specs")
-  if (is.null(arg_specs)) arg_specs <- attr(fn, "arg_types")
+  if (is.null(arg_specs)) {
+    arg_specs <- attr(fn, "arg_types")
+  }
   errors <- character(0)
 
   for (param_name in names(arg_specs)) {

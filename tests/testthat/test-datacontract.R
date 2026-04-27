@@ -9,14 +9,17 @@ skip_without_yaml <- function() {
 test_that("builtin types map to ODCS logicalType", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M1", fields = list(
-    a = field("character"),
-    b = field("integer"),
-    c = field("numeric"),
-    d = field("logical"),
-    e = field("date"),
-    f = field("posixct")
-  ))
+  define_model(
+    "M1",
+    fields = list(
+      a = field("character"),
+      b = field("integer"),
+      c = field("numeric"),
+      d = field("logical"),
+      e = field("date"),
+      f = field("posixct")
+    )
+  )
   contract <- to_datacontract("M1")
   props <- contract$schema[[1]]$properties
   named <- setNames(props, vapply(props, `[[`, character(1), "name"))
@@ -32,11 +35,14 @@ test_that("builtin types map to ODCS logicalType", {
 test_that("validators emit ODCS constraint fields", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M2", fields = list(
-    score = field("numeric", validator = numeric_range(0, 100)),
-    name  = field("character", validator = string_length(1, 50)),
-    code  = field("character", validator = string_pattern("^[A-Z]{3}$"))
-  ))
+  define_model(
+    "M2",
+    fields = list(
+      score = field("numeric", validator = numeric_range(0, 100)),
+      name = field("character", validator = string_length(1, 50)),
+      code = field("character", validator = string_pattern("^[A-Z]{3}$"))
+    )
+  )
   contract <- to_datacontract("M2")
   props <- contract$schema[[1]]$properties
   named <- setNames(props, vapply(props, `[[`, character(1), "name"))
@@ -50,9 +56,12 @@ test_that("validators emit ODCS constraint fields", {
 test_that("t_enum becomes enum field", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M3", fields = list(
-    status = field(t_enum(c("new", "paid", "shipped")))
-  ))
+  define_model(
+    "M3",
+    fields = list(
+      status = field(t_enum(c("new", "paid", "shipped")))
+    )
+  )
   contract <- to_datacontract("M3")
   prop <- contract$schema[[1]]$properties[[1]]
   expect_equal(prop$logicalType, "string")
@@ -62,9 +71,12 @@ test_that("t_enum becomes enum field", {
 test_that("t_list_of becomes array with items and length bounds", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M4", fields = list(
-    tags = field(t_list_of("character", min_length = 1L, max_length = 5L))
-  ))
+  define_model(
+    "M4",
+    fields = list(
+      tags = field(t_list_of("character", min_length = 1L, max_length = 5L))
+    )
+  )
   contract <- to_datacontract("M4")
   prop <- contract$schema[[1]]$properties[[1]]
   expect_equal(prop$logicalType, "array")
@@ -76,9 +88,12 @@ test_that("t_list_of becomes array with items and length bounds", {
 test_that("t_nullable yields required = FALSE in field context", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M5", fields = list(
-    nick = field(t_nullable("character"), nullable = TRUE)
-  ))
+  define_model(
+    "M5",
+    fields = list(
+      nick = field(t_nullable("character"), nullable = TRUE)
+    )
+  )
   contract <- to_datacontract("M5")
   prop <- contract$schema[[1]]$properties[[1]]
   expect_equal(prop$logicalType, "string")
@@ -88,9 +103,12 @@ test_that("t_nullable yields required = FALSE in field context", {
 test_that("t_union falls back to first alternative + extension", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M6", fields = list(
-    val = field(t_union("integer", "character"))
-  ))
+  define_model(
+    "M6",
+    fields = list(
+      val = field(t_union("integer", "character"))
+    )
+  )
   contract <- to_datacontract("M6")
   prop <- contract$schema[[1]]$properties[[1]]
   expect_equal(prop$logicalType, "integer")
@@ -104,13 +122,19 @@ test_that("t_union falls back to first alternative + extension", {
 test_that("nested model produces $ref and includes referenced schema", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("Address", fields = list(
-    zip = field("character")
-  ))
-  define_model("Person", fields = list(
-    name = field("character"),
-    home = field(t_model("Address"))
-  ))
+  define_model(
+    "Address",
+    fields = list(
+      zip = field("character")
+    )
+  )
+  define_model(
+    "Person",
+    fields = list(
+      name = field("character"),
+      home = field(t_model("Address"))
+    )
+  )
   contract <- to_datacontract("Person")
   schema_names <- vapply(contract$schema, `[[`, character(1), "name")
   expect_true("Person" %in% schema_names)
@@ -129,16 +153,21 @@ test_that("nested model produces $ref and includes referenced schema", {
 test_that("ODCS metadata round-trips through field()", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("M7", fields = list(
-    id = field("character",
-               primary_key = TRUE,
-               unique = TRUE,
-               pii = TRUE,
-               classification = "confidential",
-               tags = c("billing", "core"),
-               examples = list("ORD-001", "ORD-002"),
-               description = "Order identifier")
-  ))
+  define_model(
+    "M7",
+    fields = list(
+      id = field(
+        "character",
+        primary_key = TRUE,
+        unique = TRUE,
+        pii = TRUE,
+        classification = "confidential",
+        tags = c("billing", "core"),
+        examples = list("ORD-001", "ORD-002"),
+        description = "Order identifier"
+      )
+    )
+  )
   contract <- to_datacontract("M7")
   prop <- contract$schema[[1]]$properties[[1]]
   expect_true(prop$primaryKey)
@@ -160,9 +189,7 @@ test_that("info and servers land at the top level", {
   define_model("Foo", fields = list(x = field("integer")))
   contract <- to_datacontract(
     "Foo",
-    info = list(name = "foo-contract",
-                version = "2.1.0",
-                description = "Test"),
+    info = list(name = "foo-contract", version = "2.1.0", description = "Test"),
     servers = list(prod = list(type = "bigquery", project = "p"))
   )
   expect_equal(contract$apiVersion, "v3.0.2")
@@ -181,10 +208,13 @@ test_that("vector input bundles multiple models", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   define_model("Cust", fields = list(id = field("character")))
-  define_model("Order", fields = list(
-    id = field("character"),
-    cust_id = field("character")
-  ))
+  define_model(
+    "Order",
+    fields = list(
+      id = field("character"),
+      cust_id = field("character")
+    )
+  )
   contract <- to_datacontract(c("Cust", "Order"))
   schema_names <- vapply(contract$schema, `[[`, character(1), "name")
   expect_setequal(schema_names, c("Cust", "Order"))
@@ -198,22 +228,32 @@ test_that("write_datacontract produces YAML readable by read_datacontract", {
   skip_without_yaml()
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("Order", fields = list(
-    order_id = field("character", primary_key = TRUE),
-    amount   = field("numeric", validator = numeric_range(0, 1e6)),
-    status   = field(t_enum(c("new", "paid", "shipped")))
-  ))
+  define_model(
+    "Order",
+    fields = list(
+      order_id = field("character", primary_key = TRUE),
+      amount = field("numeric", validator = numeric_range(0, 1e6)),
+      status = field(t_enum(c("new", "paid", "shipped")))
+    )
+  )
   tmp <- tempfile(fileext = ".yaml")
   on.exit(unlink(tmp), add = TRUE)
-  write_datacontract("Order", tmp,
-                     info = list(name = "orders", version = "1.0.0"))
+  write_datacontract(
+    "Order",
+    tmp,
+    info = list(name = "orders", version = "1.0.0")
+  )
 
   parsed <- read_datacontract(tmp)
   expect_equal(parsed$apiVersion, "v3.0.2")
   expect_equal(parsed$name, "orders")
   expect_equal(parsed$schema[[1]]$name, "Order")
-  field_names <- vapply(parsed$schema[[1]]$properties,
-                        `[[`, character(1), "name")
+  field_names <- vapply(
+    parsed$schema[[1]]$properties,
+    `[[`,
+    character(1),
+    "name"
+  )
   expect_setequal(field_names, c("order_id", "amount", "status"))
 })
 
@@ -235,12 +275,24 @@ test_that("from_datacontract registers models and constructors", {
         name = "User",
         logicalType = "object",
         properties = list(
-          list(name = "id", logicalType = "string",
-               required = TRUE, primaryKey = TRUE),
-          list(name = "age", logicalType = "integer",
-               required = TRUE, minimum = 0, maximum = 150),
-          list(name = "role", logicalType = "string",
-               enum = list("admin", "user"))
+          list(
+            name = "id",
+            logicalType = "string",
+            required = TRUE,
+            primaryKey = TRUE
+          ),
+          list(
+            name = "age",
+            logicalType = "integer",
+            required = TRUE,
+            minimum = 0,
+            maximum = 150
+          ),
+          list(
+            name = "role",
+            logicalType = "string",
+            enum = list("admin", "user")
+          )
         )
       )
     )
@@ -261,10 +313,13 @@ test_that("from_datacontract round-trips an exported contract", {
   skip_without_yaml()
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("Sample", fields = list(
-    id  = field("character", primary_key = TRUE),
-    qty = field("integer", validator = numeric_range(0, 100))
-  ))
+  define_model(
+    "Sample",
+    fields = list(
+      id = field("character", primary_key = TRUE),
+      qty = field("integer", validator = numeric_range(0, 100))
+    )
+  )
   tmp <- tempfile(fileext = ".yaml")
   on.exit(unlink(tmp), add = TRUE)
   write_datacontract("Sample", tmp)
@@ -295,14 +350,18 @@ test_that("from_datacontract registers nested object properties as models", {
         name = "Customer",
         logicalType = "object",
         properties = list(
-          list(name = "id", logicalType = "string",
-               required = TRUE, primaryKey = TRUE),
+          list(
+            name = "id",
+            logicalType = "string",
+            required = TRUE,
+            primaryKey = TRUE
+          ),
           list(
             name = "address",
             logicalType = "object",
             properties = list(
               list(name = "street", logicalType = "string", required = TRUE),
-              list(name = "city",   logicalType = "string", required = TRUE)
+              list(name = "city", logicalType = "string", required = TRUE)
             )
           )
         )
@@ -313,7 +372,7 @@ test_that("from_datacontract registers nested object properties as models", {
   from_datacontract(contract, register = TRUE, envir = env)
 
   expect_true(exists("new_Customer", envir = env))
-  expect_true(exists("new_address",  envir = env))
+  expect_true(exists("new_address", envir = env))
   expect_true(exists("update_address", envir = env))
 
   reg <- getOption("typethis_model_registry")
@@ -337,8 +396,7 @@ test_that("to_datacontract errors on unknown class", {
 test_that("from_datacontract errors when schema section missing", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  expect_error(from_datacontract(list(apiVersion = "v3.0.2")),
-               "no `schema`")
+  expect_error(from_datacontract(list(apiVersion = "v3.0.2")), "no `schema`")
 })
 
 # ---------------------------------------------------------------------------
@@ -356,16 +414,22 @@ test_that("CLI wrappers refuse to run without binary", {
   )
   expect_error(datacontract_lint("x.yaml"), "datacontract CLI not found")
   expect_error(datacontract_test("x.yaml"), "datacontract CLI not found")
-  expect_error(datacontract_export("x.yaml", "jsonschema"),
-               "datacontract CLI not found")
+  expect_error(
+    datacontract_export("x.yaml", "jsonschema"),
+    "datacontract CLI not found"
+  )
 })
 
 test_that("datacontract_lint surfaces non-zero exit status", {
   testthat::local_mocked_bindings(
     datacontract_cli_available = function() TRUE,
     cli_invoke = function(args, ...) {
-      list(success = FALSE, status = 1L,
-           stdout = "schema invalid", stderr = "error: bad")
+      list(
+        success = FALSE,
+        status = 1L,
+        stdout = "schema invalid",
+        stderr = "error: bad"
+      )
     }
   )
   expect_error(datacontract_lint("x.yaml"), "datacontract lint failed")
@@ -375,8 +439,7 @@ test_that("datacontract_lint succeeds on zero exit", {
   testthat::local_mocked_bindings(
     datacontract_cli_available = function() TRUE,
     cli_invoke = function(args, ...) {
-      list(success = TRUE, status = 0L,
-           stdout = "ok", stderr = character(0))
+      list(success = TRUE, status = 0L, stdout = "ok", stderr = character(0))
     }
   )
   result <- datacontract_lint("x.yaml")
@@ -388,9 +451,12 @@ test_that("datacontract_export captures stdout when no output path", {
   testthat::local_mocked_bindings(
     datacontract_cli_available = function() TRUE,
     cli_invoke = function(args, ...) {
-      list(success = TRUE, status = 0L,
-           stdout = c("{", "  \"type\": \"object\"", "}"),
-           stderr = character(0))
+      list(
+        success = TRUE,
+        status = 0L,
+        stdout = c("{", "  \"type\": \"object\"", "}"),
+        stderr = character(0)
+      )
     }
   )
   out <- datacontract_export("x.yaml", "jsonschema")
@@ -403,8 +469,12 @@ test_that("datacontract_export writes to output path when provided", {
     datacontract_cli_available = function() TRUE,
     cli_invoke = function(args, ...) {
       captured_args <<- args
-      list(success = TRUE, status = 0L,
-           stdout = character(0), stderr = character(0))
+      list(
+        success = TRUE,
+        status = 0L,
+        stdout = character(0),
+        stderr = character(0)
+      )
     }
   )
   result <- datacontract_export("x.yaml", "sql", output = "out.sql")

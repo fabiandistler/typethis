@@ -105,9 +105,12 @@ to_openapi.list <- function(x, info = NULL, paths = NULL, ...) {
   }
   doc <- build_openapi(models, info = info, paths = paths)
   for (entry in fn_paths) {
-    doc <- merge_function_into_openapi(doc, entry$fn,
-                                       path = entry$path,
-                                       op_id = entry$name)
+    doc <- merge_function_into_openapi(
+      doc,
+      entry$fn,
+      path = entry$path,
+      op_id = entry$name
+    )
   }
   doc
 }
@@ -139,8 +142,14 @@ to_openapi.list <- function(x, info = NULL, paths = NULL, ...) {
 #'     info = list(title = "Users API", version = "1.0.0"))
 #'   readLines(tmp, n = 5)
 #' }
-write_openapi <- function(x, path, info = NULL, paths = NULL,
-                          format = NULL, ...) {
+write_openapi <- function(
+  x,
+  path,
+  info = NULL,
+  paths = NULL,
+  format = NULL,
+  ...
+) {
   doc <- to_openapi(x, info = info, paths = paths, ...)
   fmt <- format %||% openapi_format_from_path(path)
   if (identical(fmt, "json")) {
@@ -223,8 +232,7 @@ from_openapi <- function(x, register = TRUE, envir = parent.frame()) {
 
   schemas <- doc$components$schemas
   if (is.null(schemas) || !is.list(schemas) || length(schemas) == 0L) {
-    stop("OpenAPI document has no `components.schemas` section",
-         call. = FALSE)
+    stop("OpenAPI document has no `components.schemas` section", call. = FALSE)
   }
 
   ctx <- list(envir = envir, register = isTRUE(register))
@@ -283,19 +291,35 @@ build_openapi <- function(class_names, info = NULL, paths = NULL) {
 
 #' @keywords internal
 #' @noRd
-build_openapi_from_function <- function(fn, info = NULL, paths = NULL,
-                                        path = NULL, op_id = NULL,
-                                        method = "post", ...) {
+build_openapi_from_function <- function(
+  fn,
+  info = NULL,
+  paths = NULL,
+  path = NULL,
+  op_id = NULL,
+  method = "post",
+  ...
+) {
   info <- normalise_openapi_info(info, fallback_title = "typethis function")
   doc <- build_openapi(character(0), info = info)
-  merge_function_into_openapi(doc, fn, path = path, op_id = op_id,
-                              method = method)
+  merge_function_into_openapi(
+    doc,
+    fn,
+    path = path,
+    op_id = op_id,
+    method = method
+  )
 }
 
 #' @keywords internal
 #' @noRd
-merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
-                                        method = "post") {
+merge_function_into_openapi <- function(
+  doc,
+  fn,
+  path = NULL,
+  op_id = NULL,
+  method = "post"
+) {
   sig <- get_signature(fn)
   if (is.null(sig)) {
     stop("merge_function_into_openapi(): not a typed function", call. = FALSE)
@@ -321,7 +345,9 @@ merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
     type = "object",
     properties = request_props
   )
-  if (length(required) > 0L) request_schema$required <- as.list(required)
+  if (length(required) > 0L) {
+    request_schema$required <- as.list(required)
+  }
 
   response_schema <- if (!is.null(sig$return)) {
     spec_to_inline_schema(sig$return, defs_env)
@@ -370,7 +396,9 @@ merge_function_into_openapi <- function(doc, fn, path = NULL, op_id = NULL,
 #' @keywords internal
 #' @noRd
 spec_to_inline_schema <- function(spec, defs_env) {
-  if (is.null(spec)) return(list())
+  if (is.null(spec)) {
+    return(list())
+  }
   if (inherits(spec, "type_spec")) {
     return(type_spec_to_json_schema(spec, defs_env))
   }
@@ -383,7 +411,9 @@ spec_to_inline_schema <- function(spec, defs_env) {
   }
   if (is.function(spec)) {
     constraint <- attr(spec, "constraint")
-    if (!is.null(constraint)) return(constraint_to_json_schema(constraint))
+    if (!is.null(constraint)) {
+      return(constraint_to_json_schema(constraint))
+    }
     return(list(`x-typethis-kind` = "predicate"))
   }
   list()
@@ -414,8 +444,12 @@ rewrite_refs_to_components <- function(x) {
 #' @noRd
 normalise_openapi_info <- function(info, fallback_title) {
   info <- info %||% list()
-  if (is.null(info$title))   info$title   <- fallback_title
-  if (is.null(info$version)) info$version <- "0.1.0"
+  if (is.null(info$title)) {
+    info$title <- fallback_title
+  }
+  if (is.null(info$version)) {
+    info$version <- "0.1.0"
+  }
   info
 }
 
@@ -426,13 +460,17 @@ resolve_openapi_entry <- function(entry) {
     return(list(kind = "model", name = entry))
   }
   if (is_model(entry)) {
-    return(list(kind = "model",
-                name = attr(entry, "model_class_name") %||% "Model"))
+    return(list(
+      kind = "model",
+      name = attr(entry, "model_class_name") %||% "Model"
+    ))
   }
   if (is.function(entry)) {
     if (isTRUE(attr(entry, "model_class"))) {
-      return(list(kind = "model",
-                  name = attr(entry, "class_name") %||% "Model"))
+      return(list(
+        kind = "model",
+        name = attr(entry, "class_name") %||% "Model"
+      ))
     }
     if (isTRUE(attr(entry, "typed"))) {
       op_id <- attr(entry, "openapi_op_id") %||% "operation"
@@ -458,7 +496,8 @@ openapi_schema_to_fields <- function(schema, ctx) {
   for (prop_name in names(schema$properties)) {
     prop <- schema$properties[[prop_name]]
     fields[[prop_name]] <- openapi_property_to_field(
-      prop_name, prop,
+      prop_name,
+      prop,
       required = prop_name %in% required,
       ctx = ctx
     )
@@ -528,16 +567,21 @@ openapi_to_type_spec_or_name <- function(prop_name, prop, ctx) {
 #' @noRd
 builtin_from_openapi_type <- function(type, format = NULL) {
   if (identical(type, "string")) {
-    if (identical(format, "date")) return("date")
-    if (identical(format, "date-time")) return("posixct")
+    if (identical(format, "date")) {
+      return("date")
+    }
+    if (identical(format, "date-time")) {
+      return("posixct")
+    }
     return("character")
   }
-  switch(type,
+  switch(
+    type,
     "integer" = "integer",
-    "number"  = "numeric",
+    "number" = "numeric",
     "boolean" = "logical",
-    "array"   = "list",
-    "object"  = "list",
+    "array" = "list",
+    "object" = "list",
     "character"
   )
 }
@@ -546,26 +590,40 @@ builtin_from_openapi_type <- function(type, format = NULL) {
 #' @noRd
 openapi_to_validator <- function(prop) {
   validators <- list()
-  if (!is.null(prop$minimum) || !is.null(prop$maximum) ||
-        !is.null(prop$exclusiveMinimum) || !is.null(prop$exclusiveMaximum)) {
-    validators <- c(validators, list(numeric_range(
-      min = prop$exclusiveMinimum %||% prop$minimum %||% -Inf,
-      max = prop$exclusiveMaximum %||% prop$maximum %||% Inf,
-      exclusive_min = !is.null(prop$exclusiveMinimum),
-      exclusive_max = !is.null(prop$exclusiveMaximum)
-    )))
+  if (
+    !is.null(prop$minimum) ||
+      !is.null(prop$maximum) ||
+      !is.null(prop$exclusiveMinimum) ||
+      !is.null(prop$exclusiveMaximum)
+  ) {
+    validators <- c(
+      validators,
+      list(numeric_range(
+        min = prop$exclusiveMinimum %||% prop$minimum %||% -Inf,
+        max = prop$exclusiveMaximum %||% prop$maximum %||% Inf,
+        exclusive_min = !is.null(prop$exclusiveMinimum),
+        exclusive_max = !is.null(prop$exclusiveMaximum)
+      ))
+    )
   }
   if (!is.null(prop$minLength) || !is.null(prop$maxLength)) {
-    validators <- c(validators, list(string_length(
-      min_length = prop$minLength %||% 0,
-      max_length = prop$maxLength %||% Inf
-    )))
+    validators <- c(
+      validators,
+      list(string_length(
+        min_length = prop$minLength %||% 0,
+        max_length = prop$maxLength %||% Inf
+      ))
+    )
   }
   if (!is.null(prop$pattern)) {
     validators <- c(validators, list(string_pattern(prop$pattern)))
   }
-  if (length(validators) == 0L) return(NULL)
-  if (length(validators) == 1L) return(validators[[1L]])
+  if (length(validators) == 0L) {
+    return(NULL)
+  }
+  if (length(validators) == 1L) {
+    return(validators[[1L]])
+  }
   do.call(combine_validators, c(validators, list(all_of = TRUE)))
 }
 
@@ -577,8 +635,12 @@ openapi_to_validator <- function(prop) {
 #' @noRd
 openapi_format_from_path <- function(path) {
   ext <- tolower(tools::file_ext(path))
-  if (ext %in% c("yaml", "yml")) return("yaml")
-  if (ext == "json") return("json")
+  if (ext %in% c("yaml", "yml")) {
+    return("yaml")
+  }
+  if (ext == "json") {
+    return("json")
+  }
   "yaml"
 }
 

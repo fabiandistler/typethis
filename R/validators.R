@@ -52,8 +52,12 @@ with_constraint <- function(fn, constraint) {
 #' p <- numeric_range(0, 1, exclusive_min = TRUE, exclusive_max = TRUE)
 #' p(0.5)
 #' p(0)
-numeric_range <- function(min = -Inf, max = Inf,
-                          exclusive_min = FALSE, exclusive_max = FALSE) {
+numeric_range <- function(
+  min = -Inf,
+  max = Inf,
+  exclusive_min = FALSE,
+  exclusive_max = FALSE
+) {
   fn <- function(value) {
     if (!is.numeric(value)) {
       return(FALSE)
@@ -64,11 +68,16 @@ numeric_range <- function(min = -Inf, max = Inf,
 
     min_ok && max_ok
   }
-  with_constraint(fn, list(
-    kind = "numeric_range",
-    min = min, max = max,
-    exclusive_min = exclusive_min, exclusive_max = exclusive_max
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "numeric_range",
+      min = min,
+      max = max,
+      exclusive_min = exclusive_min,
+      exclusive_max = exclusive_max
+    )
+  )
 }
 
 #' Validate string length
@@ -95,10 +104,14 @@ string_length <- function(min_length = 0, max_length = Inf) {
     lengths <- nchar(value)
     all(lengths >= min_length & lengths <= max_length)
   }
-  with_constraint(fn, list(
-    kind = "string_length",
-    min_length = min_length, max_length = max_length
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "string_length",
+      min_length = min_length,
+      max_length = max_length
+    )
+  )
 }
 
 #' Validate strings against a regular expression
@@ -127,10 +140,14 @@ string_pattern <- function(pattern, ignore_case = FALSE) {
 
     all(grepl(pattern, value, ignore.case = ignore_case))
   }
-  with_constraint(fn, list(
-    kind = "string_pattern",
-    pattern = pattern, ignore_case = ignore_case
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "string_pattern",
+      pattern = pattern,
+      ignore_case = ignore_case
+    )
+  )
 }
 
 #' Validate vector or list length
@@ -163,10 +180,15 @@ vector_length <- function(min_len = 0, max_len = Inf, exact_len = NULL) {
 
     len >= min_len && len <= max_len
   }
-  with_constraint(fn, list(
-    kind = "vector_length",
-    min_len = min_len, max_len = max_len, exact_len = exact_len
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "vector_length",
+      min_len = min_len,
+      max_len = max_len,
+      exact_len = exact_len
+    )
+  )
 }
 
 #' Validate a data frame's structure
@@ -204,11 +226,15 @@ dataframe_spec <- function(required_cols = NULL, min_rows = 0, max_rows = Inf) {
     nrow_val <- nrow(value)
     nrow_val >= min_rows && nrow_val <= max_rows
   }
-  with_constraint(fn, list(
-    kind = "dataframe_spec",
-    required_cols = required_cols,
-    min_rows = min_rows, max_rows = max_rows
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "dataframe_spec",
+      required_cols = required_cols,
+      min_rows = min_rows,
+      max_rows = max_rows
+    )
+  )
 }
 
 #' Combine multiple validators
@@ -250,11 +276,14 @@ combine_validators <- function(..., all_of = TRUE) {
       any(results)
     }
   }
-  with_constraint(fn, list(
-    kind = "combine",
-    all_of = all_of,
-    parts = lapply(validators, validator_constraint)
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "combine",
+      all_of = all_of,
+      parts = lapply(validators, validator_constraint)
+    )
+  )
 }
 
 #' Validate a value against a fixed set of allowed values
@@ -314,11 +343,15 @@ list_of <- function(element_type, min_length = 0, max_length = Inf) {
 
     all(sapply(value, function(elem) is_type(elem, element_type)))
   }
-  with_constraint(fn, list(
-    kind = "list_of",
-    element_type = element_type,
-    min_length = min_length, max_length = max_length
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "list_of",
+      element_type = element_type,
+      min_length = min_length,
+      max_length = max_length
+    )
+  )
 }
 
 #' Make a validator accept `NULL`
@@ -340,8 +373,11 @@ nullable <- function(validator) {
   fn <- function(value) {
     is.null(value) || validator(value)
   }
-  with_constraint(fn, list(
-    kind = "nullable",
-    inner_constraint = validator_constraint(validator)
-  ))
+  with_constraint(
+    fn,
+    list(
+      kind = "nullable",
+      inner_constraint = validator_constraint(validator)
+    )
+  )
 }

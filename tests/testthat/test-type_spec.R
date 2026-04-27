@@ -52,7 +52,7 @@ test_that("t_list_of validates elements and length constraints", {
   expect_true(is_type(list("a", "b"), spec))
   expect_false(is_type(list(), spec))
   expect_false(is_type(list("a", 1), spec))
-  expect_false(is_type(c("a", "b"), spec))  # atomic, not list
+  expect_false(is_type(c("a", "b"), spec)) # atomic, not list
 })
 
 test_that("t_list_of supports nested compositions", {
@@ -100,16 +100,20 @@ test_that("t_model references registered models at validation time", {
 })
 
 test_that("t_predicate wraps a function and respects description", {
-  spec <- t_predicate(function(x) is.numeric(x) && x > 0,
-                      description = "positive number")
+  spec <- t_predicate(
+    function(x) is.numeric(x) && x > 0,
+    description = "positive number"
+  )
   expect_true(is_type(5, spec))
   expect_false(is_type(-1, spec))
   expect_match(format(spec), "positive number")
 })
 
 test_that("format.type_spec produces stable strings", {
-  expect_equal(format(t_union("numeric", "character")),
-               "union<numeric, character>")
+  expect_equal(
+    format(t_union("numeric", "character")),
+    "union<numeric, character>"
+  )
   expect_equal(format(t_nullable("integer")), "nullable<integer>")
   expect_equal(format(t_list_of("character")), "list_of<character>")
   expect_equal(format(t_enum(c("a", "b"))), "enum<a, b>")

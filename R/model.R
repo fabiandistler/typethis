@@ -56,15 +56,23 @@
 #'   new_StrictPoint(x = 1, y = 2, z = 3),
 #'   error = function(e) conditionMessage(e)
 #' )
-define_model <- function(..., fields = NULL, .validate = TRUE,
-                         .strict = FALSE) {
+define_model <- function(
+  ...,
+  fields = NULL,
+  .validate = TRUE,
+  .strict = FALSE
+) {
   args <- list(...)
   arg_names <- names(args)
 
   first_arg_unnamed <- is.null(arg_names) || arg_names[1] == ""
 
-  if (length(args) >= 1 && first_arg_unnamed &&
-        is.character(args[[1]]) && length(args[[1]]) == 1) {
+  if (
+    length(args) >= 1 &&
+      first_arg_unnamed &&
+      is.character(args[[1]]) &&
+      length(args[[1]]) == 1
+  ) {
     class_name <- args[[1]]
 
     if (!is.null(fields)) {
@@ -118,20 +126,26 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
       }
 
       if (length(missing_no_default) > 0) {
-        stop(sprintf(
-          "Missing required fields: %s",
-          paste(missing_no_default, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Missing required fields: %s",
+            paste(missing_no_default, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
     if (.strict) {
       extra <- setdiff(value_names, field_names)
       if (length(extra) > 0) {
-        stop(sprintf(
-          "Extra fields not allowed: %s",
-          paste(extra, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Extra fields not allowed: %s",
+            paste(extra, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
@@ -155,10 +169,13 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
 
           if (!is.null(validator) && is.function(validator)) {
             if (!validator(value)) {
-              stop(sprintf(
-                "Validation failed for field '%s'",
-                fname
-              ), call. = FALSE)
+              stop(
+                sprintf(
+                  "Validation failed for field '%s'",
+                  fname
+                ),
+                call. = FALSE
+              )
             }
           }
         }
@@ -181,8 +198,12 @@ define_model <- function(..., fields = NULL, .validate = TRUE,
 }
 
 #' @noRd
-define_model_new_style <- function(class_name, fields,
-                                   .validate = TRUE, .strict = FALSE) {
+define_model_new_style <- function(
+  class_name,
+  fields,
+  .validate = TRUE,
+  .strict = FALSE
+) {
   field_names <- names(fields)
 
   if (is.null(field_names) || any(field_names == "")) {
@@ -191,8 +212,11 @@ define_model_new_style <- function(class_name, fields,
 
   for (fname in field_names) {
     field_def <- fields[[fname]]
-    if (!is.list(field_def) || inherits(field_def, "type_spec") ||
-          is.function(field_def)) {
+    if (
+      !is.list(field_def) ||
+        inherits(field_def, "type_spec") ||
+        is.function(field_def)
+    ) {
       fields[[fname]] <- list(type = field_def, nullable = FALSE)
     } else if (is.null(field_def$type)) {
       stop(sprintf("Field '%s' must have a 'type' specification", fname))
@@ -232,22 +256,28 @@ define_model_new_style <- function(class_name, fields,
       }
 
       if (length(missing_no_default) > 0) {
-        stop(sprintf(
-          "Missing required fields for %s: %s",
-          class_name,
-          paste(missing_no_default, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Missing required fields for %s: %s",
+            class_name,
+            paste(missing_no_default, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
     if (.strict) {
       extra <- setdiff(value_names, field_names)
       if (length(extra) > 0) {
-        stop(sprintf(
-          "Extra fields not allowed for %s: %s",
-          class_name,
-          paste(extra, collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Extra fields not allowed for %s: %s",
+            class_name,
+            paste(extra, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
     }
 
@@ -281,7 +311,8 @@ define_model_new_style <- function(class_name, fields,
     if (!inherits(instance, class_name)) {
       stop(sprintf(
         "Expected %s instance, got %s",
-        class_name, class(instance)[1]
+        class_name,
+        class(instance)[1]
       ))
     }
 
@@ -329,18 +360,26 @@ define_model_new_style <- function(class_name, fields,
 #' @param class_name Owning model class name (used only for error messages).
 #' @return `invisible(TRUE)` on success; an error otherwise.
 #' @keywords internal
-validate_field_value <- function(fname, value, field_def,
-                                 class_name = "model") {
+validate_field_value <- function(
+  fname,
+  value,
+  field_def,
+  class_name = "model"
+) {
   field_type <- field_def$type
   nullable <- isTRUE(field_def$nullable)
   validator <- field_def$validator
 
   if (is.null(value)) {
     if (!nullable) {
-      stop(sprintf(
-        "Field '%s' in %s cannot be NULL (nullable = FALSE)",
-        fname, class_name
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "Field '%s' in %s cannot be NULL (nullable = FALSE)",
+          fname,
+          class_name
+        ),
+        call. = FALSE
+      )
     }
     return(invisible(TRUE))
   }
@@ -351,16 +390,27 @@ validate_field_value <- function(fname, value, field_def,
     model_registry <- getOption("typethis_model_registry", list())
     if (field_type %in% names(model_registry)) {
       if (!is_model(value)) {
-        stop(sprintf(
-          "Field '%s' in %s must be a typed model, got %s",
-          fname, class_name, class(value)[1]
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Field '%s' in %s must be a typed model, got %s",
+            fname,
+            class_name,
+            class(value)[1]
+          ),
+          call. = FALSE
+        )
       }
       if (!inherits(value, field_type)) {
-        stop(sprintf(
-          "Field '%s' in %s must be of class '%s', got '%s'",
-          fname, class_name, field_type, class(value)[1]
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Field '%s' in %s must be of class '%s', got '%s'",
+            fname,
+            class_name,
+            field_type,
+            class(value)[1]
+          ),
+          call. = FALSE
+        )
       }
     } else {
       assert_type(value, field_type, fname)
@@ -371,10 +421,14 @@ validate_field_value <- function(fname, value, field_def,
 
   if (!is.null(validator) && is.function(validator)) {
     if (!validator(value)) {
-      stop(sprintf(
-        "Validation failed for field '%s' in %s",
-        fname, class_name
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "Validation failed for field '%s' in %s",
+          fname,
+          class_name
+        ),
+        call. = FALSE
+      )
     }
   }
 
@@ -425,12 +479,21 @@ validate_field_value <- function(fname, value, field_def,
 #' field(t_enum(c("admin", "user")))
 #' field("character", primary_key = TRUE, pii = TRUE,
 #'       classification = "confidential")
-field <- function(type, default = NULL, validator = NULL,
-                  nullable = FALSE, description = "",
-                  primary_key = FALSE, unique = FALSE,
-                  pii = FALSE, classification = NULL,
-                  tags = NULL, examples = NULL,
-                  references = NULL, quality = NULL) {
+field <- function(
+  type,
+  default = NULL,
+  validator = NULL,
+  nullable = FALSE,
+  description = "",
+  primary_key = FALSE,
+  unique = FALSE,
+  pii = FALSE,
+  classification = NULL,
+  tags = NULL,
+  examples = NULL,
+  references = NULL,
+  quality = NULL
+) {
   list(
     type = type,
     default = default,

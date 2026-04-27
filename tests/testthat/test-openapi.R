@@ -17,11 +17,14 @@ skip_without_jsonlite <- function() {
 test_that("to_openapi produces a valid OpenAPI 3.1 document for a model", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("User", fields = list(
-    id   = field("integer", primary_key = TRUE),
-    name = field("character"),
-    role = field("character", validator = enum_validator(c("admin", "user")))
-  ))
+  define_model(
+    "User",
+    fields = list(
+      id = field("integer", primary_key = TRUE),
+      name = field("character"),
+      role = field("character", validator = enum_validator(c("admin", "user")))
+    )
+  )
   doc <- to_openapi("User", info = list(title = "Users", version = "1.0.0"))
 
   expect_equal(doc$openapi, "3.1.0")
@@ -47,38 +50,50 @@ test_that("info defaults are filled in when omitted", {
 test_that("nested model becomes $ref under components.schemas", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("Address", fields = list(
-    street = field("character"),
-    city   = field("character")
-  ))
-  define_model("Customer", fields = list(
-    id      = field("integer", primary_key = TRUE),
-    address = field("Address")
-  ))
+  define_model(
+    "Address",
+    fields = list(
+      street = field("character"),
+      city = field("character")
+    )
+  )
+  define_model(
+    "Customer",
+    fields = list(
+      id = field("integer", primary_key = TRUE),
+      address = field("Address")
+    )
+  )
   doc <- to_openapi("Customer")
-  expect_true(all(c("Customer", "Address") %in%
-                    names(doc$components$schemas)))
+  expect_true(all(
+    c("Customer", "Address") %in%
+      names(doc$components$schemas)
+  ))
   ref <- doc$components$schemas$Customer$properties$address$`$ref`
   expect_equal(ref, "#/components/schemas/Address")
   # Nothing should leak with the JSON Schema $defs convention
-  expect_false(any(grepl("\\$defs",
-                         unlist(doc$components$schemas$Customer))))
+  expect_false(any(grepl("\\$defs", unlist(doc$components$schemas$Customer))))
 })
 
 test_that("composite type specs flow through (t_list_of, t_union)", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   define_model("Tag", fields = list(name = field("character")))
-  define_model("Doc", fields = list(
-    tags  = field(t_list_of("Tag")),
-    score = field(t_union("integer", "numeric"))
-  ))
+  define_model(
+    "Doc",
+    fields = list(
+      tags = field(t_list_of("Tag")),
+      score = field(t_union("integer", "numeric"))
+    )
+  )
   doc <- to_openapi("Doc")
   schemas <- doc$components$schemas
   expect_true(all(c("Doc", "Tag") %in% names(schemas)))
   expect_equal(schemas$Doc$properties$tags$type, "array")
-  expect_equal(schemas$Doc$properties$tags$items$`$ref`,
-               "#/components/schemas/Tag")
+  expect_equal(
+    schemas$Doc$properties$tags$items$`$ref`,
+    "#/components/schemas/Tag"
+  )
   expect_true(!is.null(schemas$Doc$properties$score$oneOf))
 })
 
@@ -94,9 +109,11 @@ test_that("vector input bundles multiple models and dedupes", {
 test_that("typed_function becomes a /op POST path with JSON body", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  add <- typed_function(function(x, y) x + y,
-                        arg_specs = list(x = "integer", y = "integer"),
-                        return_spec = "integer")
+  add <- typed_function(
+    function(x, y) x + y,
+    arg_specs = list(x = "integer", y = "integer"),
+    return_spec = "integer"
+  )
   attr(add, "openapi_op_id") <- "add"
   doc <- to_openapi(list(add))
 
@@ -131,9 +148,11 @@ test_that("typed_function whose return type is a model emits $ref response", {
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
   define_model("U", fields = list(id = field("integer")))
-  fetch <- typed_function(function(id) list(id = id),
-                          arg_specs = list(id = "integer"),
-                          return_spec = "U")
+  fetch <- typed_function(
+    function(id) list(id = id),
+    arg_specs = list(id = "integer"),
+    return_spec = "U"
+  )
   attr(fetch, "openapi_op_id") <- "fetch_u"
   doc <- to_openapi(list(fetch))
   op <- doc$paths$`/fetch_u`$post
@@ -154,14 +173,20 @@ test_that("write_openapi produces YAML readable by read_openapi", {
   skip_without_yaml()
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("Sample", fields = list(
-    id  = field("character"),
-    qty = field("integer", validator = numeric_range(0, 100))
-  ))
+  define_model(
+    "Sample",
+    fields = list(
+      id = field("character"),
+      qty = field("integer", validator = numeric_range(0, 100))
+    )
+  )
   tmp <- tempfile(fileext = ".yaml")
   on.exit(unlink(tmp), add = TRUE)
-  write_openapi("Sample", tmp,
-                info = list(title = "Samples", version = "1.0.0"))
+  write_openapi(
+    "Sample",
+    tmp,
+    info = list(title = "Samples", version = "1.0.0")
+  )
   doc <- read_openapi(tmp)
   expect_equal(doc$openapi, "3.1.0")
   expect_true("Sample" %in% names(doc$components$schemas))
@@ -192,16 +217,18 @@ test_that("from_openapi registers schemas as typed models", {
   doc <- list(
     openapi = "3.1.0",
     info = list(title = "X", version = "1.0.0"),
-    components = list(schemas = list(
-      User = list(
-        type = "object",
-        required = list("id", "role"),
-        properties = list(
-          id   = list(type = "integer", minimum = 1),
-          role = list(type = "string", enum = list("admin", "user"))
+    components = list(
+      schemas = list(
+        User = list(
+          type = "object",
+          required = list("id", "role"),
+          properties = list(
+            id = list(type = "integer", minimum = 1),
+            role = list(type = "string", enum = list("admin", "user"))
+          )
         )
       )
-    ))
+    )
   )
   env <- new.env()
   registered <- from_openapi(doc, register = TRUE, envir = env)
@@ -220,27 +247,31 @@ test_that("from_openapi resolves $ref to nested schemas", {
   doc <- list(
     openapi = "3.1.0",
     info = list(title = "X", version = "1.0.0"),
-    components = list(schemas = list(
-      Address = list(
-        type = "object",
-        required = list("street"),
-        properties = list(street = list(type = "string"))
-      ),
-      Customer = list(
-        type = "object",
-        required = list("id", "address"),
-        properties = list(
-          id      = list(type = "integer"),
-          address = list(`$ref` = "#/components/schemas/Address")
+    components = list(
+      schemas = list(
+        Address = list(
+          type = "object",
+          required = list("street"),
+          properties = list(street = list(type = "string"))
+        ),
+        Customer = list(
+          type = "object",
+          required = list("id", "address"),
+          properties = list(
+            id = list(type = "integer"),
+            address = list(`$ref` = "#/components/schemas/Address")
+          )
         )
       )
-    ))
+    )
   )
   env <- new.env()
   from_openapi(doc, envir = env)
   expect_true(all(c("new_Address", "new_Customer") %in% ls(env)))
-  cust <- env$new_Customer(id = 1L,
-                           address = env$new_Address(street = "Main 1"))
+  cust <- env$new_Customer(
+    id = 1L,
+    address = env$new_Address(street = "Main 1")
+  )
   expect_true(is_model(cust))
 })
 
@@ -250,20 +281,22 @@ test_that("from_openapi registers inline nested object as its own model", {
   doc <- list(
     openapi = "3.1.0",
     info = list(title = "X", version = "1.0.0"),
-    components = list(schemas = list(
-      Customer = list(
-        type = "object",
-        required = list("id", "address"),
-        properties = list(
-          id = list(type = "integer"),
-          address = list(
-            type = "object",
-            required = list("street"),
-            properties = list(street = list(type = "string"))
+    components = list(
+      schemas = list(
+        Customer = list(
+          type = "object",
+          required = list("id", "address"),
+          properties = list(
+            id = list(type = "integer"),
+            address = list(
+              type = "object",
+              required = list("street"),
+              properties = list(street = list(type = "string"))
+            )
           )
         )
       )
-    ))
+    )
   )
   env <- new.env()
   from_openapi(doc, envir = env)
@@ -274,11 +307,13 @@ test_that("from_openapi roundtrips an exported document", {
   skip_without_yaml()
   options(typethis_model_registry = list())
   on.exit(options(typethis_model_registry = list()), add = TRUE)
-  define_model("RoundTrip", fields = list(
-    id   = field("character", primary_key = TRUE),
-    note = field("character",
-                 validator = string_pattern("^[A-Z][a-z]+$"))
-  ))
+  define_model(
+    "RoundTrip",
+    fields = list(
+      id = field("character", primary_key = TRUE),
+      note = field("character", validator = string_pattern("^[A-Z][a-z]+$"))
+    )
+  )
   tmp <- tempfile(fileext = ".yaml")
   on.exit(unlink(tmp), add = TRUE)
   write_openapi("RoundTrip", tmp)
@@ -297,6 +332,5 @@ test_that("from_openapi roundtrips an exported document", {
 # ---------------------------------------------------------------------------
 
 test_that("from_openapi errors when components.schemas is missing", {
-  expect_error(from_openapi(list(openapi = "3.1.0")),
-               "components.schemas")
+  expect_error(from_openapi(list(openapi = "3.1.0")), "components.schemas")
 })

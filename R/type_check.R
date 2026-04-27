@@ -20,11 +20,16 @@
 is_type <- function(value, type, nullable = FALSE) {
   if (inherits(type, "type_spec")) {
     if (is.null(value)) {
-      return(nullable || identical(type$kind, "nullable") ||
-               identical(type$kind, "union") &&
-                 any(vapply(type$alternatives,
-                            function(a) identical(a$kind, "nullable"),
-                            logical(1))))
+      return(
+        nullable ||
+          identical(type$kind, "nullable") ||
+          identical(type$kind, "union") &&
+            any(vapply(
+              type$alternatives,
+              function(a) identical(a$kind, "nullable"),
+              logical(1)
+            ))
+      )
     }
     return(check_type_spec(value, type))
   }
@@ -46,7 +51,8 @@ is_type <- function(value, type, nullable = FALSE) {
 
 #' @noRd
 check_builtin_type <- function(value, type) {
-  switch(type,
+  switch(
+    type,
     "numeric" = is.numeric(value),
     "integer" = is.integer(value),
     "double" = is.double(value),
@@ -90,10 +96,15 @@ assert_type <- function(value, type, name = "value", nullable = FALSE) {
   if (!is_type(value, type, nullable)) {
     actual_type <- class(value)[1]
     expected_type <- format_type_label(type, substitute(type))
-    stop(sprintf(
-      "Type error: '%s' must be %s, got %s",
-      name, expected_type, actual_type
-    ), call. = FALSE)
+    stop(
+      sprintf(
+        "Type error: '%s' must be %s, got %s",
+        name,
+        expected_type,
+        actual_type
+      ),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
@@ -135,7 +146,9 @@ validate_type <- function(value, type, name = "value", nullable = FALSE) {
   expected_type <- format_type_label(type, substitute(type))
   error_msg <- sprintf(
     "Type error: '%s' must be %s, got %s",
-    name, expected_type, actual_type
+    name,
+    expected_type,
+    actual_type
   )
 
   list(valid = FALSE, error = error_msg)
@@ -201,7 +214,8 @@ coerce_type <- function(value, type, strict = FALSE) {
 
   tryCatch(
     {
-      result <- switch(type,
+      result <- switch(
+        type,
         "numeric" = as.numeric(value),
         "integer" = as.integer(value),
         "double" = as.double(value),
@@ -219,10 +233,14 @@ coerce_type <- function(value, type, strict = FALSE) {
       result
     },
     error = function(e) {
-      stop(sprintf(
-        "Failed to coerce to %s: %s",
-        type, e$message
-      ), call. = FALSE)
+      stop(
+        sprintf(
+          "Failed to coerce to %s: %s",
+          type,
+          e$message
+        ),
+        call. = FALSE
+      )
     }
   )
 }
@@ -239,7 +257,8 @@ coerce_type <- function(value, type, strict = FALSE) {
 #' @keywords internal
 #' @noRd
 coerce_type_spec <- function(value, spec, strict) {
-  switch(spec$kind,
+  switch(
+    spec$kind,
     "builtin" = coerce_type(value, spec$name, strict = strict),
     "nullable" = if (is.null(value)) {
       NULL
@@ -247,10 +266,14 @@ coerce_type_spec <- function(value, spec, strict) {
       coerce_type_spec(value, spec$inner, strict = strict)
     },
     "union" = coerce_union(value, spec$alternatives, strict),
-    "enum"  = coerce_enum(value, spec, strict),
-    stop(sprintf(
-      "coerce_type() does not support type_spec kind '%s'", spec$kind
-    ), call. = FALSE)
+    "enum" = coerce_enum(value, spec, strict),
+    stop(
+      sprintf(
+        "coerce_type() does not support type_spec kind '%s'",
+        spec$kind
+      ),
+      call. = FALSE
+    )
   )
 }
 
@@ -270,10 +293,13 @@ coerce_union <- function(value, alternatives, strict) {
       return(result)
     }
   }
-  stop(sprintf(
-    "Failed to coerce to union<%s>: no alternative matched",
-    paste(vapply(alternatives, format, character(1)), collapse = ", ")
-  ), call. = FALSE)
+  stop(
+    sprintf(
+      "Failed to coerce to union<%s>: no alternative matched",
+      paste(vapply(alternatives, format, character(1)), collapse = ", ")
+    ),
+    call. = FALSE
+  )
 }
 
 #' @keywords internal
@@ -289,8 +315,11 @@ coerce_enum <- function(value, spec, strict) {
   if (!is.null(coerced) && all(coerced %in% spec$values)) {
     return(coerced)
   }
-  stop(sprintf(
-    "Failed to coerce to enum<%s>: value not in allowed set",
-    paste(utils::head(as.character(spec$values), 5L), collapse = ", ")
-  ), call. = FALSE)
+  stop(
+    sprintf(
+      "Failed to coerce to enum<%s>: value not in allowed set",
+      paste(utils::head(as.character(spec$values), 5L), collapse = ", ")
+    ),
+    call. = FALSE
+  )
 }

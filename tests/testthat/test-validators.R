@@ -11,7 +11,10 @@ test_that("numeric_range works", {
 
 test_that("numeric_range handles exclusive bounds", {
   validator <- numeric_range(
-    min = 0, max = 100, exclusive_min = TRUE, exclusive_max = TRUE
+    min = 0,
+    max = 100,
+    exclusive_min = TRUE,
+    exclusive_max = TRUE
   )
 
   expect_true(validator(50))
@@ -180,13 +183,14 @@ test_that("nullable wraps inner constraint", {
 
 test_that("combine_validators captures parts", {
   c <- validator_constraint(combine_validators(
-    numeric_range(0, 10), function(x) x != 5,
+    numeric_range(0, 10),
+    function(x) x != 5,
     all_of = FALSE
   ))
   expect_equal(c$kind, "combine")
   expect_false(c$all_of)
   expect_equal(c$parts[[1]]$kind, "numeric_range")
-  expect_null(c$parts[[2]])  # plain function has no constraint
+  expect_null(c$parts[[2]]) # plain function has no constraint
 })
 
 test_that("validator_constraint returns NULL for plain functions", {
