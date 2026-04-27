@@ -15,3 +15,6 @@
 ^ROADMAP\.md$
 ^specs$
 ^\.lintr$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
