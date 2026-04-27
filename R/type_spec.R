@@ -1,28 +1,40 @@
-#' Composite Type Specifications
+#' Composable type specifications
 #'
 #' @description
-#' Structured, composable type specifications for use with `is_type()`,
-#' `assert_type()`, `validate_type()`, `field()`, `typed_function()`,
-#' and `to_json_schema()`.
-#'
-#' Composite specs let you express types that go beyond a single builtin
-#' name: unions, nullable wrappers, lists/vectors of a given element type,
-#' enums, and explicit references to registered model classes.
-#'
-#' All constructors return objects of class `type_spec`. They compose:
+#' Structured, composable type specifications. They work everywhere a type
+#' name does — [is_type()], [assert_type()], [validate_type()], [field()],
+#' [typed_function()], [to_json_schema()] — and they compose:
 #' `t_list_of(t_union("integer", "character"))` is valid.
 #'
-#' Plain character strings (e.g. `"numeric"`) and predicate functions
-#' continue to work as type arguments without change. Internally they are
-#' normalized to `type_spec` objects via `as_type_spec()`.
+#' @details
+#' All constructors return objects of class `type_spec`. Plain character
+#' strings (e.g. `"numeric"`) and predicate functions continue to work as
+#' type arguments without change; internally they are normalized to
+#' `type_spec` objects.
+#'
+#' Available constructors:
+#'
+#' - [t_union()] — match any of several alternatives.
+#' - [t_nullable()] — also accept `NULL`.
+#' - [t_list_of()] — list of elements of a given type, with optional length.
+#' - [t_vector_of()] — atomic vector of a given builtin type, with length.
+#' - [t_enum()] — value in a fixed set.
+#' - [t_model()] — instance of a registered typed model.
+#' - [t_predicate()] — wrap a predicate function with a description.
+#'
+#' Use [is_type_spec()] to detect a composite spec at runtime.
 #'
 #' @name type_spec
+#' @family type specifications
 NULL
 
-#' Test whether an object is a type_spec
+#' Test whether an object is a type spec
+#'
+#' Returns `TRUE` if `x` was created by one of the `t_*()` constructors.
 #'
 #' @param x Object to test.
-#' @return `TRUE` if `x` inherits from class `type_spec`, otherwise `FALSE`.
+#' @return `TRUE` or `FALSE`.
+#' @family type specifications
 #' @export
 #' @examples
 #' is_type_spec(t_union("numeric", "character"))
@@ -31,13 +43,6 @@ is_type_spec <- function(x) {
   inherits(x, "type_spec")
 }
 
-#' Normalize a type argument to a type_spec
-#'
-#' Internal helper. Accepts character builtin names, registered model
-#' class names, predicate functions, or existing type_specs.
-#'
-#' @param x Type argument.
-#' @return A `type_spec` object.
 #' @keywords internal
 #' @noRd
 as_type_spec <- function(x) {
@@ -66,14 +71,12 @@ as_type_spec <- function(x) {
   )
 }
 
-#' Internal type_spec constructor
 #' @keywords internal
 #' @noRd
 new_type_spec <- function(kind, ...) {
   structure(list(kind = kind, ...), class = "type_spec")
 }
 
-#' Recognise a builtin type name without erroring
 #' @keywords internal
 #' @noRd
 is_known_builtin <- function(name) {
@@ -86,16 +89,18 @@ is_known_builtin <- function(name) {
 
 #' Union of type specifications
 #'
-#' Matches if the value matches any of the alternatives.
+#' Matches if the value matches any of the given alternatives.
 #'
-#' @param ... Type specifications (character, function, or type_spec).
+#' @param ... Type specifications — character builtin names, predicate
+#'   functions, or other `type_spec` objects.
 #' @return A `type_spec` of kind `"union"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' spec <- t_union("numeric", "character")
-#' is_type(1, spec)
-#' is_type("hi", spec)
-#' is_type(TRUE, spec)
+#' id <- t_union("integer", "character")
+#' is_type(1L, id)
+#' is_type("u-42", id)
+#' is_type(1.5, id)
 t_union <- function(...) {
   alternatives <- lapply(list(...), as_type_spec)
   if (length(alternatives) == 0L) {
@@ -104,36 +109,41 @@ t_union <- function(...) {
   new_type_spec("union", alternatives = alternatives)
 }
 
-#' Nullable wrapper
-#'
-#' Accepts `NULL` in addition to whatever the inner spec accepts.
+#' Allow `NULL` in addition to an inner type
 #'
 #' @param type Inner type specification.
 #' @return A `type_spec` of kind `"nullable"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' spec <- t_nullable("integer")
-#' is_type(NULL, spec)
-#' is_type(1L, spec)
+#' maybe_int <- t_nullable("integer")
+#' is_type(NULL, maybe_int)
+#' is_type(1L, maybe_int)
+#' is_type("hi", maybe_int)
 t_nullable <- function(type) {
   new_type_spec("nullable", inner = as_type_spec(type))
 }
 
-#' List of a given element type
+#' List of elements of a given type
 #'
-#' Matches a list whose every element matches the element type. Optional
-#' length constraints follow the semantics of [vector_length()].
+#' Matches a list whose every element matches `type`. Optional length
+#' constraints follow the semantics of [vector_length()].
 #'
 #' @param type Element type specification.
 #' @param min_length Minimum number of elements.
-#' @param max_length Maximum number of elements.
-#' @param exact_length Exact length (overrides min/max if non-NULL).
+#' @param max_length Maximum number of elements (defaults to `Inf`).
+#' @param exact_length If non-`NULL`, the list must have exactly this length.
 #' @return A `type_spec` of kind `"list_of"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' spec <- t_list_of("character", min_length = 1L)
-#' is_type(list("a", "b"), spec)
-#' is_type(list(), spec)
+#' tags <- t_list_of("character", min_length = 1L)
+#' is_type(list("alpha", "beta"), tags)
+#' is_type(list(), tags)
+#'
+#' # Mixed-type list
+#' mixed <- t_list_of(t_union("integer", "character"))
+#' is_type(list(1L, "two", 3L), mixed)
 t_list_of <- function(type, min_length = 0, max_length = Inf,
                       exact_length = NULL) {
   new_type_spec(
@@ -145,20 +155,22 @@ t_list_of <- function(type, min_length = 0, max_length = Inf,
   )
 }
 
-#' Atomic vector of a given element type
+#' Atomic vector of a given builtin type
 #'
-#' Like `t_list_of()` but for atomic vectors (numeric, character, ...).
-#' The element type must be a builtin scalar type name.
+#' Like [t_list_of()] but for atomic vectors. The element type must be a
+#' builtin scalar type name (`"numeric"`, `"integer"`, `"character"`, ...).
 #'
-#' @param type Element type (character builtin name).
+#' @param type Builtin element type name.
 #' @param min_length Minimum length.
-#' @param max_length Maximum length.
-#' @param exact_length Exact length.
+#' @param max_length Maximum length (defaults to `Inf`).
+#' @param exact_length If non-`NULL`, vector must have exactly this length.
 #' @return A `type_spec` of kind `"vector_of"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' spec <- t_vector_of("integer", exact_length = 3L)
-#' is_type(1:3, spec)
+#' triple <- t_vector_of("integer", exact_length = 3L)
+#' is_type(1:3, triple)
+#' is_type(1:5, triple)
 t_vector_of <- function(type, min_length = 0, max_length = Inf,
                         exact_length = NULL) {
   inner <- as_type_spec(type)
@@ -179,15 +191,17 @@ t_vector_of <- function(type, min_length = 0, max_length = Inf,
 
 #' Enumerated set of allowed values
 #'
-#' Matches when the value is `%in%` the allowed set.
+#' Matches when every element of the value is in the allowed set.
 #'
 #' @param values Atomic vector of allowed values.
 #' @return A `type_spec` of kind `"enum"`.
+#' @family type specifications
+#' @seealso [enum_validator()] for a validator-only form.
 #' @export
 #' @examples
-#' spec <- t_enum(c("admin", "user", "guest"))
-#' is_type("admin", spec)
-#' is_type("root", spec)
+#' role <- t_enum(c("admin", "user", "guest"))
+#' is_type("admin", role)
+#' is_type("root", role)
 t_enum <- function(values) {
   if (!is.atomic(values) || length(values) == 0L) {
     stop("t_enum() requires a non-empty atomic vector", call. = FALSE)
@@ -208,18 +222,18 @@ t_enum <- function(values) {
 
 #' Reference to a registered model class
 #'
-#' Matches a typed model instance whose class is `class_name`. Note: the
-#' class need not exist at the time of construction — the registry is
-#' consulted at validation time.
+#' Matches a typed model instance whose S3 class is `class_name`. The
+#' class need not exist when the spec is constructed — the registry is
+#' consulted at validation time, which makes forward references possible.
 #'
 #' @param class_name Character scalar — the registered model class name.
 #' @return A `type_spec` of kind `"model_ref"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("Address", fields = list(zip = field("character")))
-#' spec <- t_model("Address")
-#' }
+#' addr_spec <- t_model("Address")
+#' is_type(new_Address(zip = "10115"), addr_spec)
 t_model <- function(class_name) {
   if (!is.character(class_name) || length(class_name) != 1L) {
     stop("t_model() requires a character scalar class name", call. = FALSE)
@@ -229,18 +243,22 @@ t_model <- function(class_name) {
 
 #' Wrap a predicate function as a type spec
 #'
-#' Equivalent to passing a bare function to `is_type()`, but lets you attach
-#' a description that surfaces in error messages and JSON Schema output.
+#' Equivalent to passing a bare predicate function as a type, but lets you
+#' attach a description that surfaces in error messages and JSON Schema
+#' output.
 #'
 #' @param fn Predicate function — `function(value) -> logical`.
-#' @param description Optional description string.
+#' @param description Optional description string (used in error messages).
 #' @return A `type_spec` of kind `"predicate"`.
+#' @family type specifications
 #' @export
 #' @examples
-#' spec <- t_predicate(function(x) is.numeric(x) && x > 0,
-#'                     description = "positive number")
-#' is_type(5, spec)
-#' is_type(-1, spec)
+#' positive <- t_predicate(
+#'   function(x) is.numeric(x) && all(x > 0),
+#'   description = "positive number"
+#' )
+#' is_type(5, positive)
+#' is_type(-1, positive)
 t_predicate <- function(fn, description = NULL) {
   if (!is.function(fn)) {
     stop("t_predicate() requires a function", call. = FALSE)
@@ -279,7 +297,6 @@ print.type_spec <- function(x, ...) {
   invisible(x)
 }
 
-#' Internal dispatcher for type_spec validation
 #' @keywords internal
 #' @noRd
 check_type_spec <- function(value, spec) {

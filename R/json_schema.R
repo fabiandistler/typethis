@@ -1,36 +1,55 @@
-#' JSON Schema Export
+#' JSON Schema export
 #'
 #' @description
 #' Convert typed models, type specs, validators, and field definitions
-#' into JSON Schema (Draft 2020-12) fragments. The result is an R list
-#' that can be serialized via `jsonlite::toJSON(..., auto_unbox = TRUE)`.
+#' into [JSON Schema (Draft
+#' 2020-12)](https://json-schema.org/draft/2020-12/release-notes) fragments.
+#' The result is an R list ready for `jsonlite::toJSON(..., auto_unbox =
+#' TRUE)`.
 #'
-#' Constructs that have no canonical JSON Schema representation (data
-#' frames, factors, environments, custom predicate functions) are
-#' emitted with `x-typethis-*` extension keys so they round-trip through
-#' typethis-aware tooling without losing information.
+#' Builtin validator factories ([numeric_range()], [string_length()],
+#' [string_pattern()], [vector_length()], [enum_validator()]) attach a
+#' `constraint` attribute that the exporter reads — so range and pattern
+#' constraints surface as native `minimum` / `maxLength` / `pattern` keys
+#' rather than opaque predicate stubs.
+#'
+#' Constructs without a canonical JSON Schema representation (data frames,
+#' factors, environments, custom predicate functions) are emitted with
+#' `x-typethis-*` extension keys so they round-trip through typethis-aware
+#' tooling without losing information.
 #'
 #' @name json_schema
+#' @family JSON Schema
 NULL
 
 json_schema_draft <- "https://json-schema.org/draft/2020-12/schema"
 
-#' Convert a typethis schema to JSON Schema
+#' Export a typed model or spec to JSON Schema
 #'
-#' @param x A typed model instance, a model constructor (`new_<Class>()`),
-#'   a model class name (character scalar), a `type_spec`, a builtin type
+#' Returns a named R list shaped as a JSON Schema (Draft 2020-12) fragment,
+#' ready to be serialized with `jsonlite::toJSON()`. Methods exist for
+#' typed model instances, model class names, type specs, validators, and
+#' [field()] definitions.
+#'
+#' @param x A typed model instance, a model constructor, a model class
+#'   name (character scalar), a [type_spec][type_spec], a builtin type
 #'   name, a validator closure, or a `field()` definition list.
 #' @param ... Reserved for method extension.
 #' @return A named R list shaped as a JSON Schema fragment.
+#' @family JSON Schema
+#' @seealso [to_datacontract()] and [to_openapi()] for related export
+#'   bridges.
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("Person", fields = list(
 #'   name = field("character", nullable = FALSE),
 #'   age  = field("integer", validator = numeric_range(0, 120))
 #' ))
 #' schema <- to_json_schema("Person")
-#' jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
+#' str(schema, max.level = 2)
+#'
+#' if (requireNamespace("jsonlite", quietly = TRUE)) {
+#'   cat(jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE))
 #' }
 to_json_schema <- function(x, ...) {
   UseMethod("to_json_schema")

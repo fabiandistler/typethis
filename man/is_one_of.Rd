@@ -2,22 +2,36 @@
 % Please edit documentation in R/type_check.R
 \name{is_one_of}
 \alias{is_one_of}
-\title{Check multiple type constraints}
+\title{Test whether a value matches any of several types}
 \usage{
 is_one_of(value, types)
 }
 \arguments{
-\item{value}{The value to check}
+\item{value}{Value to test.}
 
-\item{types}{Vector of allowed types}
+\item{types}{Character vector of types (or list of type specs).}
 }
 \value{
-logical
+\code{TRUE} if \code{value} matches at least one entry in \code{types}.
 }
 \description{
-Check multiple type constraints
+Convenience wrapper around \code{\link[=is_type]{is_type()}} for checking against a vector of
+alternatives. For a structured spec that you can also use with
+\code{\link[=typed_function]{typed_function()}} and \code{\link[=field]{field()}}, see \code{\link[=t_union]{t_union()}}.
 }
 \examples{
 is_one_of(5, c("numeric", "character"))
 is_one_of("hello", c("numeric", "character"))
+is_one_of(TRUE, c("numeric", "character"))
 }
+\seealso{
+\code{\link[=t_union]{t_union()}} for a composable equivalent that works as a type
+specification.
+
+Other type checking: 
+\code{\link{assert_type}()},
+\code{\link{coerce_type}()},
+\code{\link{is_type}()},
+\code{\link{validate_type}()}
+}
+\concept{type checking}

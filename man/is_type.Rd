@@ -2,27 +2,38 @@
 % Please edit documentation in R/type_check.R
 \name{is_type}
 \alias{is_type}
-\title{Core Type Checking Functions}
+\title{Test whether a value matches a type}
 \usage{
 is_type(value, type, nullable = FALSE)
 }
 \arguments{
-\item{value}{The value to check}
+\item{value}{Value to test.}
 
-\item{type}{The expected type (character or function)}
+\item{type}{Expected type — character, function, or \code{type_spec}.}
 
-\item{nullable}{Allow NULL values}
+\item{nullable}{If \code{TRUE}, \code{NULL} matches as well.}
 }
 \value{
-logical indicating if value matches type
+\code{TRUE} or \code{FALSE}.
 }
 \description{
-Provides fundamental type checking capabilities for R objects.
-Similar to mypy/pydantic for Python.
-Check if a value matches a type specification
+Returns \code{TRUE} if \code{value} matches \code{type}, \code{FALSE} otherwise. \code{type} may
+be a builtin name (\code{"numeric"}, \code{"character"}, ...), a registered model
+class, a predicate function, or a \link{type_spec} built with the
+\verb{t_*()} constructors.
 }
 \examples{
 is_type(5, "numeric")
 is_type("hello", "character")
+is_type(NULL, "numeric")
 is_type(NULL, "numeric", nullable = TRUE)
+is_type(1L, t_union("integer", "character"))
 }
+\seealso{
+Other type checking: 
+\code{\link{assert_type}()},
+\code{\link{coerce_type}()},
+\code{\link{is_one_of}()},
+\code{\link{validate_type}()}
+}
+\concept{type checking}

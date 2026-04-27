@@ -2,22 +2,33 @@
 % Please edit documentation in R/typed_function.R
 \name{with_signature}
 \alias{with_signature}
-\title{Apply type signature to function}
+\title{Apply a signature to a function}
 \usage{
 with_signature(fn, sig)
 }
 \arguments{
-\item{fn}{Function to type}
+\item{fn}{Function to wrap.}
 
-\item{sig}{Signature object from signature()}
+\item{sig}{A \code{type_signature} object from \code{\link[=signature]{signature()}}.}
 }
 \value{
-Typed function
+A typed function.
 }
 \description{
-Apply type signature to function
+Equivalent to passing \code{sig$args} and \code{sig$return} to \code{\link[=typed_function]{typed_function()}}.
 }
 \examples{
 sig <- signature(x = "numeric", y = "numeric", .return = "numeric")
-add <- with_signature(function(x, y) x + y, sig)
+multiply <- with_signature(function(x, y) x * y, sig)
+multiply(5, 3)
 }
+\seealso{
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{is_typed}()},
+\code{\link{signature}},
+\code{\link{typed_function}()},
+\code{\link{typed_method}()},
+\code{\link{validate_call}()}
+}
+\concept{typed functions}

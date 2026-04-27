@@ -7,17 +7,30 @@
 t_union(...)
 }
 \arguments{
-\item{...}{Type specifications (character, function, or type_spec).}
+\item{...}{Type specifications — character builtin names, predicate
+functions, or other \code{type_spec} objects.}
 }
 \value{
 A \code{type_spec} of kind \code{"union"}.
 }
 \description{
-Matches if the value matches any of the alternatives.
+Matches if the value matches any of the given alternatives.
 }
 \examples{
-spec <- t_union("numeric", "character")
-is_type(1, spec)
-is_type("hi", spec)
-is_type(TRUE, spec)
+id <- t_union("integer", "character")
+is_type(1L, id)
+is_type("u-42", id)
+is_type(1.5, id)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

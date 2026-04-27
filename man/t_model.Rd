@@ -13,13 +13,24 @@ t_model(class_name)
 A \code{type_spec} of kind \code{"model_ref"}.
 }
 \description{
-Matches a typed model instance whose class is \code{class_name}. Note: the
-class need not exist at the time of construction — the registry is
-consulted at validation time.
+Matches a typed model instance whose S3 class is \code{class_name}. The
+class need not exist when the spec is constructed — the registry is
+consulted at validation time, which makes forward references possible.
 }
 \examples{
-\dontrun{
 define_model("Address", fields = list(zip = field("character")))
-spec <- t_model("Address")
+addr_spec <- t_model("Address")
+is_type(new_Address(zip = "10115"), addr_spec)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
 }
+\concept{type specifications}

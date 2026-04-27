@@ -19,23 +19,40 @@ in (e.g. for typed functions added by name).}
 \item{...}{Forwarded to method dispatch.}
 }
 \value{
-A list ready for \code{\link[yaml:write_yaml]{yaml::write_yaml()}} or \code{\link[jsonlite:fromJSON]{jsonlite::toJSON()}}.
+A list ready for \code{yaml::write_yaml()} or \code{jsonlite::toJSON()}.
 }
 \description{
 Builds an OpenAPI 3.1 document fragment from typed models, typed
 functions, or a mixed list. Schemas are produced via \code{\link[=to_json_schema]{to_json_schema()}}
 and lifted into \code{components.schemas}; \verb{$ref} strings are rewritten from
 the JSON Schema convention (\verb{#/$defs/X}) to the OpenAPI convention
-(\verb{#/components/schemas/X}). Typed functions become a single
-\code{paths} entry with a JSON \code{requestBody} carrying the arguments and a
-\code{200} response carrying the return type.
+(\verb{#/components/schemas/X}). Typed functions become a single \code{paths}
+entry with a JSON \code{requestBody} carrying the arguments and a \code{200}
+response carrying the return type.
+}
+\details{
+To control the path and operation ID for a typed function, set
+\code{attr(fn, "openapi_op_id") <- "yourId"} before passing it in.
 }
 \examples{
-\dontrun{
 define_model("User", fields = list(
   id   = field("integer", primary_key = TRUE),
   name = field("character")
 ))
-to_openapi("User", info = list(title = "Users API", version = "1.0.0"))
+doc <- to_openapi("User",
+  info = list(title = "Users API", version = "1.0.0"))
+names(doc)
+names(doc$components$schemas)
 }
+\seealso{
+\code{\link[=write_openapi]{write_openapi()}} for the file-IO convenience wrapper;
+\code{\link[=from_openapi]{from_openapi()}} for the reverse direction; \code{\link[=to_json_schema]{to_json_schema()}} for
+the underlying schema export.
+
+Other OpenAPI: 
+\code{\link{from_openapi}()},
+\code{\link{openapi}},
+\code{\link{read_openapi}()},
+\code{\link{write_openapi}()}
 }
+\concept{OpenAPI}

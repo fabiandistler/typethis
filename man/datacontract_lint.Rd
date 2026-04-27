@@ -13,7 +13,26 @@ datacontract_lint(path, ...)
 }
 \value{
 List with \code{success} (logical), \code{status}, \code{stdout}, \code{stderr}.
+On a non-zero CLI exit, an error is signalled.
 }
 \description{
-Run \verb{datacontract lint} on a contract file
+Thin wrapper around the upstream CLI. Requires the \code{datacontract}
+binary on \code{PATH} — guard with \code{\link[=datacontract_cli_available]{datacontract_cli_available()}}.
 }
+\examples{
+if (datacontract_cli_available()) {
+  datacontract_lint("orders.yaml")
+}
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

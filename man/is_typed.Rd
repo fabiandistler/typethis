@@ -2,22 +2,32 @@
 % Please edit documentation in R/typed_function.R
 \name{is_typed}
 \alias{is_typed}
-\title{Check if function is typed}
+\title{Test whether a function was wrapped by \code{typed_function()}}
 \usage{
 is_typed(fn)
 }
 \arguments{
-\item{fn}{Function to check}
+\item{fn}{Function to test.}
 }
 \value{
-logical
+\code{TRUE} if \code{fn} carries the typed-function metadata.
 }
 \description{
-Check if function is typed
+Test whether a function was wrapped by \code{typed_function()}
 }
 \examples{
-f1 <- function(x) x + 1
-f2 <- typed_function(f1, arg_specs = c(x = "numeric"))
-is_typed(f1) # FALSE
-is_typed(f2) # TRUE
+f <- function(x) x + 1
+g <- typed_function(f, arg_specs = c(x = "numeric"))
+is_typed(f)
+is_typed(g)
 }
+\seealso{
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{signature}},
+\code{\link{typed_function}()},
+\code{\link{typed_method}()},
+\code{\link{validate_call}()},
+\code{\link{with_signature}()}
+}
+\concept{typed functions}

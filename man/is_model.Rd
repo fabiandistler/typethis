@@ -2,16 +2,32 @@
 % Please edit documentation in R/model.R
 \name{is_model}
 \alias{is_model}
-\title{Check if object is a typed model}
+\title{Test whether an object is a typed model instance}
 \usage{
 is_model(x)
 }
 \arguments{
-\item{x}{Object to check}
+\item{x}{Object to test.}
 }
 \value{
-logical
+\code{TRUE} or \code{FALSE}.
 }
 \description{
-Check if object is a typed model
+Test whether an object is a typed model instance
 }
+\examples{
+define_model("Tag", fields = list(name = field("character")))
+is_model(new_Tag(name = "alpha"))
+is_model(list(name = "alpha"))
+}
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

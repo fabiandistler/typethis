@@ -2,7 +2,7 @@
 % Please edit documentation in R/datacontract.R
 \name{to_datacontract}
 \alias{to_datacontract}
-\title{Convert typethis schemas to a Data Contract (ODCS v3) list}
+\title{Build an ODCS v3 contract from typed models}
 \usage{
 to_datacontract(x, info = NULL, servers = NULL, ...)
 }
@@ -22,19 +22,36 @@ through verbatim to ODCS. Example:
 \item{...}{Reserved for method extension.}
 }
 \value{
-A named R list shaped as an ODCS v3 contract. Serialise via
-\code{yaml::write_yaml()} or \code{\link[=write_datacontract]{write_datacontract()}}.
+A named R list shaped as an ODCS v3 contract.
 }
 \description{
-Convert typethis schemas to a Data Contract (ODCS v3) list
+Returns the contract as a native R list, ready for \code{yaml::write_yaml()}
+or further programmatic manipulation. Methods exist for typed model
+instances, model constructors, character class names, and lists of any
+of these.
 }
 \examples{
-\dontrun{
 define_model("Order", fields = list(
   order_id = field("character", primary_key = TRUE),
   amount   = field("numeric", validator = numeric_range(0, 1e6))
 ))
+
 contract <- to_datacontract("Order",
   info = list(name = "orders", version = "1.0.0"))
+str(contract, max.level = 2)
 }
+\seealso{
+\code{\link[=write_datacontract]{write_datacontract()}} to write directly to disk;
+\code{\link[=from_datacontract]{from_datacontract()}} for the reverse direction.
+
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{write_datacontract}()}
 }
+\concept{Data Contract}

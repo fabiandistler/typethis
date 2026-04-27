@@ -13,10 +13,30 @@ validator_constraint(fn)
 A named list describing the constraint, or \code{NULL}.
 }
 \description{
-Returns the structured constraint list attached by builtin validator
-factories such as \code{\link[=numeric_range]{numeric_range()}} or \code{NULL} for plain user functions.
+Builtin validator factories (\code{\link[=numeric_range]{numeric_range()}}, \code{\link[=string_length]{string_length()}}, ...)
+attach a structured \code{constraint} list to the closure they return so that
+tooling can introspect them — most notably \code{\link[=to_json_schema]{to_json_schema()}}, which uses
+it to emit native \code{minimum} / \code{maxLength} / \code{pattern} keys instead of
+opaque predicate stubs.
+}
+\details{
+Plain user-defined validator functions return \code{NULL}.
 }
 \examples{
 validator_constraint(numeric_range(0, 10))
+validator_constraint(string_length(max_length = 50))
 validator_constraint(function(x) x > 0)
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

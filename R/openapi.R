@@ -1,13 +1,23 @@
-# OpenAPI 3.1 Bridge ---------------------------------------------------------
-#
-# Maps typed models and typed functions to OpenAPI 3.1 components/paths and
-# back. OpenAPI 3.1 is JSON-Schema-Draft-2020-12-compatible, so the schema
-# fragments produced by to_json_schema() can be lifted directly into
-# components.schemas with two adjustments: $defs are flattened into
-# components.schemas, and $ref strings are rewritten from #/$defs/X to
-# #/components/schemas/X.
-#
-# Naming and file IO mirror the ODCS bridge in R/datacontract.R.
+#' OpenAPI 3.1 bridge
+#'
+#' @description
+#' Convert typed models and typed functions to and from [OpenAPI 3.1
+#' documents](https://spec.openapis.org/oas/v3.1.0). OpenAPI 3.1 is
+#' JSON-Schema-Draft-2020-12-compatible, so the schema fragments produced
+#' by [to_json_schema()] are lifted directly into `components.schemas`;
+#' `$ref` strings are rewritten from `#/$defs/X` to
+#' `#/components/schemas/X`. Typed functions become a single `paths` entry
+#' whose `requestBody` carries the arguments as a JSON object and whose
+#' `200` response carries the return type.
+#'
+#' Key entry points:
+#'
+#' - [to_openapi()] / [write_openapi()] — export.
+#' - [read_openapi()] / [from_openapi()] — import.
+#'
+#' @name openapi
+#' @family OpenAPI
+NULL
 
 openapi_version <- "3.1.0"
 
@@ -21,9 +31,12 @@ openapi_version <- "3.1.0"
 #' functions, or a mixed list. Schemas are produced via [to_json_schema()]
 #' and lifted into `components.schemas`; `$ref` strings are rewritten from
 #' the JSON Schema convention (`#/$defs/X`) to the OpenAPI convention
-#' (`#/components/schemas/X`). Typed functions become a single
-#' `paths` entry with a JSON `requestBody` carrying the arguments and a
-#' `200` response carrying the return type.
+#' (`#/components/schemas/X`). Typed functions become a single `paths`
+#' entry with a JSON `requestBody` carrying the arguments and a `200`
+#' response carrying the return type.
+#'
+#' To control the path and operation ID for a typed function, set
+#' `attr(fn, "openapi_op_id") <- "yourId"` before passing it in.
 #'
 #' @param x A model class name (character scalar), a model constructor or
 #'   instance, a typed function, or a list mixing any of the above.
@@ -32,16 +45,21 @@ openapi_version <- "3.1.0"
 #' @param paths Optional named list of additional `paths` entries to merge
 #'   in (e.g. for typed functions added by name).
 #' @param ... Forwarded to method dispatch.
-#' @return A list ready for [yaml::write_yaml()] or [jsonlite::toJSON()].
+#' @return A list ready for `yaml::write_yaml()` or `jsonlite::toJSON()`.
+#' @family OpenAPI
+#' @seealso [write_openapi()] for the file-IO convenience wrapper;
+#'   [from_openapi()] for the reverse direction; [to_json_schema()] for
+#'   the underlying schema export.
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("User", fields = list(
 #'   id   = field("integer", primary_key = TRUE),
 #'   name = field("character")
 #' ))
-#' to_openapi("User", info = list(title = "Users API", version = "1.0.0"))
-#' }
+#' doc <- to_openapi("User",
+#'   info = list(title = "Users API", version = "1.0.0"))
+#' names(doc)
+#' names(doc$components$schemas)
 to_openapi <- function(x, info = NULL, paths = NULL, ...) {
   UseMethod("to_openapi")
 }
@@ -96,16 +114,31 @@ to_openapi.list <- function(x, info = NULL, paths = NULL, ...) {
 
 #' Write an OpenAPI document to disk
 #'
+#' Convenience wrapper around [to_openapi()] + the appropriate writer
+#' (`yaml::write_yaml()` for YAML, `jsonlite::toJSON()` for JSON). The
+#' output format is inferred from the file extension and can be overridden.
+#'
 #' @param x See [to_openapi()].
-#' @param path Destination file path. Use `.yaml`/`.yml` for YAML output,
-#'   `.json` for JSON. The format is inferred from the extension; pass
-#'   `format = "yaml"` or `"json"` to override.
+#' @param path Destination file path. Use `.yaml`/`.yml` for YAML output
+#'   or `.json` for JSON.
 #' @param info,paths,... Forwarded to [to_openapi()].
 #' @param format Output format: `"yaml"` (default for `.yaml`/`.yml`) or
 #'   `"json"` (default for `.json`). Defaults to YAML if the extension is
 #'   ambiguous.
 #' @return The OpenAPI document list, invisibly.
+#' @family OpenAPI
 #' @export
+#' @examples
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("User", fields = list(
+#'     id   = field("integer", primary_key = TRUE),
+#'     name = field("character")
+#'   ))
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_openapi("User", tmp,
+#'     info = list(title = "Users API", version = "1.0.0"))
+#'   readLines(tmp, n = 5)
+#' }
 write_openapi <- function(x, path, info = NULL, paths = NULL,
                           format = NULL, ...) {
   doc <- to_openapi(x, info = info, paths = paths, ...)
@@ -129,11 +162,12 @@ write_openapi <- function(x, path, info = NULL, paths = NULL,
 
 #' Read an OpenAPI document into an R list
 #'
-#' Pure parsing helper; does not register anything. Use [from_openapi()]
+#' Pure parsing helper — does not register anything. Use [from_openapi()]
 #' for the full import pipeline.
 #'
 #' @param path File path or URL.
 #' @return Parsed OpenAPI list.
+#' @family OpenAPI
 #' @export
 read_openapi <- function(path) {
   fmt <- openapi_format_from_path(path)
@@ -152,25 +186,37 @@ read_openapi <- function(path) {
   }
 }
 
-#' Load an OpenAPI document into the typethis model registry
+#' Import OpenAPI components into the typethis model registry
 #'
 #' Reads an OpenAPI 3.x document (file path, URL, or already-parsed list)
 #' and calls [define_model()] for every entry under `components.schemas`.
 #' Nested `object` properties with their own `properties` block are
-#' registered as their own typed models so that `t_model()` references
-#' resolve correctly.
+#' registered as their own typed models so that [t_model()] references
+#' resolve correctly. After import, the generated `new_*()` and
+#' `update_*()` constructors are available in `envir`.
 #'
 #' @param x Path, URL, or parsed list.
-#' @param register If `TRUE` (default) define the models; if `FALSE` only
-#'   parse and return the resolved field definitions on the result attribute.
-#' @param envir Environment in which `new_<Class>()`/`update_<Class>()`
+#' @param register If `TRUE` (default), define the models; if `FALSE`,
+#'   only parse and return the resolved field definitions on the result
+#'   attribute.
+#' @param envir Environment in which `new_<Class>()` / `update_<Class>()`
 #'   constructors are assigned. Defaults to the calling environment.
 #' @return Character vector of registered model class names, invisibly.
+#' @family OpenAPI
 #' @export
 #' @examples
-#' \dontrun{
-#' from_openapi("api.yaml")
-#' new_User(id = 1L, name = "Alice")
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("User", fields = list(
+#'     id   = field("integer", primary_key = TRUE),
+#'     name = field("character")
+#'   ))
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_openapi("User", tmp,
+#'     info = list(title = "Users API", version = "1.0.0"))
+#'
+#'   env <- new.env()
+#'   from_openapi(tmp, envir = env)
+#'   ls(env)  # new_User, update_User
 #' }
 from_openapi <- function(x, register = TRUE, envir = parent.frame()) {
   doc <- if (is.list(x)) x else read_openapi(x)

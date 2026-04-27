@@ -2,18 +2,19 @@
 % Please edit documentation in R/typed_function.R
 \name{get_signature}
 \alias{get_signature}
-\title{Get function signature}
+\title{Inspect the signature of a typed function}
 \usage{
 get_signature(fn)
 }
 \arguments{
-\item{fn}{Typed function}
+\item{fn}{A typed function.}
 }
 \value{
-Signature information or NULL
+Named list with \code{args}, \code{return}, and \code{formals}, or \code{NULL}.
 }
 \description{
-Get function signature
+Returns the argument specs, return spec, and original formals attached
+by \code{\link[=typed_function]{typed_function()}}. Returns \code{NULL} for plain functions.
 }
 \examples{
 f <- typed_function(
@@ -23,3 +24,13 @@ f <- typed_function(
 )
 get_signature(f)
 }
+\seealso{
+Other typed functions: 
+\code{\link{is_typed}()},
+\code{\link{signature}},
+\code{\link{typed_function}()},
+\code{\link{typed_method}()},
+\code{\link{validate_call}()},
+\code{\link{with_signature}()}
+}
+\concept{typed functions}

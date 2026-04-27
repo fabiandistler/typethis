@@ -2,16 +2,35 @@
 % Please edit documentation in R/model.R
 \name{model_to_list}
 \alias{model_to_list}
-\title{Convert model to list}
+\title{Convert a typed model instance to a plain list}
 \usage{
 model_to_list(model)
 }
 \arguments{
-\item{model}{Model instance}
+\item{model}{A model instance.}
 }
 \value{
-list
+A plain list with the model's field values.
 }
 \description{
-Convert model to list
+Convert a typed model instance to a plain list
 }
+\examples{
+define_model("Point", fields = list(
+  x = field("numeric"),
+  y = field("numeric")
+))
+p <- new_Point(x = 1, y = 2)
+model_to_list(p)
+}
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

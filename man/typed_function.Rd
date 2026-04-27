@@ -2,49 +2,91 @@
 % Please edit documentation in R/typed_function.R
 \name{typed_function}
 \alias{typed_function}
-\title{Typed Function Decorators}
+\title{Wrap a function with input/output type checks}
 \usage{
 typed_function(
   fn,
-  arg_types = NULL,
-  return_type = NULL,
+  arg_specs = NULL,
+  return_spec = NULL,
   validate = TRUE,
   coerce = FALSE,
-  arg_specs = NULL,
-  return_spec = NULL
+  arg_types = NULL,
+  return_type = NULL
 )
 }
 \arguments{
-\item{fn}{The function to wrap}
+\item{fn}{The underlying function.}
 
-\item{arg_types}{Named list of argument types (use arg_specs instead)}
+\item{arg_specs}{Named list (or character vector) of argument
+specifications. Names must match argument names of \code{fn}.}
 
-\item{return_type}{Expected return type (use return_spec instead)}
+\item{return_spec}{Specification for the return value, or \code{NULL} to skip.}
 
-\item{validate}{If TRUE, validate at runtime}
+\item{validate}{If \code{FALSE}, type checks are skipped (useful for hot paths).}
 
-\item{coerce}{If TRUE, attempt type coercion}
+\item{coerce}{If \code{TRUE}, arguments that don't match are first run through
+\code{\link[=coerce_type]{coerce_type()}} before assertion.}
 
-\item{arg_specs}{Named character vector of argument type specifications}
-
-\item{return_spec}{Expected return type specification}
+\item{arg_types, return_type}{Deprecated aliases for \code{arg_specs} /
+\code{return_spec}. New code should use the latter.}
 }
 \value{
-Wrapped function with type checking
+A function with the same formals as \code{fn}. Carries \code{arg_specs},
+\code{return_spec}, and \code{typed = TRUE} as attributes.
 }
 \description{
-Create type-safe functions with automatic validation of inputs and outputs.
-Similar to Python type hints with runtime enforcement.
-Create a typed function with input/output validation
+Returns a wrapped version of \code{fn} that validates each argument against
+the spec in \code{arg_specs} on every call, and (optionally) the return value
+against \code{return_spec}. Calls that violate a spec raise an informative
+error before — or just after — \code{fn} runs.
+
+Argument specs may be character builtins, predicate functions, or any
+\link{type_spec} (e.g. \code{\link[=t_union]{t_union()}}, \code{\link[=t_list_of]{t_list_of()}}). Coercion can
+be enabled per call via \code{coerce = TRUE}.
+
+All R calling conventions are supported: positional, named, reordered
+named, mixed, and \code{...} passthrough.
 }
 \examples{
-add_numbers <- typed_function(
-  fn = function(x, y) x + y,
+add <- typed_function(
+  function(x, y) x + y,
   arg_specs = c(x = "numeric", y = "numeric"),
   return_spec = "numeric"
 )
-add_numbers(5, 3) # 8
-\dontrun{
-add_numbers("a", "b") # Error: type mismatch
+add(2, 3)
+add(x = 2, y = 3)
+add(y = 3, x = 2)
+
+# Argument violation
+err <- tryCatch(add("a", "b"), error = function(e) conditionMessage(e))
+err
+
+# ... passthrough
+total <- typed_function(
+  function(x, ...) sum(x, ...),
+  arg_specs = c(x = "numeric")
+)
+total(c(1, NA, 3), na.rm = TRUE)
+
+# Coercion
+add_lenient <- typed_function(
+  function(x, y) x + y,
+  arg_specs = c(x = "numeric", y = "numeric"),
+  coerce = TRUE
+)
+add_lenient("5", "3")
 }
+\seealso{
+\code{\link[=signature]{signature()}} / \code{\link[=with_signature]{with_signature()}} for a separate-then-attach
+workflow; \code{\link[=validate_call]{validate_call()}} to dry-run validation; \code{\link[=is_typed]{is_typed()}} /
+\code{\link[=get_signature]{get_signature()}} for introspection.
+
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{is_typed}()},
+\code{\link{signature}},
+\code{\link{typed_method}()},
+\code{\link{validate_call}()},
+\code{\link{with_signature}()}
 }
+\concept{typed functions}

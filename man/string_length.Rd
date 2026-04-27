@@ -2,23 +2,38 @@
 % Please edit documentation in R/validators.R
 \name{string_length}
 \alias{string_length}
-\title{String length validator}
+\title{Validate string length}
 \usage{
 string_length(min_length = 0, max_length = Inf)
 }
 \arguments{
-\item{min_length}{Minimum string length}
+\item{min_length}{Minimum number of characters.}
 
-\item{max_length}{Maximum string length}
+\item{max_length}{Maximum number of characters (defaults to \code{Inf}).}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-String length validator
+Returns a validator closure that accepts character values whose every
+element has length between \code{min_length} and \code{max_length} (inclusive).
 }
 \examples{
-name_validator <- string_length(min_length = 1, max_length = 50)
-name_validator("John") # TRUE
-name_validator("") # FALSE
+name <- string_length(min_length = 1, max_length = 50)
+name("Ada Lovelace")
+name("")
+name(c("ok", "also ok"))
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

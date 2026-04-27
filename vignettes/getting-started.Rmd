@@ -1,0 +1,183 @@
+---
+title: "Getting started with typethis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with typethis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`typethis` adds runtime type safety to R. This vignette is a 10-minute
+tour of the four things you'll reach for most: type checks, typed
+functions, typed models, and composable type specs.
+
+```{r setup}
+library(typethis)
+```
+
+## 1. Type checks
+
+The lowest-level entry points test, assert, and validate types. Use them
+at function boundaries, when parsing inputs, or anywhere a quick sanity
+check is enough.
+
+```{r}
+is_type(5, "numeric")
+is_type("hello", "numeric")
+
+# assert_type() throws on mismatch
+assert_type(5, "numeric", "x")
+
+# validate_type() returns a list instead of throwing
+validate_type("hello", "numeric", "x")
+```
+
+`is_type()` accepts any of:
+
+- a builtin name — `"numeric"`, `"integer"`, `"character"`, `"logical"`,
+  `"list"`, `"data.frame"`, `"matrix"`, `"factor"`, `"date"`, `"posixct"`,
+  `"function"`, `"environment"`;
+- a predicate function `function(value) -> logical`;
+- a [type spec](type-specs.html) such as `t_union("integer", "character")`.
+
+For safe coercion, use `coerce_type()`:
+
+```{r}
+coerce_type("123", "numeric")
+coerce_type(c(1, 0, 1), "logical")
+```
+
+## 2. Typed functions
+
+`typed_function()` wraps a function so each call is validated.
+
+```{r}
+greet <- typed_function(
+  function(name, times = 1L) paste(rep(name, times), collapse = " "),
+  arg_specs   = list(name = "character", times = "integer"),
+  return_spec = "character"
+)
+
+greet("hi", times = 3L)
+```
+
+A bad call fails before the body runs:
+
+```{r, error = TRUE}
+greet("hi", times = "three")
+```
+
+`typed_function()` supports every R calling convention — positional,
+named, mixed, reordered, and `...` passthrough — and respects argument
+defaults. Set `coerce = TRUE` to convert mismatches before checking, or
+`validate = FALSE` for hot paths where you've already validated upstream.
+
+For the full feature set see `?typed_function` and the
+[validators-and-models](validators-and-models.html) vignette.
+
+## 3. Typed models
+
+Use `define_model()` to describe a record type — a configuration object,
+an API request body, a domain entity. It generates a `new_<Class>()`
+constructor and an `update_<Class>()` updater in the calling environment.
+
+```{r}
+define_model("User", fields = list(
+  name  = field("character"),
+  age   = field("integer", validator = numeric_range(0, 120),
+                default = 0L),
+  email = field("character",
+                validator = string_pattern("^[^@]+@[^@]+\\.[^@]+$"))
+))
+
+ada <- new_User(name = "Ada Lovelace", email = "ada@example.com")
+ada
+```
+
+Validation runs at construction time:
+
+```{r, error = TRUE}
+new_User(name = "Ada", age = 200L, email = "ada@example.com")
+```
+
+`update_User()` returns a fresh instance with the named fields replaced
+and revalidated:
+
+```{r}
+ada <- update_User(ada, age = 36L)
+ada$age
+```
+
+Models nest. Reference one model from another by class name:
+
+```{r}
+define_model("Address", fields = list(
+  street = field("character"),
+  city   = field("character")
+))
+
+define_model("Person", fields = list(
+  name    = field("character"),
+  address = field("Address")
+))
+
+p <- new_Person(
+  name    = "Ada",
+  address = new_Address(street = "Newstead Abbey", city = "Nottingham")
+)
+p$address$city
+```
+
+For defaults, nullability, strict mode, and validators, see the
+[validators-and-models](validators-and-models.html) vignette.
+
+## 4. Composable type specs
+
+The `t_*()` family builds richer specifications that work everywhere a
+plain type name does (`is_type()`, `assert_type()`, `field()`,
+`typed_function()`, `to_json_schema()`).
+
+```{r}
+id <- t_union("integer", "character")
+is_type(1L, id)
+is_type("u-42", id)
+
+maybe_int <- t_nullable("integer")
+is_type(NULL, maybe_int)
+
+tags <- t_list_of("character", min_length = 1L)
+is_type(list("alpha", "beta"), tags)
+
+role <- t_enum(c("admin", "user", "guest"))
+is_type("admin", role)
+```
+
+Specs compose:
+
+```{r}
+mixed <- t_list_of(t_union("integer", "character"))
+is_type(list(1L, "two", 3L), mixed)
+```
+
+Use any spec inside a `field()` or as `typed_function()`'s `arg_specs`
+entry. See the [type-specs](type-specs.html) vignette for the full
+reference.
+
+## Where to go next
+
+- [`validators-and-models`](validators-and-models.html) — built-in
+  validators, defaults, nullability, strict mode, the `field()` metadata.
+- [`type-specs`](type-specs.html) — every `t_*()` constructor and how
+  they compose.
+- [`interop`](interop.html) — JSON Schema, Open Data Contract Standard,
+  and OpenAPI 3.1 export and import.
+
+For function reference, `?typethis` is a topic-grouped index and each
+function's help page has a "See also" section linking to its family.

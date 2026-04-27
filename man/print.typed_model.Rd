@@ -2,15 +2,36 @@
 % Please edit documentation in R/model.R
 \name{print.typed_model}
 \alias{print.typed_model}
-\title{Print method for typed models}
+\title{Print method for typed model instances}
 \usage{
 \method{print}{typed_model}(x, ...)
 }
 \arguments{
-\item{x}{Model instance}
+\item{x}{Model instance.}
 
-\item{...}{Additional arguments}
+\item{...}{Unused.}
+}
+\value{
+Invisibly \code{x}.
 }
 \description{
-Print method for typed models
+Print method for typed model instances
 }
+\examples{
+define_model("Point", fields = list(
+  x = field("numeric"),
+  y = field("numeric")
+))
+new_Point(x = 1, y = 2)
+}
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

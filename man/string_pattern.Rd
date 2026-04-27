@@ -2,23 +2,41 @@
 % Please edit documentation in R/validators.R
 \name{string_pattern}
 \alias{string_pattern}
-\title{String pattern validator (regex)}
+\title{Validate strings against a regular expression}
 \usage{
 string_pattern(pattern, ignore_case = FALSE)
 }
 \arguments{
-\item{pattern}{Regular expression pattern}
+\item{pattern}{Regular expression pattern.}
 
-\item{ignore_case}{Ignore case in matching}
+\item{ignore_case}{If \code{TRUE}, matching is case-insensitive.}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-String pattern validator (regex)
+Returns a validator closure that accepts character values where every
+element matches \code{pattern} (a POSIX extended regex). Set \code{ignore_case}
+for case-insensitive matching.
 }
 \examples{
-email_validator <- string_pattern("^[a-zA-Z0-9.+-]+@[a-zA-Z0-9.-]+$")
-email_validator("user@example.com") # TRUE
-email_validator("invalid-email") # FALSE
+email <- string_pattern("^[^@]+@[^@]+\\\\.[^@]+$")
+email("user@example.com")
+email("not-an-email")
+
+phone <- string_pattern("^[0-9 +()-]+$")
+phone("+49 (0)30 1234 5678")
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

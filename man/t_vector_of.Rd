@@ -2,27 +2,40 @@
 % Please edit documentation in R/type_spec.R
 \name{t_vector_of}
 \alias{t_vector_of}
-\title{Atomic vector of a given element type}
+\title{Atomic vector of a given builtin type}
 \usage{
 t_vector_of(type, min_length = 0, max_length = Inf, exact_length = NULL)
 }
 \arguments{
-\item{type}{Element type (character builtin name).}
+\item{type}{Builtin element type name.}
 
 \item{min_length}{Minimum length.}
 
-\item{max_length}{Maximum length.}
+\item{max_length}{Maximum length (defaults to \code{Inf}).}
 
-\item{exact_length}{Exact length.}
+\item{exact_length}{If non-\code{NULL}, vector must have exactly this length.}
 }
 \value{
 A \code{type_spec} of kind \code{"vector_of"}.
 }
 \description{
-Like \code{t_list_of()} but for atomic vectors (numeric, character, ...).
-The element type must be a builtin scalar type name.
+Like \code{\link[=t_list_of]{t_list_of()}} but for atomic vectors. The element type must be a
+builtin scalar type name (\code{"numeric"}, \code{"integer"}, \code{"character"}, ...).
 }
 \examples{
-spec <- t_vector_of("integer", exact_length = 3L)
-is_type(1:3, spec)
+triple <- t_vector_of("integer", exact_length = 3L)
+is_type(1:3, triple)
+is_type(1:5, triple)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_list_of}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

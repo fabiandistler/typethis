@@ -9,9 +9,8 @@ write_openapi(x, path, info = NULL, paths = NULL, format = NULL, ...)
 \arguments{
 \item{x}{See \code{\link[=to_openapi]{to_openapi()}}.}
 
-\item{path}{Destination file path. Use \code{.yaml}/\code{.yml} for YAML output,
-\code{.json} for JSON. The format is inferred from the extension; pass
-\code{format = "yaml"} or \code{"json"} to override.}
+\item{path}{Destination file path. Use \code{.yaml}/\code{.yml} for YAML output
+or \code{.json} for JSON.}
 
 \item{info, paths, ...}{Forwarded to \code{\link[=to_openapi]{to_openapi()}}.}
 
@@ -23,5 +22,27 @@ ambiguous.}
 The OpenAPI document list, invisibly.
 }
 \description{
-Write an OpenAPI document to disk
+Convenience wrapper around \code{\link[=to_openapi]{to_openapi()}} + the appropriate writer
+(\code{yaml::write_yaml()} for YAML, \code{jsonlite::toJSON()} for JSON). The
+output format is inferred from the file extension and can be overridden.
 }
+\examples{
+if (requireNamespace("yaml", quietly = TRUE)) {
+  define_model("User", fields = list(
+    id   = field("integer", primary_key = TRUE),
+    name = field("character")
+  ))
+  tmp <- tempfile(fileext = ".yaml")
+  write_openapi("User", tmp,
+    info = list(title = "Users API", version = "1.0.0"))
+  readLines(tmp, n = 5)
+}
+}
+\seealso{
+Other OpenAPI: 
+\code{\link{from_openapi}()},
+\code{\link{openapi}},
+\code{\link{read_openapi}()},
+\code{\link{to_openapi}()}
+}
+\concept{OpenAPI}

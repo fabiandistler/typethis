@@ -2,25 +2,45 @@
 % Please edit documentation in R/model.R
 \name{update_model}
 \alias{update_model}
-\title{Update model fields}
+\title{Update fields on a typed model instance}
 \usage{
 update_model(model, ..., .validate = TRUE)
 }
 \arguments{
-\item{model}{Model instance}
+\item{model}{A model instance.}
 
-\item{...}{Fields to update}
+\item{...}{Fields to update, as \code{name = value}.}
 
-\item{.validate}{Validate after update}
+\item{.validate}{If \code{FALSE}, skip revalidation.}
 }
 \value{
-Updated model instance
+Updated model instance.
 }
 \description{
-Update model fields
+Generic alternative to the class-specific \verb{update_<ClassName>()} produced
+by \code{\link[=define_model]{define_model()}}. Returns a new instance with the named fields
+replaced and (by default) revalidated.
 }
 \examples{
-User <- define_model(name = "character", age = "numeric")
-user <- User(name = "John", age = 30)
-user <- update_model(user, age = 31)
+define_model("Person", fields = list(
+  name = field("character"),
+  age  = field("integer")
+))
+p <- new_Person(name = "Ada", age = 36L)
+update_model(p, age = 37L)$age
 }
+\seealso{
+The class-specific \verb{update_<ClassName>()} constructor created by
+\code{\link[=define_model]{define_model()}} preserves the S3 class chain and is preferred when
+available.
+
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

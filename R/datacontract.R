@@ -1,20 +1,29 @@
-#' Data Contract Integration
+#' Open Data Contract Standard (ODCS v3) bridge
 #'
 #' @description
-#' Convert typed models to and from the Open Data Contract Standard
-#' (ODCS v3.x) YAML format, and run the `datacontract` CLI from R.
+#' Convert typed models to and from the [Open Data Contract Standard
+#' (ODCS) v3](https://bitol-io.github.io/open-data-contract-standard/) YAML
+#' format, and run the `datacontract` CLI from R.
 #'
-#' Pydantic has the same kind of bridge: `datacontract export
-#' --format pydantic-model` generates Pydantic source code from a contract.
-#' typethis closes the loop for R: typed models can be exported to ODCS
-#' YAML, and existing ODCS contracts can be loaded back into the typethis
-#' model registry at runtime.
+#' Pydantic has the same kind of bridge: `datacontract export --format
+#' pydantic-model` generates Pydantic source code from a contract. typethis
+#' closes the loop for R: typed models can be exported to ODCS YAML, and
+#' existing ODCS contracts can be loaded back into the model registry at
+#' runtime as `new_*()` / `update_*()` constructors.
 #'
 #' Constructs without a native ODCS representation (data frames, factors,
 #' unions, custom predicate functions) are emitted with `x-typethis-*`
 #' extension keys so the bridge round-trips through typethis-aware tooling.
 #'
+#' Key entry points:
+#'
+#' - [to_datacontract()] / [write_datacontract()] — export.
+#' - [read_datacontract()] / [from_datacontract()] — import.
+#' - [datacontract_lint()] / [datacontract_test()] / [datacontract_export()]
+#'   — thin wrappers around the upstream CLI.
+#'
 #' @name datacontract
+#' @family Data Contract
 NULL
 
 odcs_api_version <- "v3.0.2"
@@ -23,7 +32,12 @@ odcs_api_version <- "v3.0.2"
 # Public API: export
 # ---------------------------------------------------------------------------
 
-#' Convert typethis schemas to a Data Contract (ODCS v3) list
+#' Build an ODCS v3 contract from typed models
+#'
+#' Returns the contract as a native R list, ready for `yaml::write_yaml()`
+#' or further programmatic manipulation. Methods exist for typed model
+#' instances, model constructors, character class names, and lists of any
+#' of these.
 #'
 #' @param x A typed model instance, a model constructor, a model class
 #'   name (character scalar), or a character vector of class names. Use a
@@ -35,18 +49,20 @@ odcs_api_version <- "v3.0.2"
 #'   through verbatim to ODCS. Example:
 #'   `list(production = list(type = "bigquery", project = "p", dataset = "d"))`.
 #' @param ... Reserved for method extension.
-#' @return A named R list shaped as an ODCS v3 contract. Serialise via
-#'   `yaml::write_yaml()` or [write_datacontract()].
+#' @return A named R list shaped as an ODCS v3 contract.
+#' @family Data Contract
+#' @seealso [write_datacontract()] to write directly to disk;
+#'   [from_datacontract()] for the reverse direction.
 #' @export
 #' @examples
-#' \dontrun{
 #' define_model("Order", fields = list(
 #'   order_id = field("character", primary_key = TRUE),
 #'   amount   = field("numeric", validator = numeric_range(0, 1e6))
 #' ))
+#'
 #' contract <- to_datacontract("Order",
 #'   info = list(name = "orders", version = "1.0.0"))
-#' }
+#' str(contract, max.level = 2)
 to_datacontract <- function(x, info = NULL, servers = NULL, ...) {
   UseMethod("to_datacontract")
 }
@@ -93,14 +109,28 @@ to_datacontract.list <- function(x, info = NULL, servers = NULL, ...) {
   build_contract(names_only, info = info, servers = servers)
 }
 
-#' Write a typethis schema to a Data Contract YAML file
+#' Write an ODCS v3 contract to a YAML file
+#'
+#' Convenience wrapper around [to_datacontract()] + `yaml::write_yaml()`.
 #'
 #' @param x See [to_datacontract()].
 #' @param path Destination file path.
 #' @param info,servers See [to_datacontract()].
 #' @param ... Forwarded to [to_datacontract()].
 #' @return The contract list, invisibly.
+#' @family Data Contract
 #' @export
+#' @examples
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("Customer", fields = list(
+#'     customer_id = field("integer", primary_key = TRUE),
+#'     name        = field("character")
+#'   ))
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_datacontract("Customer", tmp,
+#'     info = list(name = "customers", version = "1.0.0"))
+#'   readLines(tmp, n = 5)
+#' }
 write_datacontract <- function(x, path, info = NULL, servers = NULL, ...) {
   ensure_yaml()
   contract <- to_datacontract(x, info = info, servers = servers, ...)
@@ -112,13 +142,14 @@ write_datacontract <- function(x, path, info = NULL, servers = NULL, ...) {
 # Public API: import
 # ---------------------------------------------------------------------------
 
-#' Read a Data Contract YAML file into an R list
+#' Read an ODCS contract YAML into an R list
 #'
-#' Pure parsing helper; does not register anything in the typethis model
+#' Pure parsing helper — does not register anything in the typethis model
 #' registry. Use [from_datacontract()] for the full import pipeline.
 #'
 #' @param path File path or URL.
 #' @return Parsed ODCS list.
+#' @family Data Contract
 #' @export
 read_datacontract <- function(path) {
   ensure_yaml()
@@ -131,25 +162,37 @@ read_datacontract <- function(path) {
   yaml::read_yaml(path)
 }
 
-#' Load a Data Contract into the typethis model registry
+#' Import an ODCS contract into the typethis model registry
 #'
 #' Reads an ODCS v3 contract (file path, URL, or already-parsed list) and
-#' calls [define_model()] for every schema entry. Nested object properties
-#' are registered as their own typed models so that `t_model()` references
-#' resolve correctly.
+#' calls [define_model()] for every `schema` entry. Nested object
+#' properties are registered as their own typed models so that [t_model()]
+#' references resolve correctly. After import, the generated `new_*()` and
+#' `update_*()` constructors are available in `envir`.
 #'
 #' @param x A path, URL, or parsed ODCS list.
-#' @param register Logical. If `TRUE` (default) define the models; if
-#'   `FALSE` only return the field definitions without touching the
+#' @param register Logical. If `TRUE` (default), define the models; if
+#'   `FALSE`, only return the field definitions without touching the
 #'   registry.
-#' @param envir Environment in which `new_<Class>()`/`update_<Class>()`
+#' @param envir Environment in which `new_<Class>()` / `update_<Class>()`
 #'   constructors are assigned. Defaults to the calling environment.
 #' @return Character vector of registered model class names, invisibly.
+#' @family Data Contract
 #' @export
 #' @examples
-#' \dontrun{
-#' from_datacontract("orders.yaml")
-#' new_Order(order_id = "ORD-1", amount = 42)
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   define_model("Order", fields = list(
+#'     order_id = field("character", primary_key = TRUE),
+#'     amount   = field("numeric")
+#'   ))
+#'
+#'   tmp <- tempfile(fileext = ".yaml")
+#'   write_datacontract("Order", tmp,
+#'     info = list(name = "orders", version = "1.0.0"))
+#'
+#'   env <- new.env()
+#'   from_datacontract(tmp, envir = env)
+#'   ls(env)  # new_Order, update_Order
 #' }
 from_datacontract <- function(x, register = TRUE, envir = parent.frame()) {
   contract <- if (is.list(x)) x else read_datacontract(x)
@@ -188,17 +231,29 @@ from_datacontract <- function(x, register = TRUE, envir = parent.frame()) {
 #' Check whether the `datacontract` CLI is available on PATH
 #'
 #' @return `TRUE` if the binary is found, `FALSE` otherwise.
+#' @family Data Contract
 #' @export
+#' @examples
+#' datacontract_cli_available()
 datacontract_cli_available <- function() {
   nzchar(Sys.which("datacontract"))
 }
 
 #' Run `datacontract lint` on a contract file
 #'
+#' Thin wrapper around the upstream CLI. Requires the `datacontract`
+#' binary on `PATH` — guard with [datacontract_cli_available()].
+#'
 #' @param path Path to the contract YAML.
 #' @param ... Additional CLI flags passed verbatim, e.g. `"--quiet"`.
 #' @return List with `success` (logical), `status`, `stdout`, `stderr`.
+#'   On a non-zero CLI exit, an error is signalled.
+#' @family Data Contract
 #' @export
+#' @examples
+#' if (datacontract_cli_available()) {
+#'   datacontract_lint("orders.yaml")
+#' }
 datacontract_lint <- function(path, ...) {
   result <- cli_run(c("lint", path, ...))
   if (!result$success) {
@@ -213,11 +268,19 @@ datacontract_lint <- function(path, ...) {
 
 #' Run `datacontract test` on a contract file
 #'
+#' Thin wrapper around the upstream CLI. Requires the `datacontract`
+#' binary on `PATH` — guard with [datacontract_cli_available()].
+#'
 #' @param path Path to the contract YAML.
 #' @param server Optional server name (ODCS `servers` key).
 #' @param ... Additional CLI flags.
 #' @return List with `success`, `status`, `stdout`, `stderr`.
+#' @family Data Contract
 #' @export
+#' @examples
+#' if (datacontract_cli_available()) {
+#'   datacontract_test("orders.yaml", server = "production")
+#' }
 datacontract_test <- function(path, server = NULL, ...) {
   args <- c("test", path)
   if (!is.null(server)) args <- c(args, "--server", server)
@@ -236,7 +299,9 @@ datacontract_test <- function(path, server = NULL, ...) {
 #' Run `datacontract export` and capture or write the result
 #'
 #' Thin wrapper around the CLI's `export` subcommand. Handy for converting
-#' an ODCS contract to other formats (JSON Schema, SQL, Avro, dbt, etc.).
+#' an ODCS contract to other formats (JSON Schema, SQL, Avro, dbt, ...).
+#' Requires the `datacontract` binary on `PATH` — guard with
+#' [datacontract_cli_available()].
 #'
 #' @param path Path to the contract YAML.
 #' @param format Target format string, e.g. `"jsonschema"`, `"sql"`,
@@ -246,7 +311,12 @@ datacontract_test <- function(path, server = NULL, ...) {
 #' @param ... Additional CLI flags (e.g. `"--server", "production"`).
 #' @return If `output` is `NULL`, the export as a single character string;
 #'   otherwise the path, invisibly.
+#' @family Data Contract
 #' @export
+#' @examples
+#' if (datacontract_cli_available()) {
+#'   datacontract_export("orders.yaml", format = "jsonschema")
+#' }
 datacontract_export <- function(path, format, output = NULL, ...) {
   args <- c("export", path, "--format", format, ...)
   if (!is.null(output)) args <- c(args, "--output", output)

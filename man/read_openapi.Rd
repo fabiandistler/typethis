@@ -13,6 +13,14 @@ read_openapi(path)
 Parsed OpenAPI list.
 }
 \description{
-Pure parsing helper; does not register anything. Use \code{\link[=from_openapi]{from_openapi()}}
+Pure parsing helper — does not register anything. Use \code{\link[=from_openapi]{from_openapi()}}
 for the full import pipeline.
 }
+\seealso{
+Other OpenAPI: 
+\code{\link{from_openapi}()},
+\code{\link{openapi}},
+\code{\link{to_openapi}()},
+\code{\link{write_openapi}()}
+}
+\concept{OpenAPI}

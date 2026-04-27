@@ -2,25 +2,44 @@
 % Please edit documentation in R/validators.R
 \name{list_of}
 \alias{list_of}
-\title{Validate list structure}
+\title{Validate a list whose elements share a type}
 \usage{
 list_of(element_type, min_length = 0, max_length = Inf)
 }
 \arguments{
-\item{element_type}{Type of list elements}
+\item{element_type}{Type of list elements (character builtin name,
+predicate function, or \code{type_spec}).}
 
-\item{min_length}{Minimum list length}
+\item{min_length}{Minimum number of elements.}
 
-\item{max_length}{Maximum list length}
+\item{max_length}{Maximum number of elements (defaults to \code{Inf}).}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Validate list structure
+Returns a validator closure that accepts a list whose every element
+matches \code{element_type} and whose length is within \verb{[min_length, max_length]}. For an equivalent that doubles as a type specification,
+see \code{\link[=t_list_of]{t_list_of()}}.
 }
 \examples{
-num_list_validator <- list_of(element_type = "numeric", min_length = 1)
-num_list_validator(list(1, 2, 3)) # TRUE
-num_list_validator(list("a", "b")) # FALSE
+nums <- list_of("numeric", min_length = 1)
+nums(list(1, 2, 3))
+nums(list("a", "b"))
+nums(list())
 }
+\seealso{
+\code{\link[=t_list_of]{t_list_of()}} for the composable type-spec form.
+
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{dataframe_spec}()},
+\code{\link{enum_validator}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

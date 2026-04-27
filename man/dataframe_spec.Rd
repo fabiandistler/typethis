@@ -2,28 +2,44 @@
 % Please edit documentation in R/validators.R
 \name{dataframe_spec}
 \alias{dataframe_spec}
-\title{Data frame validator}
+\title{Validate a data frame's structure}
 \usage{
 dataframe_spec(required_cols = NULL, min_rows = 0, max_rows = Inf)
 }
 \arguments{
-\item{required_cols}{Required column names}
+\item{required_cols}{Character vector of required column names.}
 
-\item{min_rows}{Minimum number of rows}
+\item{min_rows}{Minimum number of rows.}
 
-\item{max_rows}{Maximum number of rows}
+\item{max_rows}{Maximum number of rows (defaults to \code{Inf}).}
 }
 \value{
-validator function
+A validator function \verb{function(value) -> logical}.
 }
 \description{
-Data frame validator
+Returns a validator closure that accepts data frames containing every
+column listed in \code{required_cols} and whose row count is within
+\verb{[min_rows, max_rows]}.
 }
 \examples{
-df_validator <- dataframe_spec(
-  required_cols = c("id", "name"),
+is_orders <- dataframe_spec(
+  required_cols = c("id", "amount"),
   min_rows = 1
 )
-df <- data.frame(id = 1:3, name = c("A", "B", "C"))
-df_validator(df) # TRUE
+is_orders(data.frame(id = 1:3, amount = c(10, 20, 30)))
+is_orders(data.frame(id = integer()))
+is_orders(data.frame(name = "Ada"))
 }
+\seealso{
+Other validators: 
+\code{\link{combine_validators}()},
+\code{\link{enum_validator}()},
+\code{\link{list_of}()},
+\code{\link{nullable}()},
+\code{\link{numeric_range}()},
+\code{\link{string_length}()},
+\code{\link{string_pattern}()},
+\code{\link{validator_constraint}()},
+\code{\link{vector_length}()}
+}
+\concept{validators}

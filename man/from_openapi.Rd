@@ -2,17 +2,18 @@
 % Please edit documentation in R/openapi.R
 \name{from_openapi}
 \alias{from_openapi}
-\title{Load an OpenAPI document into the typethis model registry}
+\title{Import OpenAPI components into the typethis model registry}
 \usage{
 from_openapi(x, register = TRUE, envir = parent.frame())
 }
 \arguments{
 \item{x}{Path, URL, or parsed list.}
 
-\item{register}{If \code{TRUE} (default) define the models; if \code{FALSE} only
-parse and return the resolved field definitions on the result attribute.}
+\item{register}{If \code{TRUE} (default), define the models; if \code{FALSE},
+only parse and return the resolved field definitions on the result
+attribute.}
 
-\item{envir}{Environment in which \verb{new_<Class>()}/\verb{update_<Class>()}
+\item{envir}{Environment in which \verb{new_<Class>()} / \verb{update_<Class>()}
 constructors are assigned. Defaults to the calling environment.}
 }
 \value{
@@ -22,12 +23,30 @@ Character vector of registered model class names, invisibly.
 Reads an OpenAPI 3.x document (file path, URL, or already-parsed list)
 and calls \code{\link[=define_model]{define_model()}} for every entry under \code{components.schemas}.
 Nested \code{object} properties with their own \code{properties} block are
-registered as their own typed models so that \code{t_model()} references
-resolve correctly.
+registered as their own typed models so that \code{\link[=t_model]{t_model()}} references
+resolve correctly. After import, the generated \verb{new_*()} and
+\verb{update_*()} constructors are available in \code{envir}.
 }
 \examples{
-\dontrun{
-from_openapi("api.yaml")
-new_User(id = 1L, name = "Alice")
+if (requireNamespace("yaml", quietly = TRUE)) {
+  define_model("User", fields = list(
+    id   = field("integer", primary_key = TRUE),
+    name = field("character")
+  ))
+  tmp <- tempfile(fileext = ".yaml")
+  write_openapi("User", tmp,
+    info = list(title = "Users API", version = "1.0.0"))
+
+  env <- new.env()
+  from_openapi(tmp, envir = env)
+  ls(env)  # new_User, update_User
 }
 }
+\seealso{
+Other OpenAPI: 
+\code{\link{openapi}},
+\code{\link{read_openapi}()},
+\code{\link{to_openapi}()},
+\code{\link{write_openapi}()}
+}
+\concept{OpenAPI}

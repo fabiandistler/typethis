@@ -2,7 +2,7 @@
 % Please edit documentation in R/model.R
 \name{field}
 \alias{field}
-\title{Define a field with validation and defaults}
+\title{Define a model field}
 \usage{
 field(
   type,
@@ -21,33 +21,29 @@ field(
 )
 }
 \arguments{
-\item{type}{Type specification. Accepts a character builtin name
-(\code{"numeric"}, \code{"character"}, ...), a registered model class name,
-a predicate function, or a composite spec built with \code{t_union()},
-\code{t_list_of()}, \code{t_nullable()}, \code{t_enum()}, \code{t_model()}, etc.}
+\item{type}{Type specification.}
 
-\item{default}{Default value.}
+\item{default}{Default value when the field is omitted at construction.}
 
-\item{validator}{Custom validator function.}
+\item{validator}{Optional value-level validator function.}
 
-\item{nullable}{Allow NULL values.}
+\item{nullable}{If \code{TRUE}, the field accepts \code{NULL}.}
 
-\item{description}{Field description.}
+\item{description}{Free-text description; surfaces in JSON Schema and
+ODCS export.}
 
-\item{primary_key}{Logical. Field is part of the primary key. ODCS metadata
-only — has no effect on runtime validation.}
+\item{primary_key}{Logical. ODCS metadata only.}
 
-\item{unique}{Logical. Values must be unique. ODCS metadata only.}
+\item{unique}{Logical. ODCS metadata only.}
 
-\item{pii}{Logical. Field contains personally identifiable information.
-ODCS metadata only.}
+\item{pii}{Logical. ODCS metadata only.}
 
-\item{classification}{Optional character scalar (e.g. \code{"public"},
-\code{"internal"}, \code{"confidential"}). ODCS metadata only.}
+\item{classification}{Optional classification label
+(\code{"public"}, \code{"internal"}, \code{"confidential"}, ...). ODCS metadata only.}
 
 \item{tags}{Optional character vector of free-form tags.}
 
-\item{examples}{Optional list/vector of example values for documentation.}
+\item{examples}{Optional list/vector of example values.}
 
 \item{references}{Optional named list \code{list(model = "Order", field = "id")}
 describing a foreign-key style reference. ODCS metadata only.}
@@ -56,16 +52,42 @@ describing a foreign-key style reference. ODCS metadata only.}
 \code{type}, \code{description}, and engine-specific keys like \code{query}).}
 }
 \value{
-Field specification.
+A field definition (named list).
 }
 \description{
-Define a field with validation and defaults
+Builds a field definition for use inside \code{\link[=define_model]{define_model()}}. A field
+carries a type, optional default, optional validator, and optional
+nullability — plus a number of metadata slots (\code{primary_key}, \code{pii},
+\code{tags}, ...) that travel through the \code{\link[=to_datacontract]{to_datacontract()}} /
+\code{\link[=to_openapi]{to_openapi()}} / \code{\link[=to_json_schema]{to_json_schema()}} bridges but have no effect on
+runtime validation.
+}
+\details{
+\code{type} accepts:
+\itemize{
+\item A character builtin name (\code{"numeric"}, \code{"character"}, \code{"integer"}, ...).
+\item A predicate function \verb{function(value) -> logical}.
+\item A registered model class name (string).
+\item Any \link{type_spec} built with \verb{t_*()}.
+}
 }
 \examples{
-field("numeric", default = 0, validator = function(x) x >= 0)
+field("numeric", default = 0)
+field("integer", validator = numeric_range(0, 120))
 field(t_union("integer", "character"))
 field(t_list_of("character"), default = list())
 field(t_enum(c("admin", "user")))
 field("character", primary_key = TRUE, pii = TRUE,
       classification = "confidential")
 }
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

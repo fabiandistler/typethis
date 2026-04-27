@@ -2,13 +2,13 @@
 % Please edit documentation in R/json_schema.R
 \name{to_json_schema}
 \alias{to_json_schema}
-\title{Convert a typethis schema to JSON Schema}
+\title{Export a typed model or spec to JSON Schema}
 \usage{
 to_json_schema(x, ...)
 }
 \arguments{
-\item{x}{A typed model instance, a model constructor (\verb{new_<Class>()}),
-a model class name (character scalar), a \code{type_spec}, a builtin type
+\item{x}{A typed model instance, a model constructor, a model class
+name (character scalar), a \link{type_spec}, a builtin type
 name, a validator closure, or a \code{field()} definition list.}
 
 \item{...}{Reserved for method extension.}
@@ -17,15 +17,28 @@ name, a validator closure, or a \code{field()} definition list.}
 A named R list shaped as a JSON Schema fragment.
 }
 \description{
-Convert a typethis schema to JSON Schema
+Returns a named R list shaped as a JSON Schema (Draft 2020-12) fragment,
+ready to be serialized with \code{jsonlite::toJSON()}. Methods exist for
+typed model instances, model class names, type specs, validators, and
+\code{\link[=field]{field()}} definitions.
 }
 \examples{
-\dontrun{
 define_model("Person", fields = list(
   name = field("character", nullable = FALSE),
   age  = field("integer", validator = numeric_range(0, 120))
 ))
 schema <- to_json_schema("Person")
-jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE)
+str(schema, max.level = 2)
+
+if (requireNamespace("jsonlite", quietly = TRUE)) {
+  cat(jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE))
 }
 }
+\seealso{
+\code{\link[=to_datacontract]{to_datacontract()}} and \code{\link[=to_openapi]{to_openapi()}} for related export
+bridges.
+
+Other JSON Schema: 
+\code{\link{json_schema}}
+}
+\concept{JSON Schema}

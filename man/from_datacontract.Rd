@@ -2,18 +2,18 @@
 % Please edit documentation in R/datacontract.R
 \name{from_datacontract}
 \alias{from_datacontract}
-\title{Load a Data Contract into the typethis model registry}
+\title{Import an ODCS contract into the typethis model registry}
 \usage{
 from_datacontract(x, register = TRUE, envir = parent.frame())
 }
 \arguments{
 \item{x}{A path, URL, or parsed ODCS list.}
 
-\item{register}{Logical. If \code{TRUE} (default) define the models; if
-\code{FALSE} only return the field definitions without touching the
+\item{register}{Logical. If \code{TRUE} (default), define the models; if
+\code{FALSE}, only return the field definitions without touching the
 registry.}
 
-\item{envir}{Environment in which \verb{new_<Class>()}/\verb{update_<Class>()}
+\item{envir}{Environment in which \verb{new_<Class>()} / \verb{update_<Class>()}
 constructors are assigned. Defaults to the calling environment.}
 }
 \value{
@@ -21,13 +21,36 @@ Character vector of registered model class names, invisibly.
 }
 \description{
 Reads an ODCS v3 contract (file path, URL, or already-parsed list) and
-calls \code{\link[=define_model]{define_model()}} for every schema entry. Nested object properties
-are registered as their own typed models so that \code{t_model()} references
-resolve correctly.
+calls \code{\link[=define_model]{define_model()}} for every \code{schema} entry. Nested object
+properties are registered as their own typed models so that \code{\link[=t_model]{t_model()}}
+references resolve correctly. After import, the generated \verb{new_*()} and
+\verb{update_*()} constructors are available in \code{envir}.
 }
 \examples{
-\dontrun{
-from_datacontract("orders.yaml")
-new_Order(order_id = "ORD-1", amount = 42)
+if (requireNamespace("yaml", quietly = TRUE)) {
+  define_model("Order", fields = list(
+    order_id = field("character", primary_key = TRUE),
+    amount   = field("numeric")
+  ))
+
+  tmp <- tempfile(fileext = ".yaml")
+  write_datacontract("Order", tmp,
+    info = list(name = "orders", version = "1.0.0"))
+
+  env <- new.env()
+  from_datacontract(tmp, envir = env)
+  ls(env)  # new_Order, update_Order
 }
 }
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_export}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

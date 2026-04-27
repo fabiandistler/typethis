@@ -23,5 +23,24 @@ otherwise the path, invisibly.
 }
 \description{
 Thin wrapper around the CLI's \code{export} subcommand. Handy for converting
-an ODCS contract to other formats (JSON Schema, SQL, Avro, dbt, etc.).
+an ODCS contract to other formats (JSON Schema, SQL, Avro, dbt, ...).
+Requires the \code{datacontract} binary on \code{PATH} — guard with
+\code{\link[=datacontract_cli_available]{datacontract_cli_available()}}.
 }
+\examples{
+if (datacontract_cli_available()) {
+  datacontract_export("orders.yaml", format = "jsonschema")
+}
+}
+\seealso{
+Other Data Contract: 
+\code{\link{datacontract}},
+\code{\link{datacontract_cli_available}()},
+\code{\link{datacontract_lint}()},
+\code{\link{datacontract_test}()},
+\code{\link{from_datacontract}()},
+\code{\link{read_datacontract}()},
+\code{\link{to_datacontract}()},
+\code{\link{write_datacontract}()}
+}
+\concept{Data Contract}

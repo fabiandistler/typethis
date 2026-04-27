@@ -2,22 +2,36 @@
 % Please edit documentation in R/model.R
 \name{get_schema}
 \alias{get_schema}
-\title{Get model schema}
+\title{Retrieve a model's schema}
 \usage{
 get_schema(model)
 }
 \arguments{
-\item{model}{Model instance or constructor}
+\item{model}{Model instance or constructor.}
 }
 \value{
-Schema definition
+Named list of field definitions, or \code{NULL}.
 }
 \description{
-Get model schema
+Returns the named list of field definitions for a model instance or
+constructor. \code{NULL} for objects that aren't models.
 }
 \examples{
-User <- define_model(name = "character", age = "numeric")
-user <- User(name = "John", age = 30)
-get_schema(user)
-get_schema(User)
+define_model("Person", fields = list(
+  name = field("character"),
+  age  = field("integer")
+))
+p <- new_Person(name = "Ada", age = 36L)
+names(get_schema(p))
 }
+\seealso{
+Other typed models: 
+\code{\link{define_model}()},
+\code{\link{field}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

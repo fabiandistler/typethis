@@ -2,55 +2,82 @@
 % Please edit documentation in R/model.R
 \name{define_model}
 \alias{define_model}
-\title{Type-Safe Models}
+\title{Define a typed data model}
 \usage{
 define_model(..., fields = NULL, .validate = TRUE, .strict = FALSE)
 }
 \arguments{
-\item{...}{For new-style: first argument is class name (character).
-For old-style: field definitions (name = type or name = field())}
+\item{...}{The class name as the first positional argument (a single
+character scalar). Field definitions can also be passed here as
+\code{name = field(...)} arguments instead of via \code{fields}.}
 
-\item{fields}{Named list of field definitions (new-style only)}
+\item{fields}{Named list of field definitions built with \code{\link[=field]{field()}} (or
+bare type names).}
 
-\item{.validate}{Enable validation on creation}
+\item{.validate}{If \code{FALSE}, validation is skipped on construction
+(useful for hot paths).}
 
-\item{.strict}{Strict mode - no extra fields allowed}
+\item{.strict}{If \code{TRUE}, the constructor rejects unknown fields.}
 }
 \value{
-For old-style: Model class constructor.
-For new-style: invisibly NULL (functions assigned to calling env)
+Invisibly \code{NULL}. The constructor and updater are assigned in
+the calling environment.
 }
 \description{
-Create type-safe data models similar to Pydantic in Python.
-Models validate data structure and types at creation time.
-Define a typed model schema
+Defines a model class — a record type with named fields, types, optional
+validators, defaults, and nullability — and creates two helpers in the
+calling environment:
+\itemize{
+\item \verb{new_<ClassName>()} — constructor. Validates each argument against
+the field spec and applies defaults.
+\item \verb{update_<ClassName>(instance, …)} — returns a copy with the named
+fields replaced and revalidated.
+}
 
-Two API styles are supported:
-
-\strong{New-style (v0.2+)}: \code{define_model("ClassName", fields = list(...))}
-Creates \code{new_ClassName()} and \code{update_ClassName()} functions in the
-calling environment.
-
-\strong{Old-style}: \code{define_model(name = "type", ...)}
-Returns a constructor function that creates model instances.
+Define each field with \code{\link[=field]{field()}}; pass them as a named list to \code{fields}.
+Fields can use any type accepted elsewhere in \code{typethis} (builtin
+character names, predicate functions, registered model class names,
+or composite \link{type_spec} objects).
 }
 \examples{
-# New-style API (v0.2+)
-define_model("Person",
-  fields = list(
-    name = field("character", nullable = FALSE),
-    age = field("integer", nullable = FALSE, default = 0L)
-  )
-)
-p <- new_Person(name = "Alice", age = 30L)
-p2 <- update_Person(p, age = 31L)
+define_model("User", fields = list(
+  name  = field("character"),
+  age   = field("integer", validator = numeric_range(0, 120),
+                default = 0L),
+  email = field("character",
+                validator = string_pattern("^[^@]+@[^@]+$"))
+))
 
-# Old-style API (backward compatible)
-User <- define_model(
-  name = "character",
-  age = "numeric",
-  email = "character",
-  .validate = TRUE
+u <- new_User(name = "Ada", email = "ada@example.com")
+u$age   # default applied
+
+u2 <- update_User(u, age = 36L)
+u2$age
+
+# Strict mode rejects unknown fields
+define_model("StrictPoint", fields = list(
+  x = field("numeric"),
+  y = field("numeric")
+), .strict = TRUE)
+
+tryCatch(
+  new_StrictPoint(x = 1, y = 2, z = 3),
+  error = function(e) conditionMessage(e)
 )
-user <- User(name = "John", age = 30, email = "john@example.com")
 }
+\seealso{
+\code{\link[=field]{field()}} for declaring a field; \code{\link[=validate_model]{validate_model()}} /
+\code{\link[=model_to_list]{model_to_list()}} / \code{\link[=update_model]{update_model()}} / \code{\link[=get_schema]{get_schema()}} for working
+with instances; \code{\link[=t_model]{t_model()}} for referencing a model from another
+field.
+
+Other typed models: 
+\code{\link{field}()},
+\code{\link{get_schema}()},
+\code{\link{is_model}()},
+\code{\link{model_to_list}()},
+\code{\link{print.typed_model}()},
+\code{\link{update_model}()},
+\code{\link{validate_model}()}
+}
+\concept{typed models}

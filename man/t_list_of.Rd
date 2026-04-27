@@ -2,7 +2,7 @@
 % Please edit documentation in R/type_spec.R
 \name{t_list_of}
 \alias{t_list_of}
-\title{List of a given element type}
+\title{List of elements of a given type}
 \usage{
 t_list_of(type, min_length = 0, max_length = Inf, exact_length = NULL)
 }
@@ -11,19 +11,35 @@ t_list_of(type, min_length = 0, max_length = Inf, exact_length = NULL)
 
 \item{min_length}{Minimum number of elements.}
 
-\item{max_length}{Maximum number of elements.}
+\item{max_length}{Maximum number of elements (defaults to \code{Inf}).}
 
-\item{exact_length}{Exact length (overrides min/max if non-NULL).}
+\item{exact_length}{If non-\code{NULL}, the list must have exactly this length.}
 }
 \value{
 A \code{type_spec} of kind \code{"list_of"}.
 }
 \description{
-Matches a list whose every element matches the element type. Optional
-length constraints follow the semantics of \code{\link[=vector_length]{vector_length()}}.
+Matches a list whose every element matches \code{type}. Optional length
+constraints follow the semantics of \code{\link[=vector_length]{vector_length()}}.
 }
 \examples{
-spec <- t_list_of("character", min_length = 1L)
-is_type(list("a", "b"), spec)
-is_type(list(), spec)
+tags <- t_list_of("character", min_length = 1L)
+is_type(list("alpha", "beta"), tags)
+is_type(list(), tags)
+
+# Mixed-type list
+mixed <- t_list_of(t_union("integer", "character"))
+is_type(list(1L, "two", 3L), mixed)
 }
+\seealso{
+Other type specifications: 
+\code{\link{is_type_spec}()},
+\code{\link{t_enum}()},
+\code{\link{t_model}()},
+\code{\link{t_nullable}()},
+\code{\link{t_predicate}()},
+\code{\link{t_union}()},
+\code{\link{t_vector_of}()},
+\code{\link{type_spec}}
+}
+\concept{type specifications}

@@ -2,22 +2,24 @@
 % Please edit documentation in R/typed_function.R
 \name{validate_call}
 \alias{validate_call}
-\title{Validate function call without executing}
+\title{Validate a call to a typed function without executing it}
 \usage{
 validate_call(fn, ..., return_spec = NULL)
 }
 \arguments{
-\item{fn}{Typed function}
+\item{fn}{A typed function.}
 
-\item{...}{Arguments to validate}
+\item{...}{Arguments to validate against \code{fn}'s spec.}
 
-\item{return_spec}{Return type specification (unused, for API parity)}
+\item{return_spec}{Reserved for API parity; currently unused.}
 }
 \value{
-list with valid (logical) and errors (character vector)
+Named list \code{list(valid, errors)}. \code{errors} is \code{NULL} on success.
 }
 \description{
-Validate function call without executing
+Runs the same checks as a real call but returns the outcome as a list
+instead of executing the body. Useful for validating user input before
+performing side effects.
 }
 \examples{
 f <- typed_function(
@@ -27,3 +29,13 @@ f <- typed_function(
 validate_call(f, x = 5, y = 3)
 validate_call(f, x = "a", y = 3)
 }
+\seealso{
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{is_typed}()},
+\code{\link{signature}},
+\code{\link{typed_function}()},
+\code{\link{typed_method}()},
+\code{\link{with_signature}()}
+}
+\concept{typed functions}

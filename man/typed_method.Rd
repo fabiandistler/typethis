@@ -2,22 +2,44 @@
 % Please edit documentation in R/typed_function.R
 \name{typed_method}
 \alias{typed_method}
-\title{Create method validator for R6 or S3 classes}
+\title{Build a typed-method decorator}
 \usage{
 typed_method(class_name, method_name, arg_types = list(), return_type = NULL)
 }
 \arguments{
-\item{class_name}{Name of the class}
+\item{class_name}{Class name (informational).}
 
-\item{method_name}{Name of the method}
+\item{method_name}{Method name (informational).}
 
-\item{arg_types}{Argument types}
+\item{arg_types}{Named list of argument type specifications.}
 
-\item{return_type}{Return type}
+\item{return_type}{Return-type specification.}
 }
 \value{
-Typed method wrapper
+A decorator: \verb{function(fn) -> typed function}.
 }
 \description{
-Create method validator for R6 or S3 classes
+Returns a function that wraps an underlying method with type checks
+suitable for S3 or R6 classes. The returned decorator is a thin shim
+over \code{\link[=typed_function]{typed_function()}} that ignores \code{class_name} / \code{method_name} at
+runtime — they are kept as documentation hooks.
 }
+\examples{
+decorate <- typed_method(
+  "Point", "translate",
+  arg_types = list(dx = "numeric", dy = "numeric"),
+  return_type = "list"
+)
+translate <- decorate(function(dx, dy) list(dx = dx, dy = dy))
+translate(1, 2)
+}
+\seealso{
+Other typed functions: 
+\code{\link{get_signature}()},
+\code{\link{is_typed}()},
+\code{\link{signature}},
+\code{\link{typed_function}()},
+\code{\link{validate_call}()},
+\code{\link{with_signature}()}
+}
+\concept{typed functions}
