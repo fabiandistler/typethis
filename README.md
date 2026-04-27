@@ -4,6 +4,8 @@
 
 [![R-CMD-check](https://github.com/fabiandistler/typethis/workflows/R-CMD-check/badge.svg)](https://github.com/fabiandistler/typethis/actions)
 
+https://fabiandistler.github.io/typethis/
+
 `typethis` lets you describe what your data and your functions expect, and
 checks it at runtime — clearly, with helpful error messages, and without
 leaving plain R.
