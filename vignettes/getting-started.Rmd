@@ -82,6 +82,38 @@ defaults. Set `coerce = TRUE` to convert mismatches before checking, or
 For the full feature set see `?typed_function` and the
 [validators-and-models](validators-and-models.html) vignette.
 
+### Retrofitting existing functions
+
+When you want to add type checks to a function you already have,
+`as_typed()` removes the boilerplate of restating every argument. Specs
+for arguments with literal atomic defaults are inferred automatically;
+only arguments you want to override appear in the call.
+
+```{r}
+add <- as_typed(function(x = 0L, y = 0L) x + y, .return = "integer")
+add(2L, 3L)
+```
+
+```{r, error = TRUE}
+add("two", 3L)
+```
+
+Pass overrides by name. Inference fills in the rest:
+
+```{r}
+greet <- as_typed(
+  function(name = "world", times = 1L) {
+    paste(rep(name, times), collapse = " ")
+  },
+  name = t_vector_of("character", exact_length = 1L)
+)
+greet("hi", times = 3L)
+```
+
+Pass `name = NULL` to opt one argument out of validation, or
+`.infer = FALSE` to disable inference entirely. See `?as_typed` and
+`?infer_specs` for the full inference rules.
+
 ## 3. Typed models
 
 Use `define_model()` to describe a record type — a configuration object,
