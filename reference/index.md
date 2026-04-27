@@ -1,0 +1,183 @@
+# Package index
+
+## All functions
+
+- [`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md)
+  : Assert that a value has an expected type
+
+- [`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md)
+  : Coerce a value to a target type
+
+- [`combine_validators()`](https://fabiandistler.github.io/typethis/reference/combine_validators.md)
+  : Combine multiple validators
+
+- [`datacontract`](https://fabiandistler.github.io/typethis/reference/datacontract.md)
+  : Open Data Contract Standard (ODCS v3) bridge
+
+- [`datacontract_cli_available()`](https://fabiandistler.github.io/typethis/reference/datacontract_cli_available.md)
+  :
+
+  Check whether the `datacontract` CLI is available on PATH
+
+- [`datacontract_export()`](https://fabiandistler.github.io/typethis/reference/datacontract_export.md)
+  :
+
+  Run `datacontract export` and capture or write the result
+
+- [`datacontract_lint()`](https://fabiandistler.github.io/typethis/reference/datacontract_lint.md)
+  :
+
+  Run `datacontract lint` on a contract file
+
+- [`datacontract_test()`](https://fabiandistler.github.io/typethis/reference/datacontract_test.md)
+  :
+
+  Run `datacontract test` on a contract file
+
+- [`dataframe_spec()`](https://fabiandistler.github.io/typethis/reference/dataframe_spec.md)
+  : Validate a data frame's structure
+
+- [`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)
+  : Define a typed data model
+
+- [`enum_validator()`](https://fabiandistler.github.io/typethis/reference/enum_validator.md)
+  : Validate a value against a fixed set of allowed values
+
+- [`field()`](https://fabiandistler.github.io/typethis/reference/field.md)
+  : Define a model field
+
+- [`from_datacontract()`](https://fabiandistler.github.io/typethis/reference/from_datacontract.md)
+  : Import an ODCS contract into the typethis model registry
+
+- [`from_openapi()`](https://fabiandistler.github.io/typethis/reference/from_openapi.md)
+  : Import OpenAPI components into the typethis model registry
+
+- [`get_schema()`](https://fabiandistler.github.io/typethis/reference/get_schema.md)
+  : Retrieve a model's schema
+
+- [`get_signature()`](https://fabiandistler.github.io/typethis/reference/get_signature.md)
+  : Inspect the signature of a typed function
+
+- [`is_model()`](https://fabiandistler.github.io/typethis/reference/is_model.md)
+  : Test whether an object is a typed model instance
+
+- [`is_one_of()`](https://fabiandistler.github.io/typethis/reference/is_one_of.md)
+  : Test whether a value matches any of several types
+
+- [`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md)
+  : Test whether a value matches a type
+
+- [`is_type_spec()`](https://fabiandistler.github.io/typethis/reference/is_type_spec.md)
+  : Test whether an object is a type spec
+
+- [`is_typed()`](https://fabiandistler.github.io/typethis/reference/is_typed.md)
+  :
+
+  Test whether a function was wrapped by
+  [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
+
+- [`json_schema`](https://fabiandistler.github.io/typethis/reference/json_schema.md)
+  : JSON Schema export
+
+- [`list_of()`](https://fabiandistler.github.io/typethis/reference/list_of.md)
+  : Validate a list whose elements share a type
+
+- [`model_to_list()`](https://fabiandistler.github.io/typethis/reference/model_to_list.md)
+  : Convert a typed model instance to a plain list
+
+- [`nullable()`](https://fabiandistler.github.io/typethis/reference/nullable.md)
+  :
+
+  Make a validator accept `NULL`
+
+- [`numeric_range()`](https://fabiandistler.github.io/typethis/reference/numeric_range.md)
+  : Validate a numeric range
+
+- [`openapi`](https://fabiandistler.github.io/typethis/reference/openapi.md)
+  : OpenAPI 3.1 bridge
+
+- [`print(`*`<typed_model>`*`)`](https://fabiandistler.github.io/typethis/reference/print.typed_model.md)
+  : Print method for typed model instances
+
+- [`read_datacontract()`](https://fabiandistler.github.io/typethis/reference/read_datacontract.md)
+  : Read an ODCS contract YAML into an R list
+
+- [`read_openapi()`](https://fabiandistler.github.io/typethis/reference/read_openapi.md)
+  : Read an OpenAPI document into an R list
+
+- [`signature()`](https://fabiandistler.github.io/typethis/reference/signature.md)
+  : Build a function signature object
+
+- [`string_length()`](https://fabiandistler.github.io/typethis/reference/string_length.md)
+  : Validate string length
+
+- [`string_pattern()`](https://fabiandistler.github.io/typethis/reference/string_pattern.md)
+  : Validate strings against a regular expression
+
+- [`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md)
+  : Enumerated set of allowed values
+
+- [`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md)
+  : List of elements of a given type
+
+- [`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md)
+  : Reference to a registered model class
+
+- [`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md)
+  :
+
+  Allow `NULL` in addition to an inner type
+
+- [`t_predicate()`](https://fabiandistler.github.io/typethis/reference/t_predicate.md)
+  : Wrap a predicate function as a type spec
+
+- [`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md)
+  : Union of type specifications
+
+- [`t_vector_of()`](https://fabiandistler.github.io/typethis/reference/t_vector_of.md)
+  : Atomic vector of a given builtin type
+
+- [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md)
+  : Build an ODCS v3 contract from typed models
+
+- [`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md)
+  : Export a typed model or spec to JSON Schema
+
+- [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)
+  : Export typed models or typed functions to OpenAPI 3.1
+
+- [`type_spec`](https://fabiandistler.github.io/typethis/reference/type_spec.md)
+  : Composable type specifications
+
+- [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
+  : Wrap a function with input/output type checks
+
+- [`typed_method()`](https://fabiandistler.github.io/typethis/reference/typed_method.md)
+  : Build a typed-method decorator
+
+- [`update_model()`](https://fabiandistler.github.io/typethis/reference/update_model.md)
+  : Update fields on a typed model instance
+
+- [`validate_call()`](https://fabiandistler.github.io/typethis/reference/validate_call.md)
+  : Validate a call to a typed function without executing it
+
+- [`validate_model()`](https://fabiandistler.github.io/typethis/reference/validate_model.md)
+  : Validate a model instance against its schema
+
+- [`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md)
+  : Validate a value's type and return a structured result
+
+- [`validator_constraint()`](https://fabiandistler.github.io/typethis/reference/validator_constraint.md)
+  : Read the constraint descriptor attached to a validator
+
+- [`vector_length()`](https://fabiandistler.github.io/typethis/reference/vector_length.md)
+  : Validate vector or list length
+
+- [`with_signature()`](https://fabiandistler.github.io/typethis/reference/with_signature.md)
+  : Apply a signature to a function
+
+- [`write_datacontract()`](https://fabiandistler.github.io/typethis/reference/write_datacontract.md)
+  : Write an ODCS v3 contract to a YAML file
+
+- [`write_openapi()`](https://fabiandistler.github.io/typethis/reference/write_openapi.md)
+  : Write an OpenAPI document to disk

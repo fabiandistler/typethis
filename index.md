@@ -1,0 +1,153 @@
+# typethis
+
+> Runtime type safety and validation for R — inspired by Python’s
+> `pydantic` and `mypy`.
+
+[![R-CMD-check](https://github.com/fabiandistler/typethis/workflows/R-CMD-check/badge.svg)](https://github.com/fabiandistler/typethis/actions)
+
+`typethis` lets you describe what your data and your functions expect,
+and checks it at runtime — clearly, with helpful error messages, and
+without leaving plain R.
+
+``` r
+define_model("User", fields = list(
+  name  = field("character"),
+  age   = field("integer", validator = numeric_range(0, 120)),
+  email = field("character",
+                validator = string_pattern("^[^@]+@[^@]+\\.[^@]+$"))
+))
+
+new_User(name = "Ada", age = 36L, email = "ada@example.com")
+#> <Typed Model: User>
+#> Fields:
+#>   name: character = Ada
+#>   age: integer = 36
+#>   email: character = ada@example.com
+
+new_User(name = "Ada", age = 200L, email = "ada@example.com")
+#> Error: Validation failed for field 'age' in User
+```
+
+## Installation
+
+``` r
+# install.packages("devtools")
+devtools::install_github("fabiandistler/typethis")
+```
+
+## What you can do with it
+
+- **Check types at runtime.**
+  [`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md),
+  [`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md),
+  [`validate_type()`](https://fabiandistler.github.io/typethis/reference/validate_type.md),
+  [`coerce_type()`](https://fabiandistler.github.io/typethis/reference/coerce_type.md)
+  for the everyday cases.
+- **Wrap functions with type checks.**
+  [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
+  validates arguments on every call and the return value on every exit.
+- **Describe data with typed models.**
+  `define_model("Class", fields = list(…))` generates `new_Class()` and
+  `update_Class()` constructors with field-level validation, defaults,
+  and nullability.
+- **Compose richer types.**
+  [`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md),
+  [`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md),
+  [`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md),
+  [`t_vector_of()`](https://fabiandistler.github.io/typethis/reference/t_vector_of.md),
+  [`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md),
+  [`t_model()`](https://fabiandistler.github.io/typethis/reference/t_model.md),
+  [`t_predicate()`](https://fabiandistler.github.io/typethis/reference/t_predicate.md)
+  build up specs that work everywhere a type name does.
+- **Reach out to other ecosystems.** Export and import [JSON
+  Schema](https://json-schema.org/) (Draft 2020-12), [Open Data Contract
+  Standard v3](https://bitol-io.github.io/open-data-contract-standard/),
+  and [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) without
+  leaving R.
+
+## A 30-second tour
+
+``` r
+library(typethis)
+
+# 1. Type checks
+is_type(1:3, "integer")            # TRUE
+assert_type(42, "character", "x")  # Error: 'x' must be character, got integer
+
+# 2. Typed functions
+greet <- typed_function(
+  function(name, times = 1L) paste(rep(name, times), collapse = " "),
+  arg_specs = list(name = "character", times = "integer"),
+  return_spec = "character"
+)
+greet("hi", times = 3L)            # "hi hi hi"
+greet("hi", times = "3")           # Error: 'times' must be integer, got character
+
+# 3. Typed models
+define_model("Point", fields = list(
+  x = field("numeric"),
+  y = field("numeric")
+))
+p <- new_Point(x = 1, y = 2)
+update_Point(p, x = 5)$x           # 5
+
+# 4. Composable specs
+status <- t_enum(c("new", "paid", "shipped"))
+is_type("paid", status)            # TRUE
+is_type("done", status)            # FALSE
+```
+
+## Documentation
+
+The reference is shipped as vignettes — start with **Getting Started**
+and follow the topic that matches what you want to do.
+
+| Vignette                                                                                                            | What it covers                                                                             |
+|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| [`vignette("getting-started")`](https://fabiandistler.github.io/typethis/vignettes/getting-started.Rmd)             | A 10-minute tour: type checks, typed functions, typed models.                              |
+| [`vignette("validators-and-models")`](https://fabiandistler.github.io/typethis/vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
+| [`vignette("type-specs")`](https://fabiandistler.github.io/typethis/vignettes/type-specs.Rmd)                       | Composable type specifications with the `t_*()` family.                                    |
+| [`vignette("interop")`](https://fabiandistler.github.io/typethis/vignettes/interop.Rmd)                             | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import.               |
+
+For the full function reference see
+[`?typethis`](https://fabiandistler.github.io/typethis/reference/typethis-package.md)
+(a topic-grouped index of every exported function) or the individual
+help pages. Function help is organised into families —
+[`?typed_function`](https://fabiandistler.github.io/typethis/reference/typed_function.md)
+for example links to all other functions in the “Typed functions” family
+via `seealso`.
+
+## When should I use which tool?
+
+| Use…                                                                                                                                                                                                                                                                                                                              | …when you want to…                                                                                           |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [`is_type()`](https://fabiandistler.github.io/typethis/reference/is_type.md) / [`assert_type()`](https://fabiandistler.github.io/typethis/reference/assert_type.md)                                                                                                                                                               | Add ad-hoc type checks at function boundaries.                                                               |
+| [`typed_function()`](https://fabiandistler.github.io/typethis/reference/typed_function.md)                                                                                                                                                                                                                                        | Wrap a function so every call is validated automatically.                                                    |
+| [`define_model()`](https://fabiandistler.github.io/typethis/reference/define_model.md)                                                                                                                                                                                                                                            | Describe a record type — config, request body, domain entity — with field-level validation and constructors. |
+| [`numeric_range()`](https://fabiandistler.github.io/typethis/reference/numeric_range.md), [`string_pattern()`](https://fabiandistler.github.io/typethis/reference/string_pattern.md), [`enum_validator()`](https://fabiandistler.github.io/typethis/reference/enum_validator.md), …                                               | Add value-level rules on top of types.                                                                       |
+| [`t_union()`](https://fabiandistler.github.io/typethis/reference/t_union.md), [`t_nullable()`](https://fabiandistler.github.io/typethis/reference/t_nullable.md), [`t_list_of()`](https://fabiandistler.github.io/typethis/reference/t_list_of.md), [`t_enum()`](https://fabiandistler.github.io/typethis/reference/t_enum.md), … | Build a richer type spec inline (e.g. `t_list_of(t_union("integer", "character"))`).                         |
+| [`to_json_schema()`](https://fabiandistler.github.io/typethis/reference/to_json_schema.md) / [`to_datacontract()`](https://fabiandistler.github.io/typethis/reference/to_datacontract.md) / [`to_openapi()`](https://fabiandistler.github.io/typethis/reference/to_openapi.md)                                                    | Hand the same definitions to non-R systems.                                                                  |
+
+## Runtime only
+
+`typethis` is a **runtime** validator. Errors surface when your code
+runs, not when you save the file. That’s the trade-off for working with
+any R code, no IDE plugin, no compile step. For static analysis use
+`lintr` or your IDE’s diagnostics.
+
+## Contributing
+
+Contributions and bug reports are welcome — please open an
+[issue](https://github.com/fabiandistler/typethis/issues) or pull
+request.
+
+## License
+
+MIT — see [`LICENSE`](https://fabiandistler.github.io/typethis/LICENSE).
+
+## Related projects
+
+- [pydantic](https://docs.pydantic.dev/) — data validation for Python
+- [mypy](https://mypy-lang.org/) — static type checker for Python
+- [typed](https://github.com/moodymudskipper/typed) — another type
+  system for R
