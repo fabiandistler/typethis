@@ -176,8 +176,8 @@ field("integer", validator = numeric_range(0, 120))
 #>     else all(value <= max)
 #>     min_ok && max_ok
 #> }
-#> <bytecode: 0x55b0ee242a10>
-#> <environment: 0x55b0ef82dd50>
+#> <bytecode: 0x55bea4bd9950>
+#> <environment: 0x55bea62cc540>
 #> attr(,"constraint")
 #> attr(,"constraint")$kind
 #> [1] "numeric_range"
