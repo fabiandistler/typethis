@@ -48,6 +48,7 @@ infer_specs(function(x, y = NULL, z = list()) NULL)
 Other typed functions: 
 \code{\link{as_typed}()},
 \code{\link{as_typed_env}()},
+\code{\link{enable_for_package}()},
 \code{\link{get_signature}()},
 \code{\link{is_typed}()},
 \code{\link{signature}},

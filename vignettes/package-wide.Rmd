@@ -1,0 +1,160 @@
+---
+title: "Type-checking your whole package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Type-checking your whole package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+You have an existing R package and want every function inside it to
+become typed. Rewriting each function with `typed_function()` would be
+a large diff. This vignette shows how to do it in three lines of code,
+without touching any existing function definition.
+
+```{r setup}
+library(typethis)
+```
+
+## The one-line setup
+
+Add a single file `R/zzz.R` to your package:
+
+```r
+.onLoad <- function(libname, pkgname) {
+  typethis::enable_for_package(pkgname)
+}
+```
+
+That's it. When R loads your package, `enable_for_package()` walks the
+namespace, infers a type spec for every argument with a literal atomic
+default, and replaces each binding with a typed wrapper.
+
+## Why this works
+
+`.onLoad()` is called by R *before* the namespace bindings are locked,
+so this is the one window where typethis can rewrite each function in
+place. Calling the same function from a console or a test (after the
+namespace is already locked) will still work, but most bindings will
+already be locked and skipped with a single warning.
+
+## What gets typed
+
+Inference covers any argument whose default is a length-1 literal of
+a recognised atomic type:
+
+```{r}
+infer_specs(function(x = 1L, y = 1.0, name = "a", flag = TRUE) NULL)
+```
+
+Arguments without inferable defaults — no default, `NULL` default,
+calls like `list()`, `...` — are left unchecked. Their function still
+becomes a typed wrapper, just with fewer specs attached.
+
+## Filling in the gaps
+
+Pass `.specs` to add overrides for any function you want to type more
+strictly than inference can figure out by itself:
+
+```{r}
+ns <- new.env()
+ns$add <- function(x = 0L, y = 0L) x + y
+ns$normalise <- function(s) tolower(trimws(s))
+
+enable_for_package(ns, .specs = list(
+  add = list(.return = "integer"),
+  normalise = list(s = "character", .return = "character")
+))
+
+attr(ns$add, "return_spec")
+attr(ns$normalise, "arg_specs")
+```
+
+In your package this would live in `R/zzz.R` next to `.onLoad`:
+
+```r
+.onLoad <- function(libname, pkgname) {
+  typethis::enable_for_package(
+    pkgname,
+    .specs = list(
+      normalise = list(s = "character", .return = "character"),
+      parse_date = list(x = "character", .return = t_predicate(inherits, "Date"))
+    )
+  )
+}
+```
+
+## What is skipped
+
+`enable_for_package()` skips two categories automatically:
+
+* **Primitives** — there is nothing to wrap.
+* **Package hooks** — `.onLoad`, `.onAttach`, `.onUnload`, `.onDetach`,
+  `.Last.lib`, `.First.lib`. These are called by R's namespace
+  machinery with a fixed argument shape and should not be wrapped.
+
+You can narrow further with `.filter` (a `function(name, fn)` returning
+`TRUE` to retrofit, `FALSE` to skip). The user filter runs *after* the
+built-in skip list, so it can only narrow, never widen:
+
+```{r}
+ns2 <- new.env()
+ns2$public <- function(x = 1L) x
+ns2$internal_helper <- function(x = 1L) x
+
+enable_for_package(ns2, .filter = function(name, fn) {
+  !startsWith(name, "internal_")
+})
+
+is_typed(ns2$public)
+is_typed(ns2$internal_helper)
+```
+
+## Verifying the result
+
+After your package loads, every typed binding answers `is_typed()`:
+
+```{r}
+ns3 <- new.env()
+ns3$add <- function(x = 0L, y = 0L) x + y
+enable_for_package(ns3)
+
+is_typed(ns3$add)
+get_signature(ns3$add)
+```
+
+Calling `add()` with the wrong type now produces the typethis error
+you'd get from a hand-written `typed_function()`:
+
+```{r, error = TRUE}
+ns3$add("a", 3L)
+```
+
+## Trade-offs
+
+* **Coverage scales with how much you've used defaults.** Functions
+  written without literal defaults (e.g. `function(x, y) ...`) get a
+  typed wrapper but no specs unless you fill them in via `.specs`.
+* **Per-call overhead.** Every call now passes through a wrapper that
+  validates arguments. For hot paths, set `.validate = FALSE` per call
+  via `validate_call()` or pass `.validate = FALSE` to
+  `enable_for_package()` itself.
+* **CRAN.** Modifying your own namespace from your own `.onLoad()` is
+  fine. Modifying *another* package's namespace from outside is a
+  separate, more invasive pattern that this function deliberately
+  does not support.
+
+## Related entry points
+
+* [`as_typed()`][as_typed] — retrofit one function at a time.
+* [`as_typed_env()`][as_typed_env] — the engine `enable_for_package()`
+  is built on; gives you full control over filtering and overrides.
+* [`typed_function()`][typed_function] — write a typed function from
+  scratch instead of retrofitting.

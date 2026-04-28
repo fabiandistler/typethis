@@ -37,6 +37,7 @@ translate(1, 2)
 Other typed functions: 
 \code{\link{as_typed}()},
 \code{\link{as_typed_env}()},
+\code{\link{enable_for_package}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},

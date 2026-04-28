@@ -76,6 +76,7 @@ the replacement-form accessor.
 
 Other typed functions: 
 \code{\link{as_typed}()},
+\code{\link{enable_for_package}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},
