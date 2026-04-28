@@ -119,22 +119,29 @@ import back into the model registry.
 ``` r
 define_model("Order", fields = list(
   order_id = field("character",
-                   primary_key = TRUE,
-                   validator   = string_pattern("^ORD-[0-9]+$")),
-  amount   = field("numeric",
-                   validator = numeric_range(0, 1e6),
-                   pii       = FALSE),
-  status   = field(t_enum(c("new", "paid", "shipped")),
-                   default = "new"),
+    primary_key = TRUE,
+    validator   = string_pattern("^ORD-[0-9]+$")
+  ),
+  amount = field("numeric",
+    validator = numeric_range(0, 1e6),
+    pii       = FALSE
+  ),
+  status = field(t_enum(c("new", "paid", "shipped")),
+    default = "new"
+  ),
   customer = field("character",
-                   classification = "confidential",
-                   pii            = TRUE)
+    classification = "confidential",
+    pii            = TRUE
+  )
 ))
 
 contract <- to_datacontract("Order",
-  info = list(name = "orders",
-              version = "1.0.0",
-              description = "Order records"))
+  info = list(
+    name = "orders",
+    version = "1.0.0",
+    description = "Order records"
+  )
+)
 
 str(contract, max.level = 2)
 #> List of 8
@@ -156,7 +163,8 @@ file-IO convenience wrapper:
 ``` r
 tmp <- tempfile(fileext = ".yaml")
 write_datacontract("Order", tmp,
-  info = list(name = "orders", version = "1.0.0"))
+  info = list(name = "orders", version = "1.0.0")
+)
 readLines(tmp, n = 6)
 #> [1] "apiVersion: v3.0.2" "kind: DataContract" "id: Order"         
 #> [4] "status: draft"      "name: orders"       "version: 1.0.0"
@@ -231,14 +239,17 @@ define_model("Address2", fields = list(
   city   = field("character")
 ))
 define_model("PersonDoc", fields = list(
-  id      = field("integer", primary_key = TRUE,
-                  validator = numeric_range(min = 1L)),
-  name    = field("character"),
+  id = field("integer",
+    primary_key = TRUE,
+    validator = numeric_range(min = 1L)
+  ),
+  name = field("character"),
   address = field("Address2")
 ))
 
 doc <- to_openapi(list("PersonDoc", "Address2"),
-  info = list(title = "People API", version = "1.0.0"))
+  info = list(title = "People API", version = "1.0.0")
+)
 names(doc$components$schemas)
 #> [1] "PersonDoc" "Address2"
 ```
@@ -248,13 +259,14 @@ names(doc$components$schemas)
 ``` r
 greet <- typed_function(
   function(name, greeting = "Hi") paste(greeting, name),
-  arg_specs   = list(name = "character", greeting = "character"),
+  arg_specs = list(name = "character", greeting = "character"),
   return_spec = "character"
 )
 attr(greet, "openapi_op_id") <- "greet"
 
 doc <- to_openapi(list("PersonDoc", greet),
-  info = list(title = "People API", version = "1.0.0"))
+  info = list(title = "People API", version = "1.0.0")
+)
 names(doc$paths)
 #> [1] "/greet"
 ```
@@ -264,7 +276,8 @@ names(doc$paths)
 ``` r
 tmp <- tempfile(fileext = ".yaml")
 write_openapi("PersonDoc", tmp,
-  info = list(title = "People API", version = "1.0.0"))
+  info = list(title = "People API", version = "1.0.0")
+)
 
 env <- new.env()
 from_openapi(tmp, envir = env)

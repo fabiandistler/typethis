@@ -43,11 +43,11 @@ composite spec at runtime.
 
 ``` r
 id <- t_union("integer", "character")
-is_type(1L,    id)
+is_type(1L, id)
 #> [1] TRUE
 is_type("u-1", id)
 #> [1] TRUE
-is_type(1.5,   id)
+is_type(1.5, id)
 #> [1] FALSE
 ```
 
@@ -57,7 +57,7 @@ is_type(1.5,   id)
 maybe_int <- t_nullable("integer")
 is_type(NULL, maybe_int)
 #> [1] TRUE
-is_type(1L,   maybe_int)
+is_type(1L, maybe_int)
 #> [1] TRUE
 is_type("hi", maybe_int)
 #> [1] FALSE
@@ -69,7 +69,7 @@ is_type("hi", maybe_int)
 tags <- t_list_of("character", min_length = 1L)
 is_type(list("alpha", "beta"), tags)
 #> [1] TRUE
-is_type(list(),                tags)
+is_type(list(), tags)
 #> [1] FALSE
 
 triple <- t_vector_of("integer", exact_length = 3L)
@@ -94,7 +94,7 @@ is_type(list(1L, "two", 3L), mixed)
 role <- t_enum(c("admin", "user", "guest"))
 is_type("admin", role)
 #> [1] TRUE
-is_type("root",  role)
+is_type("root", role)
 #> [1] FALSE
 ```
 
@@ -128,7 +128,7 @@ positive <- t_predicate(
   function(x) is.numeric(x) && all(x > 0),
   description = "positive number"
 )
-is_type(5,  positive)
+is_type(5, positive)
 #> [1] TRUE
 is_type(-1, positive)
 #> [1] FALSE
@@ -191,8 +191,8 @@ Other kinds ([`t_list_of()`](../reference/t_list_of.md),
 ``` r
 coerce_type("paid", t_enum(c("new", "paid", "shipped")))
 #> [1] "paid"
-coerce_type(NULL,   t_nullable("integer"))
+coerce_type(NULL, t_nullable("integer"))
 #> NULL
-coerce_type("123",  t_union("integer", "character"))
+coerce_type("123", t_union("integer", "character"))
 #> [1] 123
 ```

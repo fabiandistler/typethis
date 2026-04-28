@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -220,7 +220,7 @@ bridge functions:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $exclusive_max</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="fu"><a href="../reference/validator_constraint.html">validator_constraint</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>  <span class="co"># NULL for plain user predicates</span></span>
+<span><span class="fu"><a href="../reference/validator_constraint.html">validator_constraint</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># NULL for plain user predicates</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
 </div>
 </div>
@@ -234,9 +234,10 @@ environment.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"Person"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
-<span>  age  <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>, validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">120</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>, validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">120</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  email <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
-<span>                validator <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^[^@]+@[^@]+$"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^[^@]+@[^@]+$"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">new_Person</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ada"</span>, age <span class="op">=</span> <span class="fl">36L</span>, email <span class="op">=</span> <span class="st">"ada@example.com"</span><span class="op">)</span></span>
@@ -252,8 +253,8 @@ environment.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"Config"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  host  <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>, default <span class="op">=</span> <span class="st">"localhost"</span><span class="op">)</span>,</span>
-<span>  port  <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>,   default <span class="op">=</span> <span class="fl">8080L</span><span class="op">)</span>,</span>
-<span>  debug <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"logical"</span>,   default <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  port  <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>, default <span class="op">=</span> <span class="fl">8080L</span><span class="op">)</span>,</span>
+<span>  debug <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"logical"</span>, default <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">new_Config</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">host</span></span>
@@ -327,10 +328,12 @@ constructor will check that the value is an instance of that class.</p>
 runs after the type check:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"Coupon"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  code     <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
-<span>                   validator <span class="op">=</span> <span class="fu"><a href="../reference/string_length.html">string_length</a></span><span class="op">(</span>min_length <span class="op">=</span> <span class="fl">4</span>, max_length <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  code <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/string_length.html">string_length</a></span><span class="op">(</span>min_length <span class="op">=</span> <span class="fl">4</span>, max_length <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
 <span>  discount <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"numeric"</span>,</span>
-<span>                   validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, exclusive_max <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, exclusive_max <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">new_Coupon</span><span class="op">(</span>code <span class="op">=</span> <span class="st">"SAVE20"</span>, discount <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>

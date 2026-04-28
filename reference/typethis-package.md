@@ -106,10 +106,12 @@ required.
 
 Useful links:
 
+- <https://fabiandistler.github.io/typethis/>
+
 - <https://github.com/fabiandistler/typethis>
 
 - Report bugs at <https://github.com/fabiandistler/typethis/issues>
 
 ## Author
 
-**Maintainer**: TypeThis Team <dev@example.com>
+**Maintainer**: Fabian Distler <dev@example.com>

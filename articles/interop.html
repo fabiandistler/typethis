@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -185,22 +185,29 @@ and existing ODCS contracts import back into the model registry.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"Order"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  order_id <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
-<span>                   primary_key <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                   validator   <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^ORD-[0-9]+$"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  amount   <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"numeric"</span>,</span>
-<span>                   validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1e6</span><span class="op">)</span>,</span>
-<span>                   pii       <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>  status   <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="fu"><a href="../reference/t_enum.html">t_enum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new"</span>, <span class="st">"paid"</span>, <span class="st">"shipped"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                   default <span class="op">=</span> <span class="st">"new"</span><span class="op">)</span>,</span>
+<span>    primary_key <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    validator   <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^ORD-[0-9]+$"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  amount <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"numeric"</span>,</span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1e6</span><span class="op">)</span>,</span>
+<span>    pii       <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  status <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="fu"><a href="../reference/t_enum.html">t_enum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new"</span>, <span class="st">"paid"</span>, <span class="st">"shipped"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    default <span class="op">=</span> <span class="st">"new"</span></span>
+<span>  <span class="op">)</span>,</span>
 <span>  customer <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
-<span>                   classification <span class="op">=</span> <span class="st">"confidential"</span>,</span>
-<span>                   pii            <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    classification <span class="op">=</span> <span class="st">"confidential"</span>,</span>
+<span>    pii            <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">contract</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_datacontract.html">to_datacontract</a></span><span class="op">(</span><span class="st">"Order"</span>,</span>
-<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"orders"</span>,</span>
-<span>              version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
-<span>              description <span class="op">=</span> <span class="st">"Order records"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    name <span class="op">=</span> <span class="st">"orders"</span>,</span>
+<span>    version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
+<span>    description <span class="op">=</span> <span class="st">"Order records"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">contract</span>, max.level <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 8</span></span>
@@ -219,7 +226,8 @@ wrapper:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".yaml"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_datacontract.html">write_datacontract</a></span><span class="op">(</span><span class="st">"Order"</span>, <span class="va">tmp</span>,</span>
-<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"orders"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"orders"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">tmp</span>, n <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "apiVersion: v3.0.2" "kind: DataContract" "id: Order"         </span></span>
 <span><span class="co">#&gt; [4] "status: draft"      "name: orders"       "version: 1.0.0"</span></span></code></pre></div>
@@ -332,14 +340,17 @@ type.</p>
 <span>  city   <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"PersonDoc"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  id      <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>, primary_key <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                  validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span>min <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  name    <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
+<span>  id <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>,</span>
+<span>    primary_key <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span>min <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
 <span>  address <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"Address2"</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_openapi.html">to_openapi</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"PersonDoc"</span>, <span class="st">"Address2"</span><span class="op">)</span>,</span>
-<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">components</span><span class="op">$</span><span class="va">schemas</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "PersonDoc" "Address2"</span></span></code></pre></div>
 </div>
@@ -349,13 +360,14 @@ type.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">greet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/typed_function.html">typed_function</a></span><span class="op">(</span></span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">name</span>, <span class="va">greeting</span> <span class="op">=</span> <span class="st">"Hi"</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">greeting</span>, <span class="va">name</span><span class="op">)</span>,</span>
-<span>  arg_specs   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"character"</span>, greeting <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span>,</span>
+<span>  arg_specs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"character"</span>, greeting <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span>,</span>
 <span>  return_spec <span class="op">=</span> <span class="st">"character"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">greet</span>, <span class="st">"openapi_op_id"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"greet"</span></span>
 <span></span>
 <span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_openapi.html">to_openapi</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"PersonDoc"</span>, <span class="va">greet</span><span class="op">)</span>,</span>
-<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">paths</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "/greet"</span></span></code></pre></div>
 </div>
@@ -365,7 +377,8 @@ type.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".yaml"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/write_openapi.html">write_openapi</a></span><span class="op">(</span><span class="st">"PersonDoc"</span>, <span class="va">tmp</span>,</span>
-<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"People API"</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/from_openapi.html">from_openapi</a></span><span class="op">(</span><span class="va">tmp</span>, envir <span class="op">=</span> <span class="va">env</span><span class="op">)</span></span>

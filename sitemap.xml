@@ -12,6 +12,7 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
+<url><loc>/reference/as_typed.html</loc></url>
 <url><loc>/reference/assert_type.html</loc></url>
 <url><loc>/reference/coerce_type.html</loc></url>
 <url><loc>/reference/combine_validators.html</loc></url>
@@ -29,6 +30,7 @@
 <url><loc>/reference/get_schema.html</loc></url>
 <url><loc>/reference/get_signature.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/infer_specs.html</loc></url>
 <url><loc>/reference/is_model.html</loc></url>
 <url><loc>/reference/is_one_of.html</loc></url>
 <url><loc>/reference/is_type.html</loc></url>

@@ -155,7 +155,7 @@ validator_constraint(numeric_range(0, 10))
 #> 
 #> $exclusive_max
 #> [1] FALSE
-validator_constraint(function(x) x > 0)  # NULL for plain user predicates
+validator_constraint(function(x) x > 0) # NULL for plain user predicates
 #> NULL
 ```
 
@@ -168,9 +168,10 @@ record. It creates a `new_<Class>()` constructor and an
 ``` r
 define_model("Person", fields = list(
   name = field("character"),
-  age  = field("integer", validator = numeric_range(0, 120)),
+  age = field("integer", validator = numeric_range(0, 120)),
   email = field("character",
-                validator = string_pattern("^[^@]+@[^@]+$"))
+    validator = string_pattern("^[^@]+@[^@]+$")
+  )
 ))
 
 p <- new_Person(name = "Ada", age = 36L, email = "ada@example.com")
@@ -187,8 +188,8 @@ p
 ``` r
 define_model("Config", fields = list(
   host  = field("character", default = "localhost"),
-  port  = field("integer",   default = 8080L),
-  debug = field("logical",   default = FALSE)
+  port  = field("integer", default = 8080L),
+  debug = field("logical", default = FALSE)
 ))
 
 new_Config()$host
@@ -267,10 +268,12 @@ runs after the type check:
 
 ``` r
 define_model("Coupon", fields = list(
-  code     = field("character",
-                   validator = string_length(min_length = 4, max_length = 12)),
+  code = field("character",
+    validator = string_length(min_length = 4, max_length = 12)
+  ),
   discount = field("numeric",
-                   validator = numeric_range(0, 1, exclusive_max = TRUE))
+    validator = numeric_range(0, 1, exclusive_max = TRUE)
+  )
 ))
 
 new_Coupon(code = "SAVE20", discount = 0.2)

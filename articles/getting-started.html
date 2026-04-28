@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,7 +127,7 @@ validated.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">greet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/typed_function.html">typed_function</a></span><span class="op">(</span></span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">name</span>, <span class="va">times</span> <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">times</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span>,</span>
-<span>  arg_specs   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"character"</span>, times <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span>,</span>
+<span>  arg_specs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"character"</span>, times <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span>,</span>
 <span>  return_spec <span class="op">=</span> <span class="st">"character"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -145,6 +145,37 @@ convert mismatches before checking, or <code>validate = FALSE</code> for
 hot paths where you’ve already validated upstream.</p>
 <p>For the full feature set see <code><a href="../reference/typed_function.html">?typed_function</a></code> and the <a href="validators-and-models.html">validators-and-models</a>
 vignette.</p>
+<div class="section level3">
+<h3 id="retrofitting-existing-functions">Retrofitting existing functions<a class="anchor" aria-label="anchor" href="#retrofitting-existing-functions"></a>
+</h3>
+<p>When you want to add type checks to a function you already have,
+<code><a href="../reference/as_typed.html">as_typed()</a></code> removes the boilerplate of restating every
+argument. Specs for arguments with literal atomic defaults are inferred
+automatically; only arguments you want to override appear in the
+call.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">add</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_typed.html">as_typed</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span> <span class="op">=</span> <span class="fl">0L</span>, <span class="va">y</span> <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span> <span class="va">x</span> <span class="op">+</span> <span class="va">y</span>, .return <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span></span>
+<span><span class="fu">add</span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">3L</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 5</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">add</span><span class="op">(</span><span class="st">"two"</span>, <span class="fl">3L</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Type error: 'x' must be integer, got character</span></span></code></pre></div>
+<p>Pass overrides by name. Inference fills in the rest:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">greet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_typed.html">as_typed</a></span><span class="op">(</span></span>
+<span>  <span class="kw">function</span><span class="op">(</span><span class="va">name</span> <span class="op">=</span> <span class="st">"world"</span>, <span class="va">times</span> <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">times</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="../reference/t_vector_of.html">t_vector_of</a></span><span class="op">(</span><span class="st">"character"</span>, exact_length <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">greet</span><span class="op">(</span><span class="st">"hi"</span>, times <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "hi hi hi"</span></span></code></pre></div>
+<p>Pass <code>name = NULL</code> to opt one argument out of validation,
+or <code>.infer = FALSE</code> to disable inference entirely. See
+<code><a href="../reference/as_typed.html">?as_typed</a></code> and <code><a href="../reference/infer_specs.html">?infer_specs</a></code> for the full
+inference rules.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="typed-models">3. Typed models<a class="anchor" aria-label="anchor" href="#typed-models"></a>
@@ -154,13 +185,16 @@ configuration object, an API request body, a domain entity. It generates
 a <code>new_&lt;Class&gt;()</code> constructor and an
 <code>update_&lt;Class&gt;()</code> updater in the calling
 environment.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"User"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  name  <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
-<span>  age   <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>, validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">120</span><span class="op">)</span>,</span>
-<span>                default <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"integer"</span>,</span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/numeric_range.html">numeric_range</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">120</span><span class="op">)</span>,</span>
+<span>    default <span class="op">=</span> <span class="fl">0L</span></span>
+<span>  <span class="op">)</span>,</span>
 <span>  email <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span>,</span>
-<span>                validator <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^[^@]+@[^@]+\\.[^@]+$"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    validator <span class="op">=</span> <span class="fu"><a href="../reference/string_pattern.html">string_pattern</a></span><span class="op">(</span><span class="st">"^[^@]+@[^@]+\\.[^@]+$"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ada</span> <span class="op">&lt;-</span> <span class="fu">new_User</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ada Lovelace"</span>, email <span class="op">=</span> <span class="st">"ada@example.com"</span><span class="op">)</span></span>
@@ -171,18 +205,18 @@ environment.</p>
 <span><span class="co">#&gt;   email: character = ada@example.com</span></span>
 <span><span class="co">#&gt;   age: integer = 0</span></span></code></pre></div>
 <p>Validation runs at construction time:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">new_User</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ada"</span>, age <span class="op">=</span> <span class="fl">200L</span>, email <span class="op">=</span> <span class="st">"ada@example.com"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Validation failed for field 'age' in User</span></span></code></pre></div>
 <p><code>update_User()</code> returns a fresh instance with the named
 fields replaced and revalidated:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ada</span> <span class="op">&lt;-</span> <span class="fu">update_User</span><span class="op">(</span><span class="va">ada</span>, age <span class="op">=</span> <span class="fl">36L</span><span class="op">)</span></span>
 <span><span class="va">ada</span><span class="op">$</span><span class="va">age</span></span>
 <span><span class="co">#&gt; [1] 36</span></span></code></pre></div>
 <p>Models nest. Reference one model from another by class name:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/define_model.html">define_model</a></span><span class="op">(</span><span class="st">"Address"</span>, fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  street <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span>,</span>
 <span>  city   <span class="op">=</span> <span class="fu"><a href="../reference/field.html">field</a></span><span class="op">(</span><span class="st">"character"</span><span class="op">)</span></span>
@@ -209,7 +243,7 @@ vignette.</p>
 everywhere a plain type name does (<code><a href="../reference/is_type.html">is_type()</a></code>,
 <code><a href="../reference/assert_type.html">assert_type()</a></code>, <code><a href="../reference/field.html">field()</a></code>,
 <code><a href="../reference/typed_function.html">typed_function()</a></code>, <code><a href="../reference/to_json_schema.html">to_json_schema()</a></code>).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_union.html">t_union</a></span><span class="op">(</span><span class="st">"integer"</span>, <span class="st">"character"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="va">id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -228,7 +262,7 @@ everywhere a plain type name does (<code><a href="../reference/is_type.html">is_
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"admin"</span>, <span class="va">role</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Specs compose:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_list_of.html">t_list_of</a></span><span class="op">(</span><span class="fu"><a href="../reference/t_union.html">t_union</a></span><span class="op">(</span><span class="st">"integer"</span>, <span class="st">"character"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="st">"two"</span>, <span class="fl">3L</span><span class="op">)</span>, <span class="va">mixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>

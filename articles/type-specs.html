@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,11 +141,11 @@ runtime.</p>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_union.html">t_union</a></span><span class="op">(</span><span class="st">"integer"</span>, <span class="st">"character"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1L</span>,    <span class="va">id</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="va">id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"u-1"</span>, <span class="va">id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1.5</span>,   <span class="va">id</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="va">id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -155,7 +155,7 @@ runtime.</p>
 <code class="sourceCode R"><span><span class="va">maybe_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_nullable.html">t_nullable</a></span><span class="op">(</span><span class="st">"integer"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="va">maybe_int</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1L</span>,   <span class="va">maybe_int</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="va">maybe_int</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"hi"</span>, <span class="va">maybe_int</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
@@ -167,7 +167,7 @@ runtime.</p>
 <code class="sourceCode R"><span><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_list_of.html">t_list_of</a></span><span class="op">(</span><span class="st">"character"</span>, min_length <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="st">"beta"</span><span class="op">)</span>, <span class="va">tags</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,                <span class="va">tags</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">tags</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span></span>
 <span><span class="va">triple</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_vector_of.html">t_vector_of</a></span><span class="op">(</span><span class="st">"integer"</span>, exact_length <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
@@ -189,7 +189,7 @@ other composites:</p>
 <code class="sourceCode R"><span><span class="va">role</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_enum.html">t_enum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"admin"</span>, <span class="st">"user"</span>, <span class="st">"guest"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"admin"</span>, <span class="va">role</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"root"</span>,  <span class="va">role</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="st">"root"</span>, <span class="va">role</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 <p><code><a href="../reference/t_enum.html">t_enum()</a></code> is the type-spec sibling of <a href="../reference/enum_validator.html"><code>enum_validator()</code></a>.
 Use the type-spec form when you want the enum to appear as a true type
@@ -218,7 +218,7 @@ messages and in JSON Schema output.</p>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">x</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  description <span class="op">=</span> <span class="st">"positive number"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">5</span>,  <span class="va">positive</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="fl">5</span>, <span class="va">positive</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/is_type.html">is_type</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="va">positive</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
@@ -280,9 +280,9 @@ error.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/coerce_type.html">coerce_type</a></span><span class="op">(</span><span class="st">"paid"</span>, <span class="fu"><a href="../reference/t_enum.html">t_enum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"new"</span>, <span class="st">"paid"</span>, <span class="st">"shipped"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "paid"</span></span>
-<span><span class="fu"><a href="../reference/coerce_type.html">coerce_type</a></span><span class="op">(</span><span class="cn">NULL</span>,   <span class="fu"><a href="../reference/t_nullable.html">t_nullable</a></span><span class="op">(</span><span class="st">"integer"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/coerce_type.html">coerce_type</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="fu"><a href="../reference/t_nullable.html">t_nullable</a></span><span class="op">(</span><span class="st">"integer"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; NULL</span></span>
-<span><span class="fu"><a href="../reference/coerce_type.html">coerce_type</a></span><span class="op">(</span><span class="st">"123"</span>,  <span class="fu"><a href="../reference/t_union.html">t_union</a></span><span class="op">(</span><span class="st">"integer"</span>, <span class="st">"character"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/coerce_type.html">coerce_type</a></span><span class="op">(</span><span class="st">"123"</span>, <span class="fu"><a href="../reference/t_union.html">t_union</a></span><span class="op">(</span><span class="st">"integer"</span>, <span class="st">"character"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 123</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

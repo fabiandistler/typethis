@@ -2,6 +2,9 @@
 
 ## All functions
 
+- [`as_typed()`](as_typed.md) : Retrofit type stability onto an existing
+  function
+
 - [`assert_type()`](assert_type.md) : Assert that a value has an
   expected type
 
@@ -49,6 +52,9 @@
 
 - [`get_signature()`](get_signature.md) : Inspect the signature of a
   typed function
+
+- [`infer_specs()`](infer_specs.md) : Infer argument specs from a
+  function's default values
 
 - [`is_model()`](is_model.md) : Test whether an object is a typed model
   instance

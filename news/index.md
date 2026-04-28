@@ -2,6 +2,30 @@
 
 ## typethis (development version)
 
+### typethis 0.6.0
+
+#### New Features
+
+##### Retrofitting existing functions
+
+- [`as_typed()`](../reference/as_typed.md) is a convenience wrapper
+  around [`typed_function()`](../reference/typed_function.md) for adding
+  type checks to a function you already have. Argument specs are passed
+  via `...` instead of `arg_specs = list(...)`, and specs for arguments
+  with literal atomic defaults (`1L`, `1.5`, `"a"`, `TRUE`) are inferred
+  automatically. Pass `name = NULL` to opt a single argument out, or
+  `.infer = FALSE` to disable inference entirely.
+  [`as_typed()`](../reference/as_typed.md) is idempotent — re-wrapping a
+  typed function merges the new specs into the existing wrapper instead
+  of stacking another layer.
+- [`infer_specs()`](../reference/infer_specs.md) returns the inferred
+  argument specs for a function as a named list, useful for inspection
+  or for building a spec manually.
+
+Possible follow-ups deferred for a later release: a bulk
+`as_typed_env()` helper for retrofitting whole namespaces, and a
+replacement-style `types(f) <-` form.
+
 ### typethis 0.5.0
 
 #### New Features

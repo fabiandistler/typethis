@@ -27,8 +27,10 @@ A `type_signature` object.
 
 ## See also
 
-Other typed functions: [`get_signature()`](get_signature.md),
-[`is_typed()`](is_typed.md), [`typed_function()`](typed_function.md),
+Other typed functions: [`as_typed()`](as_typed.md),
+[`get_signature()`](get_signature.md),
+[`infer_specs()`](infer_specs.md), [`is_typed()`](is_typed.md),
+[`typed_function()`](typed_function.md),
 [`typed_method()`](typed_method.md),
 [`validate_call()`](validate_call.md),
 [`with_signature()`](with_signature.md)

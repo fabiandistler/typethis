@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,9 +42,23 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="typethis-development-version">typethis (development version)<a class="anchor" aria-label="anchor" href="#typethis-development-version"></a></h2>
 <div class="section level3">
-<h3 id="typethis-development-version-1">typethis 0.5.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-1"></a></h3>
+<h3 id="typethis-development-version-1">typethis 0.6.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-1"></a></h3>
 <div class="section level4">
 <h4 id="new-features-development-version">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h4>
+<div class="section level5">
+<h5 id="retrofitting-existing-functions-development-version">Retrofitting existing functions<a class="anchor" aria-label="anchor" href="#retrofitting-existing-functions-development-version"></a></h5>
+<ul><li>
+<code><a href="../reference/as_typed.html">as_typed()</a></code> is a convenience wrapper around <code><a href="../reference/typed_function.html">typed_function()</a></code> for adding type checks to a function you already have. Argument specs are passed via <code>...</code> instead of <code>arg_specs = list(...)</code>, and specs for arguments with literal atomic defaults (<code>1L</code>, <code>1.5</code>, <code>"a"</code>, <code>TRUE</code>) are inferred automatically. Pass <code>name = NULL</code> to opt a single argument out, or <code>.infer = FALSE</code> to disable inference entirely. <code><a href="../reference/as_typed.html">as_typed()</a></code> is idempotent — re-wrapping a typed function merges the new specs into the existing wrapper instead of stacking another layer.</li>
+<li>
+<code><a href="../reference/infer_specs.html">infer_specs()</a></code> returns the inferred argument specs for a function as a named list, useful for inspection or for building a spec manually.</li>
+</ul><p>Possible follow-ups deferred for a later release: a bulk <code>as_typed_env()</code> helper for retrofitting whole namespaces, and a replacement-style <code>types(f) &lt;-</code> form.</p>
+</div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="typethis-development-version-2">typethis 0.5.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-2"></a></h3>
+<div class="section level4">
+<h4 id="new-features-development-version-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-1"></a></h4>
 <div class="section level5">
 <h5 id="openapi-bridge-development-version">OpenAPI 3.1 Bridge<a class="anchor" aria-label="anchor" href="#openapi-bridge-development-version"></a></h5>
 <ul><li>
@@ -63,7 +77,7 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-2">typethis 0.4.1<a class="anchor" aria-label="anchor" href="#typethis-development-version-2"></a></h3>
+<h3 id="typethis-development-version-3">typethis 0.4.1<a class="anchor" aria-label="anchor" href="#typethis-development-version-3"></a></h3>
 <div class="section level4">
 <h4 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h4>
 <ul><li>
@@ -77,9 +91,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-3">typethis 0.4.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-3"></a></h3>
+<h3 id="typethis-development-version-4">typethis 0.4.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-4"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-1"></a></h4>
+<h4 id="new-features-development-version-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-2"></a></h4>
 <div class="section level5">
 <h5 id="data-contract-odcs-v3-bridge-development-version">Data Contract (ODCS v3) Bridge<a class="anchor" aria-label="anchor" href="#data-contract-odcs-v3-bridge-development-version"></a></h5>
 <ul><li>
@@ -104,9 +118,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-4">typethis 0.3.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-4"></a></h3>
+<h3 id="typethis-development-version-5">typethis 0.3.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-5"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-2"></a></h4>
+<h4 id="new-features-development-version-3">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-3"></a></h4>
 <div class="section level5">
 <h5 id="composite-type-specs-development-version">Composite Type Specs<a class="anchor" aria-label="anchor" href="#composite-type-specs-development-version"></a></h5>
 <ul><li>New <code>type_spec</code> S3 class for structured, composable type specifications.</li>
@@ -136,9 +150,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-5">typethis 0.2.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-5"></a></h3>
+<h3 id="typethis-development-version-6">typethis 0.2.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-6"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-3">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-3"></a></h4>
+<h4 id="new-features-development-version-4">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-4"></a></h4>
 <div class="section level5">
 <h5 id="typed-functions-f1-f8-development-version">Typed Functions (F1-F8)<a class="anchor" aria-label="anchor" href="#typed-functions-f1-f8-development-version"></a></h5>
 <ul><li>
