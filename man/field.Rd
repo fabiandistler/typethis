@@ -77,8 +77,10 @@ field("integer", validator = numeric_range(0, 120))
 field(t_union("integer", "character"))
 field(t_list_of("character"), default = list())
 field(t_enum(c("admin", "user")))
-field("character", primary_key = TRUE, pii = TRUE,
-      classification = "confidential")
+field("character",
+  primary_key = TRUE, pii = TRUE,
+  classification = "confidential"
+)
 }
 \seealso{
 Other typed models: 

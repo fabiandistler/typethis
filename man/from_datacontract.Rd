@@ -35,11 +35,12 @@ if (requireNamespace("yaml", quietly = TRUE)) {
 
   tmp <- tempfile(fileext = ".yaml")
   write_datacontract("Order", tmp,
-    info = list(name = "orders", version = "1.0.0"))
+    info = list(name = "orders", version = "1.0.0")
+  )
 
   env <- new.env()
   from_datacontract(tmp, envir = env)
-  ls(env)  # new_Order, update_Order
+  ls(env) # new_Order, update_Order
 }
 }
 \seealso{

@@ -1,5 +1,28 @@
 # typethis (development version)
 
+## typethis 0.7.0
+
+### New Features
+
+#### Bulk retrofit and replacement-form accessor
+
+- `as_typed_env()` retrofits every function in an environment in one
+  call. It walks the environment, applies `as_typed()` to each
+  function (with inference by default), and writes the typed versions
+  back in place. Per-function overrides flow through `.specs = list(funA
+  = list(...))`; an optional `.filter` predicate narrows the set of
+  functions touched. Already-typed functions go through `as_typed()`'s
+  existing idempotent merge path, and locked bindings (common for
+  namespaces) are skipped with a single warning.
+- `types(f)` / `types(f) <- value` is a symmetric replacement-form
+  accessor over `as_typed()`. The getter returns a list whose named
+  entries are arg specs and whose `.return` entry (if present) is the
+  return spec — the same shape the setter accepts, so `types(g) <-
+  types(f)` round-trips. `types(f) <- NULL` un-types `f` and returns
+  the original inner function.
+
+These were the two follow-ups deferred from the v0.6 NEWS entry.
+
 ## typethis 0.6.0
 
 ### New Features

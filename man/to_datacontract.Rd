@@ -37,7 +37,8 @@ define_model("Order", fields = list(
 ))
 
 contract <- to_datacontract("Order",
-  info = list(name = "orders", version = "1.0.0"))
+  info = list(name = "orders", version = "1.0.0")
+)
 str(contract, max.level = 2)
 }
 \seealso{
