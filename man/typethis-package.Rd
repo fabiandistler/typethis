@@ -76,13 +76,14 @@ required.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://fabiandistler.github.io/typethis/}
   \item \url{https://github.com/fabiandistler/typethis}
   \item Report bugs at \url{https://github.com/fabiandistler/typethis/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: TypeThis Team \email{dev@example.com}
+\strong{Maintainer}: Fabian Distler \email{dev@example.com}
 
 }
 \keyword{internal}

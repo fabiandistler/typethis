@@ -287,8 +287,7 @@ t_predicate <- function(fn, description = NULL) {
 
 #' @export
 format.type_spec <- function(x, ...) {
-  switch(
-    x$kind,
+  switch(x$kind,
     "builtin" = x$name,
     "model_ref" = x$class_name,
     "predicate" = if (!is.null(x$description)) {
@@ -320,8 +319,7 @@ print.type_spec <- function(x, ...) {
 #' @keywords internal
 #' @noRd
 check_type_spec <- function(value, spec) {
-  switch(
-    spec$kind,
+  switch(spec$kind,
     "builtin" = check_builtin_type(value, spec$name),
     "predicate" = isTRUE(spec$fn(value)),
     "nullable" = is.null(value) || is_type(value, spec$inner),

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Pre-commit hook: run lintr::lint_package() to mirror the lint.yml CI check.
+#
+# Enable once per clone with:
+#
+#     git config core.hooksPath .githooks
+#
+# Skip a single commit with `git commit --no-verify`.
+
+set -e
+
+# Only lint when the staged change touches files lintr looks at.
+relevant=$(git diff --cached --name-only --diff-filter=ACMR | \
+  grep -E '^(R/.*\.[Rr]$|tests/.*\.[Rr]$|vignettes/.*\.[Rr]md$|\.lintr$|DESCRIPTION$|NAMESPACE$)' || true)
+if [ -z "$relevant" ]; then
+  exit 0
+fi
+
+if ! command -v Rscript >/dev/null 2>&1; then
+  echo "pre-commit: Rscript not found on PATH; skipping lintr" >&2
+  exit 0
+fi
+
+if ! Rscript -e 'if (!requireNamespace("lintr", quietly = TRUE)) quit(status = 1)' \
+    >/dev/null 2>&1; then
+  echo "pre-commit: lintr not installed; run install.packages('lintr') to enable" >&2
+  exit 0
+fi
+
+echo "pre-commit: running lintr::lint_package() ..."
+LINTR_ERROR_ON_LINT=true Rscript -e '
+  res <- lintr::lint_package()
+  if (length(res) > 0) {
+    print(res)
+    quit(status = 1)
+  }
+'
