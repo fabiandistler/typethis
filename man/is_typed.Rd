@@ -24,11 +24,13 @@ is_typed(g)
 \seealso{
 Other typed functions: 
 \code{\link{as_typed}()},
+\code{\link{as_typed_env}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{signature}},
 \code{\link{typed_function}()},
 \code{\link{typed_method}()},
+\code{\link{types}()},
 \code{\link{validate_call}()},
 \code{\link{with_signature}()}
 }

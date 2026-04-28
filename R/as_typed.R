@@ -205,7 +205,7 @@ infer_default_spec <- function(default) {
 # argument is left unchecked.
 merge_arg_specs <- function(base, inferred, overrides) {
   combined <- base
-  combined <- modifyList(combined, inferred, keep.null = FALSE)
+  combined <- utils::modifyList(combined, inferred, keep.null = FALSE)
 
   override_names <- names(overrides)
   null_names <- override_names[vapply(
@@ -215,6 +215,219 @@ merge_arg_specs <- function(base, inferred, overrides) {
   )]
   non_null <- overrides[setdiff(override_names, null_names)]
 
-  combined <- modifyList(combined, non_null, keep.null = FALSE)
+  combined <- utils::modifyList(combined, non_null, keep.null = FALSE)
   combined[setdiff(names(combined), null_names)]
+}
+
+#' Bulk-retrofit every function in an environment
+#'
+#' @description
+#' Walks `envir`, applies [as_typed()] to every function it finds, and
+#' reassigns the result back into `envir` in place. Useful for adding
+#' type checks across a script, a chunk of analysis code in
+#' [globalenv()], or a private environment held by a package.
+#'
+#' Per-function overrides flow through `.specs`, a named list of lists
+#' whose entries match the `as_typed()` argument shape (named arg specs
+#' plus optional `.return`/`.infer`/`.validate`/`.coerce`). Functions
+#' without a `.specs` entry are still retrofitted via inference (when
+#' `.infer = TRUE`) and the function-level defaults.
+#'
+#' Already-typed functions are re-wrapped through `as_typed()`'s
+#' idempotent merge path — no double-wrapping. Locked bindings (common
+#' for namespaces) are skipped; a single warning reports the count.
+#'
+#' @param envir An environment. Use [new.env()] or [globalenv()] for
+#'   ordinary cases; passing a namespace is supported but most
+#'   bindings will be locked.
+#' @param .specs Named list of per-function override lists. Each entry
+#'   has the same shape as `as_typed()`'s `...` plus the dotted
+#'   options. Names must correspond to functions in `envir`; unknown
+#'   names are an error.
+#' @param .infer,.validate,.coerce Function-level defaults forwarded
+#'   to [as_typed()]. Per-function entries in `.specs` win.
+#' @param .filter Optional `function(name, fn)` returning a single
+#'   logical; functions for which this returns `FALSE` are skipped.
+#' @return Invisibly, the character vector of names that were
+#'   retrofitted.
+#' @family typed functions
+#' @seealso [as_typed()] for the per-function form; [types()] for
+#'   the replacement-form accessor.
+#' @export
+#' @examples
+#' e <- new.env()
+#' e$add <- function(x = 0L, y = 0L) x + y
+#' e$greet <- function(name = "world") paste0("hi ", name)
+#' as_typed_env(e)
+#' is_typed(e$add)
+#' is_typed(e$greet)
+#'
+#' # Per-function overrides
+#' e2 <- new.env()
+#' e2$add <- function(x = 0L, y = 0L) x + y
+#' as_typed_env(e2, .specs = list(
+#'   add = list(x = "integer", y = "integer", .return = "integer")
+#' ))
+#'
+#' # Filter to a subset
+#' e3 <- new.env()
+#' e3$keep <- function(x = 1L) x
+#' e3$skip <- function(x = 1L) x
+#' as_typed_env(e3, .filter = function(name, fn) name == "keep")
+as_typed_env <- function(
+  envir,
+  .specs = list(),
+  .infer = TRUE,
+  .validate = TRUE,
+  .coerce = FALSE,
+  .filter = NULL
+) {
+  if (!is.environment(envir)) {
+    stop("envir must be an environment")
+  }
+  if (!is.list(.specs)) {
+    stop(".specs must be a named list of override lists")
+  }
+  if (length(.specs) > 0) {
+    spec_names <- names(.specs)
+    if (is.null(spec_names) || any(spec_names == "")) {
+      stop("All entries of .specs must be named")
+    }
+    not_lists <- !vapply(.specs, is.list, logical(1))
+    if (any(not_lists)) {
+      stop(sprintf(
+        "Entries of .specs must be lists; bad entries: %s",
+        paste(spec_names[not_lists], collapse = ", ")
+      ))
+    }
+  }
+  if (!is.null(.filter) && !is.function(.filter)) {
+    stop(".filter must be a function or NULL")
+  }
+
+  candidates <- ls(envir = envir, all.names = TRUE)
+  unknown <- setdiff(names(.specs), candidates)
+  if (length(unknown) > 0) {
+    stop(sprintf(
+      "Unknown name(s) in .specs: %s",
+      paste(unknown, collapse = ", ")
+    ))
+  }
+
+  modified <- character(0)
+  skipped_locked <- character(0)
+
+  for (nm in candidates) {
+    fn <- get(nm, envir = envir, inherits = FALSE)
+    if (!is.function(fn)) {
+      next
+    }
+    if (!is.null(.filter) && !isTRUE(.filter(nm, fn))) {
+      next
+    }
+    if (bindingIsLocked(nm, envir)) {
+      skipped_locked <- c(skipped_locked, nm)
+      next
+    }
+
+    overrides <- .specs[[nm]]
+    if (is.null(overrides)) {
+      overrides <- list()
+    }
+    call_args <- list(
+      fn = fn,
+      .infer = .infer,
+      .validate = .validate,
+      .coerce = .coerce
+    )
+    call_args <- utils::modifyList(call_args, overrides, keep.null = TRUE)
+
+    typed_fn <- do.call(as_typed, call_args)
+    assign(nm, typed_fn, envir = envir)
+    modified <- c(modified, nm)
+  }
+
+  if (length(skipped_locked) > 0) {
+    warning(sprintf(
+      "Skipped %d locked binding(s): %s",
+      length(skipped_locked),
+      paste(skipped_locked, collapse = ", ")
+    ))
+  }
+
+  invisible(modified)
+}
+
+#' Get or set the type specs of a function
+#'
+#' @description
+#' Symmetric replacement-form accessor over [as_typed()]. The setter
+#' delegates to `as_typed()`; the getter returns specs in the shape
+#' the setter accepts, so `types(f) <- types(g)` round-trips.
+#'
+#' * `types(f)` returns a list whose named entries are argument specs
+#'   and whose `.return` entry (if present) is the return spec.
+#'   Returns `list()` for an untyped function, so it is cheap to use
+#'   in `if (length(types(f))) ...` checks.
+#' * `types(f) <- value` retrofits `f` via `as_typed()`. `value` must
+#'   be a list — named arg specs plus any of `.return`, `.infer`,
+#'   `.validate`, `.coerce`.
+#' * `types(f) <- NULL` un-types `f` (returns the original inner
+#'   function) — the natural inverse.
+#'
+#' @param f A function.
+#' @param value A list of specs (or `NULL` to un-type).
+#' @return `types(f)` returns a list of specs. `types(f) <- value`
+#'   returns the modified function (assigned back to `f` by R).
+#' @family typed functions
+#' @seealso [as_typed()] for the underlying retrofit;
+#'   [as_typed_env()] for bulk retrofits.
+#' @export
+#' @examples
+#' add <- function(x = 0L, y = 0L) x + y
+#' types(add) <- list(x = "integer", y = "integer", .return = "integer")
+#' is_typed(add)
+#' types(add)
+#'
+#' # NULL un-types
+#' types(add) <- NULL
+#' is_typed(add)
+types <- function(f) {
+  if (!is.function(f)) {
+    stop("f must be a function")
+  }
+  if (!is_typed(f)) {
+    return(list())
+  }
+  sig <- get_signature(f)
+  out <- sig$args
+  if (is.null(out)) {
+    out <- list()
+  }
+  if (!is.null(sig$return)) {
+    out[[".return"]] <- sig$return
+  }
+  out
+}
+
+#' @rdname types
+#' @export
+`types<-` <- function(f, value) {
+  if (!is.function(f)) {
+    stop("f must be a function")
+  }
+  if (is.null(value)) {
+    if (!is_typed(f)) {
+      return(f)
+    }
+    inner <- environment(f)$fn
+    if (is.null(inner) || !is.function(inner)) {
+      return(f)
+    }
+    return(inner)
+  }
+  if (!is.list(value)) {
+    stop("value must be a list (or NULL)")
+  }
+  do.call(as_typed, c(list(f), value))
 }

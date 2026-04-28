@@ -36,11 +36,13 @@ translate(1, 2)
 \seealso{
 Other typed functions: 
 \code{\link{as_typed}()},
+\code{\link{as_typed_env}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},
 \code{\link{signature}},
 \code{\link{typed_function}()},
+\code{\link{types}()},
 \code{\link{validate_call}()},
 \code{\link{with_signature}()}
 }

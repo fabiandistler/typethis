@@ -114,6 +114,37 @@ Pass `name = NULL` to opt one argument out of validation, or
 `.infer = FALSE` to disable inference entirely. See `?as_typed` and
 `?infer_specs` for the full inference rules.
 
+For an existing typed function, `types()` is a symmetric replacement-form
+accessor over `as_typed()`:
+
+```{r}
+greet_clone <- function(name = "world", times = 1L) {
+  paste(rep(name, times), collapse = " ")
+}
+types(greet_clone) <- types(greet)
+is_typed(greet_clone)
+
+# NULL un-types
+types(greet_clone) <- NULL
+is_typed(greet_clone)
+```
+
+To retrofit a whole environment in one call, `as_typed_env()` walks the
+environment, applies `as_typed()` to every function it finds, and writes
+the typed versions back. Per-function overrides flow through `.specs`:
+
+```{r}
+e <- new.env()
+e$add <- function(x = 0L, y = 0L) x + y
+e$greet <- function(name = "world") paste0("hi ", name)
+
+as_typed_env(e, .specs = list(
+  add = list(.return = "integer")
+))
+is_typed(e$add)
+attr(e$add, "return_spec")
+```
+
 ## 3. Typed models
 
 Use `define_model()` to describe a record type — a configuration object,

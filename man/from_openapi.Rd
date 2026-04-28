@@ -35,11 +35,12 @@ if (requireNamespace("yaml", quietly = TRUE)) {
   ))
   tmp <- tempfile(fileext = ".yaml")
   write_openapi("User", tmp,
-    info = list(title = "Users API", version = "1.0.0"))
+    info = list(title = "Users API", version = "1.0.0")
+  )
 
   env <- new.env()
   from_openapi(tmp, envir = env)
-  ls(env)  # new_User, update_User
+  ls(env) # new_User, update_User
 }
 }
 \seealso{
