@@ -61,7 +61,8 @@ odcs_api_version <- "v3.0.2"
 #' ))
 #'
 #' contract <- to_datacontract("Order",
-#'   info = list(name = "orders", version = "1.0.0"))
+#'   info = list(name = "orders", version = "1.0.0")
+#' )
 #' str(contract, max.level = 2)
 to_datacontract <- function(x, info = NULL, servers = NULL, ...) {
   UseMethod("to_datacontract")
@@ -134,7 +135,8 @@ to_datacontract.list <- function(x, info = NULL, servers = NULL, ...) {
 #'   ))
 #'   tmp <- tempfile(fileext = ".yaml")
 #'   write_datacontract("Customer", tmp,
-#'     info = list(name = "customers", version = "1.0.0"))
+#'     info = list(name = "customers", version = "1.0.0")
+#'   )
 #'   readLines(tmp, n = 5)
 #' }
 write_datacontract <- function(x, path, info = NULL, servers = NULL, ...) {
@@ -194,11 +196,12 @@ read_datacontract <- function(path) {
 #'
 #'   tmp <- tempfile(fileext = ".yaml")
 #'   write_datacontract("Order", tmp,
-#'     info = list(name = "orders", version = "1.0.0"))
+#'     info = list(name = "orders", version = "1.0.0")
+#'   )
 #'
 #'   env <- new.env()
 #'   from_datacontract(tmp, envir = env)
-#'   ls(env)  # new_Order, update_Order
+#'   ls(env) # new_Order, update_Order
 #' }
 from_datacontract <- function(x, register = TRUE, envir = parent.frame()) {
   contract <- if (is.list(x)) x else read_datacontract(x)
@@ -524,8 +527,7 @@ type_to_odcs <- function(type, defs) {
 #' @keywords internal
 #' @noRd
 builtin_to_odcs <- function(name) {
-  switch(
-    name,
+  switch(name,
     "numeric" = list(logicalType = "number"),
     "double" = list(logicalType = "number"),
     "integer" = list(logicalType = "integer"),
@@ -566,8 +568,7 @@ builtin_to_odcs <- function(name) {
 #' @keywords internal
 #' @noRd
 type_spec_to_odcs <- function(spec, defs) {
-  switch(
-    spec$kind,
+  switch(spec$kind,
     "builtin" = builtin_to_odcs(spec$name),
     "predicate" = list(
       logicalType = "string",
@@ -596,8 +597,7 @@ union_to_odcs <- function(spec, defs) {
 #' @keywords internal
 #' @noRd
 enum_spec_to_odcs <- function(spec) {
-  type_str <- switch(
-    spec$value_type,
+  type_str <- switch(spec$value_type,
     "character" = "string",
     "integer" = "integer",
     "numeric" = "number",
@@ -646,8 +646,7 @@ list_of_to_odcs <- function(spec, defs) {
 #' @keywords internal
 #' @noRd
 constraint_to_odcs <- function(constraint) {
-  switch(
-    constraint$kind,
+  switch(constraint$kind,
     "numeric_range" = numeric_range_to_odcs(constraint),
     "string_length" = string_length_to_odcs(constraint),
     "string_pattern" = list(
@@ -858,8 +857,7 @@ odcs_to_type_spec_or_name <- function(prop, ctx) {
 #' @keywords internal
 #' @noRd
 builtin_from_logical <- function(logical_type) {
-  switch(
-    logical_type,
+  switch(logical_type,
     "string" = "character",
     "text" = "character",
     "integer" = "integer",

@@ -57,7 +57,8 @@ openapi_version <- "3.1.0"
 #'   name = field("character")
 #' ))
 #' doc <- to_openapi("User",
-#'   info = list(title = "Users API", version = "1.0.0"))
+#'   info = list(title = "Users API", version = "1.0.0")
+#' )
 #' names(doc)
 #' names(doc$components$schemas)
 to_openapi <- function(x, info = NULL, paths = NULL, ...) {
@@ -139,7 +140,8 @@ to_openapi.list <- function(x, info = NULL, paths = NULL, ...) {
 #'   ))
 #'   tmp <- tempfile(fileext = ".yaml")
 #'   write_openapi("User", tmp,
-#'     info = list(title = "Users API", version = "1.0.0"))
+#'     info = list(title = "Users API", version = "1.0.0")
+#'   )
 #'   readLines(tmp, n = 5)
 #' }
 write_openapi <- function(
@@ -221,11 +223,12 @@ read_openapi <- function(path) {
 #'   ))
 #'   tmp <- tempfile(fileext = ".yaml")
 #'   write_openapi("User", tmp,
-#'     info = list(title = "Users API", version = "1.0.0"))
+#'     info = list(title = "Users API", version = "1.0.0")
+#'   )
 #'
 #'   env <- new.env()
 #'   from_openapi(tmp, envir = env)
-#'   ls(env)  # new_User, update_User
+#'   ls(env) # new_User, update_User
 #' }
 from_openapi <- function(x, register = TRUE, envir = parent.frame()) {
   doc <- if (is.list(x)) x else read_openapi(x)
@@ -575,8 +578,7 @@ builtin_from_openapi_type <- function(type, format = NULL) {
     }
     return("character")
   }
-  switch(
-    type,
+  switch(type,
     "integer" = "integer",
     "number" = "numeric",
     "boolean" = "logical",

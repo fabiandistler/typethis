@@ -33,15 +33,18 @@
 #' @export
 #' @examples
 #' define_model("User", fields = list(
-#'   name  = field("character"),
-#'   age   = field("integer", validator = numeric_range(0, 120),
-#'                 default = 0L),
+#'   name = field("character"),
+#'   age = field("integer",
+#'     validator = numeric_range(0, 120),
+#'     default = 0L
+#'   ),
 #'   email = field("character",
-#'                 validator = string_pattern("^[^@]+@[^@]+$"))
+#'     validator = string_pattern("^[^@]+@[^@]+$")
+#'   )
 #' ))
 #'
 #' u <- new_User(name = "Ada", email = "ada@example.com")
-#' u$age   # default applied
+#' u$age # default applied
 #'
 #' u2 <- update_User(u, age = 36L)
 #' u2$age
@@ -477,8 +480,10 @@ validate_field_value <- function(
 #' field(t_union("integer", "character"))
 #' field(t_list_of("character"), default = list())
 #' field(t_enum(c("admin", "user")))
-#' field("character", primary_key = TRUE, pii = TRUE,
-#'       classification = "confidential")
+#' field("character",
+#'   primary_key = TRUE, pii = TRUE,
+#'   classification = "confidential"
+#' )
 field <- function(
   type,
   default = NULL,

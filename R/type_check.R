@@ -51,8 +51,7 @@ is_type <- function(value, type, nullable = FALSE) {
 
 #' @noRd
 check_builtin_type <- function(value, type) {
-  switch(
-    type,
+  switch(type,
     "numeric" = is.numeric(value),
     "integer" = is.integer(value),
     "double" = is.double(value),
@@ -214,8 +213,7 @@ coerce_type <- function(value, type, strict = FALSE) {
 
   tryCatch(
     {
-      result <- switch(
-        type,
+      result <- switch(type,
         "numeric" = as.numeric(value),
         "integer" = as.integer(value),
         "double" = as.double(value),
@@ -257,8 +255,7 @@ coerce_type <- function(value, type, strict = FALSE) {
 #' @keywords internal
 #' @noRd
 coerce_type_spec <- function(value, spec, strict) {
-  switch(
-    spec$kind,
+  switch(spec$kind,
     "builtin" = coerce_type(value, spec$name, strict = strict),
     "nullable" = if (is.null(value)) {
       NULL

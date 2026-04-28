@@ -126,8 +126,7 @@ attach_defs <- function(schema, defs) {
 #' @keywords internal
 #' @noRd
 builtin_to_json_schema <- function(name) {
-  switch(
-    name,
+  switch(name,
     "numeric" = list(type = "number"),
     "double" = list(type = "number"),
     "integer" = list(type = "integer"),
@@ -159,8 +158,7 @@ builtin_to_json_schema <- function(name) {
 #' @keywords internal
 #' @noRd
 type_spec_to_json_schema <- function(spec, defs) {
-  switch(
-    spec$kind,
+  switch(spec$kind,
     "builtin" = builtin_to_json_schema(spec$name),
     "predicate" = list(
       `x-typethis-kind` = "predicate",
@@ -194,8 +192,7 @@ nullable_to_json_schema <- function(inner_spec, defs) {
 #' @keywords internal
 #' @noRd
 enum_to_json_schema <- function(spec) {
-  type_str <- switch(
-    spec$value_type,
+  type_str <- switch(spec$value_type,
     "character" = "string",
     "integer" = "integer",
     "numeric" = "number",
@@ -267,8 +264,7 @@ register_model_def <- function(class_name, defs) {
 #' @keywords internal
 #' @noRd
 constraint_to_json_schema <- function(constraint) {
-  switch(
-    constraint$kind,
+  switch(constraint$kind,
     "numeric_range" = numeric_range_constraint(constraint),
     "string_length" = string_length_constraint(constraint),
     "string_pattern" = list(

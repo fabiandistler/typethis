@@ -61,7 +61,7 @@ coerce_type(c(1, 0, 1), "logical")
 ```{r}
 greet <- typed_function(
   function(name, times = 1L) paste(rep(name, times), collapse = " "),
-  arg_specs   = list(name = "character", times = "integer"),
+  arg_specs = list(name = "character", times = "integer"),
   return_spec = "character"
 )
 
@@ -122,11 +122,14 @@ constructor and an `update_<Class>()` updater in the calling environment.
 
 ```{r}
 define_model("User", fields = list(
-  name  = field("character"),
-  age   = field("integer", validator = numeric_range(0, 120),
-                default = 0L),
+  name = field("character"),
+  age = field("integer",
+    validator = numeric_range(0, 120),
+    default = 0L
+  ),
   email = field("character",
-                validator = string_pattern("^[^@]+@[^@]+\\.[^@]+$"))
+    validator = string_pattern("^[^@]+@[^@]+\\.[^@]+$")
+  )
 ))
 
 ada <- new_User(name = "Ada Lovelace", email = "ada@example.com")
