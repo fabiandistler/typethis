@@ -54,7 +54,8 @@ if (requireNamespace("yaml", quietly = TRUE)) {
   ))
   tmp <- tempfile(fileext = ".yaml")
   write_openapi("User", tmp,
-    info = list(title = "Users API", version = "1.0.0"))
+    info = list(title = "Users API", version = "1.0.0")
+  )
   readLines(tmp, n = 5)
 }
 #> [1] "openapi: 3.1.0"     "info:"              "  title: Users API"

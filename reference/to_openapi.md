@@ -67,7 +67,8 @@ define_model("User", fields = list(
   name = field("character")
 ))
 doc <- to_openapi("User",
-  info = list(title = "Users API", version = "1.0.0"))
+  info = list(title = "Users API", version = "1.0.0")
+)
 names(doc)
 #> [1] "openapi"    "info"       "components"
 names(doc$components$schemas)

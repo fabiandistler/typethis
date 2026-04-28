@@ -176,8 +176,8 @@ field("integer", validator = numeric_range(0, 120))
 #>     else all(value <= max)
 #>     min_ok && max_ok
 #> }
-#> <bytecode: 0x555eddf7e700>
-#> <environment: 0x555ee0187b08>
+#> <bytecode: 0x5562ae5d16f0>
+#> <environment: 0x5562ad7bdcb8>
 #> attr(,"constraint")
 #> attr(,"constraint")$kind
 #> [1] "numeric_range"
@@ -345,8 +345,10 @@ field(t_enum(c("admin", "user")))
 #> $quality
 #> NULL
 #> 
-field("character", primary_key = TRUE, pii = TRUE,
-      classification = "confidential")
+field("character",
+  primary_key = TRUE, pii = TRUE,
+  classification = "confidential"
+)
 #> $type
 #> [1] "character"
 #> 

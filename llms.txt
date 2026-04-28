@@ -155,6 +155,9 @@ MIT — see [`LICENSE`](LICENSE).
 - [`as_typed()`](as_typed.md) : Retrofit type stability onto an existing
   function
 
+- [`as_typed_env()`](as_typed_env.md) : Bulk-retrofit every function in
+  an environment
+
 - [`assert_type()`](assert_type.md) : Assert that a value has an
   expected type
 
@@ -287,6 +290,9 @@ MIT — see [`LICENSE`](LICENSE).
   input/output type checks
 
 - [`typed_method()`](typed_method.md) : Build a typed-method decorator
+
+- [`types()`](types.md) [`` `types<-`() ``](types.md) : Get or set the
+  type specs of a function
 
 - [`update_model()`](update_model.md) : Update fields on a typed model
   instance

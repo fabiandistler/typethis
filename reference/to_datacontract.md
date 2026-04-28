@@ -64,7 +64,8 @@ define_model("Order", fields = list(
 ))
 
 contract <- to_datacontract("Order",
-  info = list(name = "orders", version = "1.0.0"))
+  info = list(name = "orders", version = "1.0.0")
+)
 str(contract, max.level = 2)
 #> List of 7
 #>  $ apiVersion: chr "v3.0.2"

@@ -52,7 +52,8 @@ if (requireNamespace("yaml", quietly = TRUE)) {
   ))
   tmp <- tempfile(fileext = ".yaml")
   write_datacontract("Customer", tmp,
-    info = list(name = "customers", version = "1.0.0"))
+    info = list(name = "customers", version = "1.0.0")
+  )
   readLines(tmp, n = 5)
 }
 #> [1] "apiVersion: v3.0.2" "kind: DataContract" "id: Customer"      

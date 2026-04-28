@@ -23,9 +23,10 @@ Named list with `args`, `return`, and `formals`, or `NULL`.
 ## See also
 
 Other typed functions: [`as_typed()`](as_typed.md),
-[`infer_specs()`](infer_specs.md), [`is_typed()`](is_typed.md),
-[`signature`](signature.md), [`typed_function()`](typed_function.md),
-[`typed_method()`](typed_method.md),
+[`as_typed_env()`](as_typed_env.md), [`infer_specs()`](infer_specs.md),
+[`is_typed()`](is_typed.md), [`signature`](signature.md),
+[`typed_function()`](typed_function.md),
+[`typed_method()`](typed_method.md), [`types()`](types.md),
 [`validate_call()`](validate_call.md),
 [`with_signature()`](with_signature.md)
 

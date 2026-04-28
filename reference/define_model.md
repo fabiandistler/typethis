@@ -68,15 +68,18 @@ Other typed models: [`field()`](field.md),
 
 ``` r
 define_model("User", fields = list(
-  name  = field("character"),
-  age   = field("integer", validator = numeric_range(0, 120),
-                default = 0L),
+  name = field("character"),
+  age = field("integer",
+    validator = numeric_range(0, 120),
+    default = 0L
+  ),
   email = field("character",
-                validator = string_pattern("^[^@]+@[^@]+$"))
+    validator = string_pattern("^[^@]+@[^@]+$")
+  )
 ))
 
 u <- new_User(name = "Ada", email = "ada@example.com")
-u$age   # default applied
+u$age # default applied
 #> [1] 0
 
 u2 <- update_User(u, age = 36L)

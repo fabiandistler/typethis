@@ -13,6 +13,7 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/as_typed.html</loc></url>
+<url><loc>/reference/as_typed_env.html</loc></url>
 <url><loc>/reference/assert_type.html</loc></url>
 <url><loc>/reference/coerce_type.html</loc></url>
 <url><loc>/reference/combine_validators.html</loc></url>
@@ -61,6 +62,7 @@
 <url><loc>/reference/type_spec.html</loc></url>
 <url><loc>/reference/typed_function.html</loc></url>
 <url><loc>/reference/typed_method.html</loc></url>
+<url><loc>/reference/types.html</loc></url>
 <url><loc>/reference/typethis-package.html</loc></url>
 <url><loc>/reference/update_model.html</loc></url>
 <url><loc>/reference/validate_call.html</loc></url>

@@ -70,10 +70,11 @@ for a separate-then-attach workflow;
 introspection.
 
 Other typed functions: [`as_typed()`](as_typed.md),
+[`as_typed_env()`](as_typed_env.md),
 [`get_signature()`](get_signature.md),
 [`infer_specs()`](infer_specs.md), [`is_typed()`](is_typed.md),
 [`signature`](signature.md), [`typed_method()`](typed_method.md),
-[`validate_call()`](validate_call.md),
+[`types()`](types.md), [`validate_call()`](validate_call.md),
 [`with_signature()`](with_signature.md)
 
 ## Examples

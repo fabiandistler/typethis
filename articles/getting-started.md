@@ -128,6 +128,44 @@ Pass `name = NULL` to opt one argument out of validation, or
 [`?infer_specs`](../reference/infer_specs.md) for the full inference
 rules.
 
+For an existing typed function, [`types()`](../reference/types.md) is a
+symmetric replacement-form accessor over
+[`as_typed()`](../reference/as_typed.md):
+
+``` r
+greet_clone <- function(name = "world", times = 1L) {
+  paste(rep(name, times), collapse = " ")
+}
+types(greet_clone) <- types(greet)
+is_typed(greet_clone)
+#> [1] TRUE
+
+# NULL un-types
+types(greet_clone) <- NULL
+is_typed(greet_clone)
+#> [1] FALSE
+```
+
+To retrofit a whole environment in one call,
+[`as_typed_env()`](../reference/as_typed_env.md) walks the environment,
+applies [`as_typed()`](../reference/as_typed.md) to every function it
+finds, and writes the typed versions back. Per-function overrides flow
+through `.specs`:
+
+``` r
+e <- new.env()
+e$add <- function(x = 0L, y = 0L) x + y
+e$greet <- function(name = "world") paste0("hi ", name)
+
+as_typed_env(e, .specs = list(
+  add = list(.return = "integer")
+))
+is_typed(e$add)
+#> [1] TRUE
+attr(e$add, "return_spec")
+#> [1] "integer"
+```
+
 ## 3. Typed models
 
 Use [`define_model()`](../reference/define_model.md) to describe a
