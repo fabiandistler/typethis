@@ -414,8 +414,8 @@ as_typed_env <- function(
 #' ns$add <- function(x = 0L, y = 0L) x + y
 #' ns$.onLoad <- function(libname, pkgname) NULL
 #' enable_for_package(ns)
-#' is_typed(ns$add)        # TRUE  -- inferred from defaults
-#' is_typed(ns$.onLoad)    # FALSE -- hook skipped
+#' is_typed(ns$add) # TRUE  -- inferred from defaults
+#' is_typed(ns$.onLoad) # FALSE -- hook skipped
 #'
 #' # Override one function while the rest are inferred
 #' ns2 <- new.env()
