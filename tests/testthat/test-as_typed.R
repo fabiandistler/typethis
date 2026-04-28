@@ -1,4 +1,4 @@
-test_that("infer_specs infers integer/double/character/logical from literal defaults", {
+test_that("infer_specs infers atomic types from literal defaults", {
   f <- function(i = 1L, d = 1.5, s = "a", b = TRUE) NULL
   expect_equal(
     infer_specs(f),
