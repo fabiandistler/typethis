@@ -28,10 +28,13 @@ add(2, 3)
 Other typed functions: 
 \code{\link{as_typed}()},
 \code{\link{as_typed_env}()},
+\code{\link{as_typed_from_roxygen}()},
+\code{\link{default_type_vocabulary}()},
 \code{\link{enable_for_package}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},
+\code{\link{parse_param_type}()},
 \code{\link{typed_function}()},
 \code{\link{typed_method}()},
 \code{\link{types}()},
