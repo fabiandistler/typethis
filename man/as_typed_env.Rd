@@ -10,7 +10,8 @@ as_typed_env(
   .infer = TRUE,
   .validate = TRUE,
   .coerce = FALSE,
-  .filter = NULL
+  .filter = NULL,
+  .unlock = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,12 @@ to \code{\link[=as_typed]{as_typed()}}. Per-function entries in \code{.specs} wi
 
 \item{.filter}{Optional \verb{function(name, fn)} returning a single
 logical; functions for which this returns \code{FALSE} are skipped.}
+
+\item{.unlock}{If \code{TRUE}, locked bindings are temporarily unlocked,
+reassigned to their typed wrapper, and re-locked. Defaults to
+\code{FALSE}, in which case locked bindings are skipped with a
+warning. Re-locking is guaranteed by \code{on.exit} even if a wrap
+step errors.}
 }
 \value{
 Invisibly, the character vector of names that were
@@ -47,7 +54,10 @@ without a \code{.specs} entry are still retrofitted via inference (when
 
 Already-typed functions are re-wrapped through \code{as_typed()}'s
 idempotent merge path — no double-wrapping. Locked bindings (common
-for namespaces) are skipped; a single warning reports the count.
+for namespaces) are skipped by default; a single warning reports the
+count. Pass \code{.unlock = TRUE} to unlock-modify-relock each binding in
+place — this is what \code{\link[=enable_typed_namespace]{enable_typed_namespace()}} uses to retrofit
+bindings \emph{after} a namespace has been locked.
 }
 \examples{
 e <- new.env()
@@ -69,16 +79,26 @@ e3 <- new.env()
 e3$keep <- function(x = 1L) x
 e3$skip <- function(x = 1L) x
 as_typed_env(e3, .filter = function(name, fn) name == "keep")
+
+# Unlock-and-modify locked bindings (e.g. after a namespace lock)
+e4 <- new.env()
+e4$add <- function(x = 0L) x
+lockBinding("add", e4)
+as_typed_env(e4, .unlock = TRUE)
+is_typed(e4$add)
 }
 \seealso{
 \code{\link[=as_typed]{as_typed()}} for the per-function form; \code{\link[=types]{types()}} for
-the replacement-form accessor.
+the replacement-form accessor; \code{\link[=enable_typed_namespace]{enable_typed_namespace()}} for
+the \code{setHook}-based whole-package wrapper.
 
 Other typed functions: 
 \code{\link{as_typed}()},
 \code{\link{as_typed_from_roxygen}()},
 \code{\link{default_type_vocabulary}()},
+\code{\link{disable_typed_namespace}()},
 \code{\link{enable_for_package}()},
+\code{\link{enable_typed_namespace}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},

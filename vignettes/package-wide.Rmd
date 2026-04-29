@@ -210,6 +210,46 @@ my_vocab <- c(
 as_typed_from_roxygen("mypkg", .vocabulary = my_vocab)
 ```
 
+## Type-checking a package you do not own
+
+The two patterns above edit the target package — fine when it is
+yours, awkward when it is a dependency. `enable_typed_namespace()`
+takes the third route: register a `setHook(packageEvent(..., "onLoad"))`
+handler from outside the target, so the next `library()` call wraps
+the package's bindings without ever touching its source.
+
+```r
+typethis::enable_typed_namespace("dplyr")
+library(dplyr)   # bindings are typed once loaded
+```
+
+Because the hook fires *after* R locks the namespace, retrofit goes
+through an unlock-modify-relock dance (`as_typed_env(.unlock = TRUE)`).
+Re-locking is guaranteed by `on.exit` even if a wrap step errors, so
+the namespace cannot end up half-unlocked.
+
+If the package is already loaded when you call
+`enable_typed_namespace()`, the retrofit also runs immediately on
+the live namespace.
+
+To stop retrofitting a package on future loads — and revert the
+typed wrappers on the currently loaded copy — call
+`disable_typed_namespace()`:
+
+```r
+typethis::disable_typed_namespace("dplyr")
+```
+
+Foreign hooks on the same `packageEvent` are left intact: only
+hooks tagged by typethis are removed.
+
+This pattern is meant for development, debugging, and exploratory
+work. **Do not ship code that calls `enable_typed_namespace()` on
+another package's namespace** — modifying namespaces you do not own
+is a developer convenience, not a CRAN-acceptable production
+pattern. For production use, use `enable_for_package()` from inside
+your own `.onLoad`.
+
 ## Trade-offs
 
 * **Coverage scales with how much you've used defaults.** With
@@ -240,5 +280,9 @@ as_typed_from_roxygen("mypkg", .vocabulary = my_vocab)
   of prose `@param`/`@return` documentation.
 * [`parse_param_type()`][parse_param_type] — inspect what would be
   derived from a single description string.
+* [`enable_typed_namespace()`][enable_typed_namespace] — retrofit a
+  package you do not own via `setHook(packageEvent(...))`.
+* [`disable_typed_namespace()`][disable_typed_namespace] — revert
+  and unregister.
 * [`typed_function()`][typed_function] — write a typed function from
   scratch instead of retrofitting.

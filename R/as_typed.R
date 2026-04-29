@@ -235,7 +235,10 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #'
 #' Already-typed functions are re-wrapped through `as_typed()`'s
 #' idempotent merge path — no double-wrapping. Locked bindings (common
-#' for namespaces) are skipped; a single warning reports the count.
+#' for namespaces) are skipped by default; a single warning reports the
+#' count. Pass `.unlock = TRUE` to unlock-modify-relock each binding in
+#' place — this is what [enable_typed_namespace()] uses to retrofit
+#' bindings *after* a namespace has been locked.
 #'
 #' @param envir An environment. Use [new.env()] or [globalenv()] for
 #'   ordinary cases; passing a namespace is supported but most
@@ -248,11 +251,17 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #'   to [as_typed()]. Per-function entries in `.specs` win.
 #' @param .filter Optional `function(name, fn)` returning a single
 #'   logical; functions for which this returns `FALSE` are skipped.
+#' @param .unlock If `TRUE`, locked bindings are temporarily unlocked,
+#'   reassigned to their typed wrapper, and re-locked. Defaults to
+#'   `FALSE`, in which case locked bindings are skipped with a
+#'   warning. Re-locking is guaranteed by `on.exit` even if a wrap
+#'   step errors.
 #' @return Invisibly, the character vector of names that were
 #'   retrofitted.
 #' @family typed functions
 #' @seealso [as_typed()] for the per-function form; [types()] for
-#'   the replacement-form accessor.
+#'   the replacement-form accessor; [enable_typed_namespace()] for
+#'   the `setHook`-based whole-package wrapper.
 #' @export
 #' @examples
 #' e <- new.env()
@@ -274,13 +283,21 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #' e3$keep <- function(x = 1L) x
 #' e3$skip <- function(x = 1L) x
 #' as_typed_env(e3, .filter = function(name, fn) name == "keep")
+#'
+#' # Unlock-and-modify locked bindings (e.g. after a namespace lock)
+#' e4 <- new.env()
+#' e4$add <- function(x = 0L) x
+#' lockBinding("add", e4)
+#' as_typed_env(e4, .unlock = TRUE)
+#' is_typed(e4$add)
 as_typed_env <- function(
   envir,
   .specs = list(),
   .infer = TRUE,
   .validate = TRUE,
   .coerce = FALSE,
-  .filter = NULL
+  .filter = NULL,
+  .unlock = FALSE
 ) {
   if (!is.environment(envir)) {
     stop("envir must be an environment")
@@ -316,6 +333,18 @@ as_typed_env <- function(
 
   modified <- character(0)
   skipped_locked <- character(0)
+  unlocked_during_loop <- character(0)
+
+  on.exit(
+    {
+      for (nm in unlocked_during_loop) {
+        if (exists(nm, envir = envir, inherits = FALSE)) {
+          lockBinding(nm, envir)
+        }
+      }
+    },
+    add = TRUE
+  )
 
   for (nm in candidates) {
     fn <- get(nm, envir = envir, inherits = FALSE)
@@ -326,8 +355,12 @@ as_typed_env <- function(
       next
     }
     if (bindingIsLocked(nm, envir)) {
-      skipped_locked <- c(skipped_locked, nm)
-      next
+      if (!isTRUE(.unlock)) {
+        skipped_locked <- c(skipped_locked, nm)
+        next
+      }
+      unlockBinding(nm, envir)
+      unlocked_during_loop <- c(unlocked_during_loop, nm)
     }
 
     overrides <- .specs[[nm]]
@@ -397,11 +430,16 @@ as_typed_env <- function(
 #' @param .filter Optional `function(name, fn)` returning a single
 #'   logical. Applied *after* the built-in skip list, so this can only
 #'   reduce what is retrofitted.
+#' @param .unlock If `TRUE`, locked bindings are temporarily unlocked
+#'   and re-locked instead of skipped. Used by [enable_typed_namespace()]
+#'   when retrofitting after the namespace has been locked by R.
 #' @return Invisibly, the character vector of names that were
 #'   retrofitted.
 #' @family typed functions
 #' @seealso [as_typed_env()] for the underlying engine; [as_typed()]
-#'   for per-function retrofits; [infer_specs()] for inference rules.
+#'   for per-function retrofits; [infer_specs()] for inference rules;
+#'   [enable_typed_namespace()] for the `setHook`-driven variant that
+#'   does not require editing the target package.
 #' @export
 #' @examples
 #' # Inside R/zzz.R of your own package:
@@ -430,7 +468,8 @@ enable_for_package <- function(
   .infer = TRUE,
   .validate = TRUE,
   .coerce = FALSE,
-  .filter = NULL
+  .filter = NULL,
+  .unlock = FALSE
 ) {
   if (is.environment(pkgname)) {
     ns <- pkgname
@@ -469,7 +508,8 @@ enable_for_package <- function(
     .infer = .infer,
     .validate = .validate,
     .coerce = .coerce,
-    .filter = combined_filter
+    .filter = combined_filter,
+    .unlock = .unlock
   )
 }
 

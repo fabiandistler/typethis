@@ -10,7 +10,8 @@ enable_for_package(
   .infer = TRUE,
   .validate = TRUE,
   .coerce = FALSE,
-  .filter = NULL
+  .filter = NULL,
+  .unlock = FALSE
 )
 }
 \arguments{
@@ -24,6 +25,10 @@ Per-function entries in \code{.specs} win over inference.}
 \item{.filter}{Optional \verb{function(name, fn)} returning a single
 logical. Applied \emph{after} the built-in skip list, so this can only
 reduce what is retrofitted.}
+
+\item{.unlock}{If \code{TRUE}, locked bindings are temporarily unlocked
+and re-locked instead of skipped. Used by \code{\link[=enable_typed_namespace]{enable_typed_namespace()}}
+when retrofitting after the namespace has been locked by R.}
 }
 \value{
 Invisibly, the character vector of names that were
@@ -81,13 +86,17 @@ enable_for_package(ns2, .specs = list(
 }
 \seealso{
 \code{\link[=as_typed_env]{as_typed_env()}} for the underlying engine; \code{\link[=as_typed]{as_typed()}}
-for per-function retrofits; \code{\link[=infer_specs]{infer_specs()}} for inference rules.
+for per-function retrofits; \code{\link[=infer_specs]{infer_specs()}} for inference rules;
+\code{\link[=enable_typed_namespace]{enable_typed_namespace()}} for the \code{setHook}-driven variant that
+does not require editing the target package.
 
 Other typed functions: 
 \code{\link{as_typed}()},
 \code{\link{as_typed_env}()},
 \code{\link{as_typed_from_roxygen}()},
 \code{\link{default_type_vocabulary}()},
+\code{\link{disable_typed_namespace}()},
+\code{\link{enable_typed_namespace}()},
 \code{\link{get_signature}()},
 \code{\link{infer_specs}()},
 \code{\link{is_typed}()},
