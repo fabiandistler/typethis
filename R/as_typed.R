@@ -235,7 +235,10 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #'
 #' Already-typed functions are re-wrapped through `as_typed()`'s
 #' idempotent merge path — no double-wrapping. Locked bindings (common
-#' for namespaces) are skipped; a single warning reports the count.
+#' for namespaces) are skipped by default; a single warning reports the
+#' count. Pass `.unlock = TRUE` to unlock-modify-relock each binding in
+#' place — this is what [enable_typed_namespace()] uses to retrofit
+#' bindings *after* a namespace has been locked.
 #'
 #' @param envir An environment. Use [new.env()] or [globalenv()] for
 #'   ordinary cases; passing a namespace is supported but most
@@ -248,11 +251,17 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #'   to [as_typed()]. Per-function entries in `.specs` win.
 #' @param .filter Optional `function(name, fn)` returning a single
 #'   logical; functions for which this returns `FALSE` are skipped.
+#' @param .unlock If `TRUE`, locked bindings are temporarily unlocked,
+#'   reassigned to their typed wrapper, and re-locked. Defaults to
+#'   `FALSE`, in which case locked bindings are skipped with a
+#'   warning. Re-locking is guaranteed by `on.exit` even if a wrap
+#'   step errors.
 #' @return Invisibly, the character vector of names that were
 #'   retrofitted.
 #' @family typed functions
 #' @seealso [as_typed()] for the per-function form; [types()] for
-#'   the replacement-form accessor.
+#'   the replacement-form accessor; [enable_typed_namespace()] for
+#'   the `setHook`-based whole-package wrapper.
 #' @export
 #' @examples
 #' e <- new.env()
@@ -274,13 +283,21 @@ merge_arg_specs <- function(base, inferred, overrides) {
 #' e3$keep <- function(x = 1L) x
 #' e3$skip <- function(x = 1L) x
 #' as_typed_env(e3, .filter = function(name, fn) name == "keep")
+#'
+#' # Unlock-and-modify locked bindings (e.g. after a namespace lock)
+#' e4 <- new.env()
+#' e4$add <- function(x = 0L) x
+#' lockBinding("add", e4)
+#' as_typed_env(e4, .unlock = TRUE)
+#' is_typed(e4$add)
 as_typed_env <- function(
   envir,
   .specs = list(),
   .infer = TRUE,
   .validate = TRUE,
   .coerce = FALSE,
-  .filter = NULL
+  .filter = NULL,
+  .unlock = FALSE
 ) {
   if (!is.environment(envir)) {
     stop("envir must be an environment")
@@ -316,6 +333,18 @@ as_typed_env <- function(
 
   modified <- character(0)
   skipped_locked <- character(0)
+  unlocked_during_loop <- character(0)
+
+  on.exit(
+    {
+      for (nm in unlocked_during_loop) {
+        if (exists(nm, envir = envir, inherits = FALSE)) {
+          lockBinding(nm, envir)
+        }
+      }
+    },
+    add = TRUE
+  )
 
   for (nm in candidates) {
     fn <- get(nm, envir = envir, inherits = FALSE)
@@ -326,8 +355,12 @@ as_typed_env <- function(
       next
     }
     if (bindingIsLocked(nm, envir)) {
-      skipped_locked <- c(skipped_locked, nm)
-      next
+      if (!isTRUE(.unlock)) {
+        skipped_locked <- c(skipped_locked, nm)
+        next
+      }
+      unlockBinding(nm, envir)
+      unlocked_during_loop <- c(unlocked_during_loop, nm)
     }
 
     overrides <- .specs[[nm]]
@@ -357,6 +390,140 @@ as_typed_env <- function(
 
   invisible(modified)
 }
+
+#' Enable type checking for an entire package
+#'
+#' @description
+#' Convenience wrapper for switching on typethis across every function in a
+#' package namespace, with a single call from the package's `.onLoad()` hook.
+#' Inside `.onLoad()` the namespace bindings are not yet locked, so each
+#' function can be replaced in place with its typed wrapper.
+#'
+#' Add `R/zzz.R` to your package containing:
+#'
+#' ```r
+#' .onLoad <- function(libname, pkgname) {
+#'   typethis::enable_for_package(pkgname)
+#' }
+#' ```
+#'
+#' That single line walks the namespace, infers type specs from each
+#' function's literal atomic defaults (see [infer_specs()]), and replaces
+#' every binding with a typed wrapper. Functions whose defaults cannot be
+#' inferred are left untyped unless you add an explicit override via
+#' `.specs`.
+#'
+#' Standard package hook functions (`.onLoad`, `.onAttach`, `.onUnload`,
+#' `.onDetach`, `.Last.lib`, `.First.lib`) and primitives are skipped
+#' automatically. A user-supplied `.filter` runs *after* the default skip
+#' list — it can narrow the set of retrofitted functions, not widen it.
+#'
+#' Calling `enable_for_package()` from outside `.onLoad()` is safe but
+#' usually redundant: the namespace is locked by then and most bindings
+#' will be skipped with a single warning reporting the count.
+#'
+#' @param pkgname The package name (string), or directly an environment
+#'   to retrofit. Inside `.onLoad()` use the `pkgname` argument R passes
+#'   to your hook. Passing an environment is mainly useful for tests.
+#' @param .specs,.infer,.validate,.coerce Forwarded to [as_typed_env()].
+#'   Per-function entries in `.specs` win over inference.
+#' @param .filter Optional `function(name, fn)` returning a single
+#'   logical. Applied *after* the built-in skip list, so this can only
+#'   reduce what is retrofitted.
+#' @param .unlock If `TRUE`, locked bindings are temporarily unlocked
+#'   and re-locked instead of skipped. Used by [enable_typed_namespace()]
+#'   when retrofitting after the namespace has been locked by R.
+#' @return Invisibly, the character vector of names that were
+#'   retrofitted.
+#' @family typed functions
+#' @seealso [as_typed_env()] for the underlying engine; [as_typed()]
+#'   for per-function retrofits; [infer_specs()] for inference rules;
+#'   [enable_typed_namespace()] for the `setHook`-driven variant that
+#'   does not require editing the target package.
+#' @export
+#' @examples
+#' # Inside R/zzz.R of your own package:
+#' # .onLoad <- function(libname, pkgname) {
+#' #   typethis::enable_for_package(pkgname)
+#' # }
+#'
+#' # Demonstration on an ordinary environment shaped like a namespace:
+#' ns <- new.env()
+#' ns$add <- function(x = 0L, y = 0L) x + y
+#' ns$.onLoad <- function(libname, pkgname) NULL
+#' enable_for_package(ns)
+#' is_typed(ns$add) # TRUE  -- inferred from defaults
+#' is_typed(ns$.onLoad) # FALSE -- hook skipped
+#'
+#' # Override one function while the rest are inferred
+#' ns2 <- new.env()
+#' ns2$add <- function(x = 0L, y = 0L) x + y
+#' ns2$greet <- function(name = "world") paste0("hi ", name)
+#' enable_for_package(ns2, .specs = list(
+#'   add = list(.return = "integer")
+#' ))
+enable_for_package <- function(
+  pkgname,
+  .specs = list(),
+  .infer = TRUE,
+  .validate = TRUE,
+  .coerce = FALSE,
+  .filter = NULL,
+  .unlock = FALSE
+) {
+  if (is.environment(pkgname)) {
+    ns <- pkgname
+  } else if (
+    is.character(pkgname) &&
+      length(pkgname) == 1L &&
+      !is.na(pkgname) &&
+      nzchar(pkgname)
+  ) {
+    ns <- asNamespace(pkgname)
+  } else {
+    stop("pkgname must be a single non-empty string (or an environment)")
+  }
+
+  if (!is.null(.filter) && !is.function(.filter)) {
+    stop(".filter must be a function or NULL")
+  }
+
+  user_filter <- .filter
+  combined_filter <- function(name, fn) {
+    if (is.primitive(fn)) {
+      return(FALSE)
+    }
+    if (name %in% package_hook_names) {
+      return(FALSE)
+    }
+    if (is.null(user_filter)) {
+      return(TRUE)
+    }
+    isTRUE(user_filter(name, fn))
+  }
+
+  as_typed_env(
+    envir = ns,
+    .specs = .specs,
+    .infer = .infer,
+    .validate = .validate,
+    .coerce = .coerce,
+    .filter = combined_filter,
+    .unlock = .unlock
+  )
+}
+
+# R hook function names skipped by enable_for_package() so they remain
+# callable by R's namespace machinery rather than being wrapped in a
+# typed shell that would change their argument-checking behaviour.
+package_hook_names <- c(
+  ".onLoad",
+  ".onAttach",
+  ".onUnload",
+  ".onDetach",
+  ".Last.lib",
+  ".First.lib"
+)
 
 #' Get or set the type specs of a function
 #'

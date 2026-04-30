@@ -311,6 +311,178 @@ test_that("as_typed_env errors on non-function .filter", {
   expect_error(as_typed_env(e, .filter = "no"), "must be a function")
 })
 
+test_that("enable_for_package retrofits all functions in an env namespace", {
+  e <- new.env()
+  e$add <- function(x = 0L, y = 0L) x + y
+  e$greet <- function(name = "world") paste0("hi ", name)
+
+  modified <- enable_for_package(e)
+
+  expect_setequal(modified, c("add", "greet"))
+  expect_true(is_typed(e$add))
+  expect_true(is_typed(e$greet))
+  expect_equal(
+    attr(e$add, "arg_specs"),
+    list(x = "integer", y = "integer")
+  )
+})
+
+test_that("enable_for_package skips package hook functions by default", {
+  e <- new.env()
+  e$add <- function(x = 0L) x
+  e$.onLoad <- function(libname, pkgname) NULL
+  e$.onAttach <- function(libname, pkgname) NULL
+  e$.onUnload <- function(libpath) NULL
+  e$.onDetach <- function(libpath) NULL
+  e$.Last.lib <- function(libpath) NULL
+  e$.First.lib <- function(libname, pkgname) NULL
+
+  modified <- enable_for_package(e)
+
+  expect_equal(modified, "add")
+  expect_true(is_typed(e$add))
+  expect_false(is_typed(e$.onLoad))
+  expect_false(is_typed(e$.onAttach))
+  expect_false(is_typed(e$.onUnload))
+  expect_false(is_typed(e$.onDetach))
+  expect_false(is_typed(e$.Last.lib))
+  expect_false(is_typed(e$.First.lib))
+})
+
+test_that("enable_for_package skips primitives", {
+  e <- new.env()
+  e$myadd <- function(x = 0L) x
+  e$prim <- sum
+
+  modified <- enable_for_package(e)
+
+  expect_equal(modified, "myadd")
+  expect_true(is_typed(e$myadd))
+  expect_identical(e$prim, sum)
+})
+
+test_that("enable_for_package narrows further with user .filter", {
+  e <- new.env()
+  e$keep <- function(x = 1L) x
+  e$skip <- function(x = 1L) x
+
+  modified <- enable_for_package(
+    e,
+    .filter = function(name, fn) name == "keep"
+  )
+
+  expect_equal(modified, "keep")
+  expect_true(is_typed(e$keep))
+  expect_false(is_typed(e$skip))
+})
+
+test_that("enable_for_package .filter cannot widen the default skips", {
+  e <- new.env()
+  e$.onLoad <- function(libname, pkgname) NULL
+  e$prim <- sum
+
+  modified <- enable_for_package(e, .filter = function(name, fn) TRUE)
+
+  expect_length(modified, 0)
+  expect_false(is_typed(e$.onLoad))
+})
+
+test_that("enable_for_package forwards .specs to as_typed_env", {
+  e <- new.env()
+  e$add <- function(x = 0L, y = 0L) x + y
+
+  enable_for_package(e, .specs = list(
+    add = list(x = "numeric", .return = "numeric")
+  ))
+
+  expect_equal(attr(e$add, "arg_specs")$x, "numeric")
+  expect_equal(attr(e$add, "arg_specs")$y, "integer")
+  expect_equal(attr(e$add, "return_spec"), "numeric")
+})
+
+test_that("enable_for_package forwards .infer FALSE", {
+  e <- new.env()
+  e$add <- function(x = 0L, y = 0L) x + y
+
+  enable_for_package(e, .infer = FALSE)
+
+  expect_true(is_typed(e$add))
+  expect_equal(attr(e$add, "arg_specs"), list())
+})
+
+test_that("enable_for_package returns invisibly", {
+  e <- new.env()
+  e$add <- function(x = 0L) x
+
+  out <- withVisible(enable_for_package(e))
+  expect_false(out$visible)
+  expect_equal(out$value, "add")
+})
+
+test_that("enable_for_package is idempotent", {
+  e <- new.env()
+  e$add <- function(x = 0L, y = 0L) x + y
+
+  enable_for_package(e)
+  once <- e$add
+  enable_for_package(e)
+  twice <- e$add
+
+  expect_true(is_typed(twice))
+  inner <- environment(twice)$fn
+  expect_false(is_typed(inner))
+  expect_equal(attr(once, "arg_specs"), attr(twice, "arg_specs"))
+})
+
+test_that("enable_for_package surfaces locked-binding warning", {
+  e <- new.env()
+  e$open <- function(x = 0L) x
+  e$frozen <- function(x = 0L) x
+  lockBinding("frozen", e)
+
+  expect_warning(modified <- enable_for_package(e), "locked")
+  expect_equal(modified, "open")
+})
+
+test_that("enable_for_package errors on bad pkgname", {
+  expect_error(
+    enable_for_package(42),
+    "must be a single non-empty string"
+  )
+  expect_error(
+    enable_for_package(c("a", "b")),
+    "must be a single non-empty string"
+  )
+  expect_error(
+    enable_for_package(""),
+    "must be a single non-empty string"
+  )
+  expect_error(
+    enable_for_package(NA_character_),
+    "must be a single non-empty string"
+  )
+})
+
+test_that("enable_for_package errors on non-function .filter", {
+  e <- new.env()
+  e$add <- function(x = 0L) x
+  expect_error(enable_for_package(e, .filter = "no"), "must be a function")
+})
+
+test_that("enable_for_package with unknown package name errors", {
+  expect_error(enable_for_package("nonexistent_pkg_xyz_zzz_12345"))
+})
+
+test_that("enable_for_package retrofitted functions enforce types", {
+  e <- new.env()
+  e$add <- function(x = 0L, y = 0L) x + y
+
+  enable_for_package(e)
+
+  expect_equal(e$add(2L, 3L), 5L)
+  expect_error(e$add("a", 3L), "Type error")
+})
+
 test_that("types() returns empty list for an untyped function", {
   expect_equal(types(function(x) x), list())
 })
