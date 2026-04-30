@@ -55,7 +55,7 @@ test_that("parse_param_type honours a custom vocabulary entry", {
   expect_equal(parse_param_type("A tbl_df of rows", vocab), "data.frame")
 })
 
-test_that("default_type_vocabulary returns a non-empty named character vector", {
+test_that("default_type_vocabulary returns a non-empty named char vec", {
   v <- default_type_vocabulary()
   expect_type(v, "character")
   expect_true(length(v) > 0L)
@@ -228,7 +228,7 @@ test_that("as_typed_from_roxygen leaves functions untyped when no docs match", {
   expect_equal(attr(ns$f, "arg_specs"), list())
 })
 
-test_that("as_typed_from_roxygen falls back to inference for undocumented args", {
+test_that("as_typed_from_roxygen falls back to inference for undoc args", {
   rd_dir <- tempfile("rd")
   dir.create(rd_dir)
   write_rd(

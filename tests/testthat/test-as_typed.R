@@ -376,7 +376,7 @@ test_that("enable_for_package narrows further with user .filter", {
   expect_false(is_typed(e$skip))
 })
 
-test_that("enable_for_package user .filter cannot widen the default skip list", {
+test_that("enable_for_package .filter cannot widen the default skips", {
   e <- new.env()
   e$.onLoad <- function(libname, pkgname) NULL
   e$prim <- sum

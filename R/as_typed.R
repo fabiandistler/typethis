@@ -493,7 +493,7 @@ enable_for_package <- function(
     if (is.primitive(fn)) {
       return(FALSE)
     }
-    if (name %in% PACKAGE_HOOK_NAMES) {
+    if (name %in% package_hook_names) {
       return(FALSE)
     }
     if (is.null(user_filter)) {
@@ -516,7 +516,7 @@ enable_for_package <- function(
 # R hook function names skipped by enable_for_package() so they remain
 # callable by R's namespace machinery rather than being wrapped in a
 # typed shell that would change their argument-checking behaviour.
-PACKAGE_HOOK_NAMES <- c(
+package_hook_names <- c(
   ".onLoad",
   ".onAttach",
   ".onUnload",

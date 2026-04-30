@@ -16,7 +16,7 @@
 #'
 #' ```r
 #' typethis::enable_typed_namespace("dplyr")
-#' library(dplyr)   # functions are now wrapped on load
+#' library(dplyr) # functions are now wrapped on load
 #' ```
 #'
 #' Standard package hook functions (`.onLoad`, `.onAttach`, ...) and

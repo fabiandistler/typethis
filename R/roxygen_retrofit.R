@@ -155,15 +155,25 @@ as_typed_from_roxygen <- function(
 #'   [parse_param_type()] for the per-string extractor.
 #' @export
 default_type_vocabulary <- function() {
-  prefix <- "(?i)^\\s*(?:a|an|the|single|optional|named|positive|non-negative)?\\s*"
+  prefix <- paste0(
+    "(?i)^\\s*",
+    "(?:a|an|the|single|optional|named|positive|non-negative)?",
+    "\\s*"
+  )
+  char_alts <- paste(
+    "character\\s+string",
+    "character\\s+vector",
+    "character\\s+scalar",
+    "string",
+    "character",
+    sep = "|"
+  )
+  bool_alts <- "true\\s+or\\s+false|`?true`?\\s+or\\s+`?false`?"
   c(
     setNames("data.frame", paste0(prefix, "data[.\\s]frame\\b")),
     setNames(
       "character",
-      paste0(
-        prefix,
-        "(?:character\\s+string|character\\s+vector|character\\s+scalar|string|character)\\b"
-      )
+      paste0(prefix, "(?:", char_alts, ")\\b")
     ),
     setNames(
       "integer",
@@ -186,7 +196,7 @@ default_type_vocabulary <- function() {
     ),
     setNames(
       "logical",
-      "(?i)^\\s*(?:either\\s+)?(?:true\\s+or\\s+false|`?true`?\\s+or\\s+`?false`?)\\b"
+      paste0("(?i)^\\s*(?:either\\s+)?(?:", bool_alts, ")\\b")
     ),
     setNames("logical", "(?i)^\\s*if\\s+(?:true|false)\\b"),
     setNames("list", paste0(prefix, "list\\b")),
@@ -228,7 +238,12 @@ parse_param_type <- function(desc, vocabulary = default_type_vocabulary()) {
     regexpr("^\\s*\\[\\s*([^\\]]+?)\\s*\\]", desc, perl = TRUE)
   )
   if (length(explicit) > 0L && nzchar(explicit)) {
-    inside <- sub("^\\s*\\[\\s*([^\\]]+?)\\s*\\].*", "\\1", explicit, perl = TRUE)
+    inside <- sub(
+      "^\\s*\\[\\s*([^\\]]+?)\\s*\\].*",
+      "\\1",
+      explicit,
+      perl = TRUE
+    )
     if (nzchar(inside)) {
       return(inside)
     }
@@ -315,7 +330,8 @@ extract_value <- function(rd) {
   rd_flatten(rd[[idx[1]]])
 }
 
-# Build a per-Rd-block specs payload: { aliases, spec = list(arg = ..., .return = ...) }.
+# Build a per-Rd specs payload:
+# { aliases, spec = list(arg = ..., .return = ...) }.
 # Returns NULL when nothing usable was extracted.
 extract_specs_from_rd <- function(rd, vocabulary = default_type_vocabulary()) {
   aliases <- extract_aliases(rd)

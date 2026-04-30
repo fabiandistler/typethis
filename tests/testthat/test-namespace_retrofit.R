@@ -41,7 +41,7 @@ test_that("as_typed_env(.unlock = TRUE) re-locks if the wrap step errors", {
   expect_true(bindingIsLocked("add", e))
 })
 
-test_that("as_typed_env(.unlock = TRUE) leaves originally-unlocked bindings unlocked", {
+test_that("as_typed_env(.unlock = TRUE) keeps originally-open bindings open", {
   e <- new.env()
   e$open <- function(x = 0L) x
   e$frozen <- function(x = 0L) x
