@@ -1,6 +1,45 @@
 # typethis Roadmap
 
-## v0.5 (current)
+## v0.8 (current)
+
+Whole-package type retrofit lands in v0.8 as three connected features:
+
+1. **`enable_for_package()`** runs `as_typed()` over every exported
+   function in an installed package's namespace, with optional
+   per-function `.specs` and a `.filter` predicate.
+2. **`as_typed_from_roxygen()`** lifts type specs out of installed
+   `.Rd` files via an explicit `[type]` prefix or a vocabulary
+   heuristic (`default_type_vocabulary()`), and forwards the result
+   through `enable_for_package()`. `parse_param_type()` is the
+   single-description preview helper.
+3. **`enable_typed_namespace()`** / **`disable_typed_namespace()`**
+   register a `setHook(packageEvent(pkg, "onLoad"), ...)` handler that
+   applies the retrofit on every load (and immediately if the namespace
+   is already loaded), going through an unlock-modify-relock dance.
+   `as_typed_env()` and `enable_for_package()` gained a matching
+   `.unlock` parameter.
+
+This pattern is for development and exploratory use, not CRAN-bound
+code. See `vignette("package-wide")`.
+
+## v0.7
+
+1. **`as_typed_env()`** retrofits every function in an environment in
+   one call, with `.specs` for per-function overrides and `.filter`
+   to narrow the set.
+2. **`types(f)` / `types(f) <- value`** is a symmetric replacement-form
+   accessor over `as_typed()`. `types(g) <- types(f)` round-trips;
+   `types(f) <- NULL` un-types `f`.
+
+## v0.6
+
+1. **`as_typed()`** wraps an existing function with type checks via
+   `...` argument specs. Specs for arguments with literal atomic
+   defaults are inferred automatically; `as_typed()` is idempotent.
+2. **`infer_specs()`** returns the inferred argument specs for a
+   function as a named list.
+
+## v0.5
 
 A single feature lands in v0.5:
 
