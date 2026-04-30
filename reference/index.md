@@ -8,6 +8,9 @@
 - [`as_typed_env()`](as_typed_env.md) : Bulk-retrofit every function in
   an environment
 
+- [`as_typed_from_roxygen()`](as_typed_from_roxygen.md) : Retrofit a
+  package using its roxygen / Rd documentation
+
 - [`assert_type()`](assert_type.md) : Assert that a value has an
   expected type
 
@@ -38,7 +41,21 @@
 - [`dataframe_spec()`](dataframe_spec.md) : Validate a data frame's
   structure
 
+- [`default_type_vocabulary()`](default_type_vocabulary.md) :
+
+  Default prose-to-spec vocabulary for
+  [`as_typed_from_roxygen()`](../reference/as_typed_from_roxygen.md)
+
 - [`define_model()`](define_model.md) : Define a typed data model
+
+- [`disable_typed_namespace()`](disable_typed_namespace.md) : Remove a
+  typethis hook and revert the typed wrappers
+
+- [`enable_for_package()`](enable_for_package.md) : Enable type checking
+  for an entire package
+
+- [`enable_typed_namespace()`](enable_typed_namespace.md) : Enable type
+  checking for an installed package, without editing it
 
 - [`enum_validator()`](enum_validator.md) : Validate a value against a
   fixed set of allowed values
@@ -90,6 +107,9 @@
 - [`numeric_range()`](numeric_range.md) : Validate a numeric range
 
 - [`openapi`](openapi.md) : OpenAPI 3.1 bridge
+
+- [`parse_param_type()`](parse_param_type.md) : Map a single prose
+  description to a type spec
 
 - [`print(`*`<typed_model>`*`)`](print.typed_model.md) : Print method
   for typed model instances

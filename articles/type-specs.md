@@ -1,6 +1,7 @@
 # Composable type specifications
 
 ``` r
+
 library(typethis)
 #> 
 #> Attaching package: 'typethis'
@@ -42,6 +43,7 @@ composite spec at runtime.
 ### Union
 
 ``` r
+
 id <- t_union("integer", "character")
 is_type(1L, id)
 #> [1] TRUE
@@ -54,6 +56,7 @@ is_type(1.5, id)
 ### Nullable
 
 ``` r
+
 maybe_int <- t_nullable("integer")
 is_type(NULL, maybe_int)
 #> [1] TRUE
@@ -66,6 +69,7 @@ is_type("hi", maybe_int)
 ### Lists and vectors
 
 ``` r
+
 tags <- t_list_of("character", min_length = 1L)
 is_type(list("alpha", "beta"), tags)
 #> [1] TRUE
@@ -83,6 +87,7 @@ is_type(1:5, triple)
 spec, including other composites:
 
 ``` r
+
 mixed <- t_list_of(t_union("integer", "character"))
 is_type(list(1L, "two", 3L), mixed)
 #> [1] TRUE
@@ -91,6 +96,7 @@ is_type(list(1L, "two", 3L), mixed)
 ### Enum
 
 ``` r
+
 role <- t_enum(c("admin", "user", "guest"))
 is_type("admin", role)
 #> [1] TRUE
@@ -111,6 +117,7 @@ References resolve at validation time, which makes forward references
 (and cycles) possible:
 
 ``` r
+
 define_model("Address", fields = list(zip = field("character")))
 addr <- t_model("Address")
 is_type(new_Address(zip = "10115"), addr)
@@ -124,6 +131,7 @@ a custom predicate that carries a description. The description surfaces
 in error messages and in JSON Schema output.
 
 ``` r
+
 positive <- t_predicate(
   function(x) is.numeric(x) && all(x > 0),
   description = "positive number"
@@ -140,6 +148,7 @@ Anywhere `type =` or `arg_specs =` accepts a builtin name, it also
 accepts a spec.
 
 ``` r
+
 define_model("Order", fields = list(
   id     = field(t_union("integer", "character")),
   status = field(t_enum(c("new", "paid", "shipped")), default = "new"),
@@ -158,6 +167,7 @@ ord$tags
 ```
 
 ``` r
+
 greet <- typed_function(
   function(name, n = 1L) paste(rep(name, n), collapse = " "),
   arg_specs = list(
@@ -189,6 +199,7 @@ Other kinds ([`t_list_of()`](../reference/t_list_of.md),
 [`t_predicate()`](../reference/t_predicate.md)) raise an explicit error.
 
 ``` r
+
 coerce_type("paid", t_enum(c("new", "paid", "shipped")))
 #> [1] "paid"
 coerce_type(NULL, t_nullable("integer"))

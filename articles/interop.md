@@ -1,6 +1,7 @@
 # Interop: JSON Schema, ODCS, and OpenAPI
 
 ``` r
+
 library(typethis)
 #> 
 #> Attaching package: 'typethis'
@@ -35,6 +36,7 @@ type specs, validators, and \[[`field()`](../reference/field.md)\]
 definitions into a Draft 2020-12 JSON Schema fragment as a plain R list.
 
 ``` r
+
 define_model("Person", fields = list(
   name = field("character", nullable = FALSE),
   age  = field("integer", validator = numeric_range(0, 120)),
@@ -58,6 +60,7 @@ str(schema, max.level = 2)
 ```
 
 ``` r
+
 cat(jsonlite::toJSON(schema, auto_unbox = TRUE, pretty = TRUE))
 #> {
 #>   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -117,6 +120,7 @@ import back into the model registry.
 ### Export
 
 ``` r
+
 define_model("Order", fields = list(
   order_id = field("character",
     primary_key = TRUE,
@@ -161,6 +165,7 @@ str(contract, max.level = 2)
 file-IO convenience wrapper:
 
 ``` r
+
 tmp <- tempfile(fileext = ".yaml")
 write_datacontract("Order", tmp,
   info = list(name = "orders", version = "1.0.0")
@@ -178,6 +183,7 @@ for every entry, and assigns generated `new_*()` and `update_*()`
 constructors to `envir`.
 
 ``` r
+
 env <- new.env()
 from_datacontract(tmp, envir = env)
 ls(env)
@@ -198,16 +204,16 @@ env$new_Order(order_id = "ORD-1", amount = 42, customer = "Ada")
 round-trips through the contract but has no effect on runtime
 validation:
 
-| Argument         | Used for                                                                 |
-|------------------|--------------------------------------------------------------------------|
-| `primary_key`    | Marks the field as part of the primary key.                              |
-| `unique`         | Indicates uniqueness.                                                    |
-| `pii`            | Personally identifiable information flag.                                |
-| `classification` | `"public"`, `"internal"`, `"confidential"`, …                            |
-| `tags`           | Free-form character vector of tags.                                      |
-| `examples`       | Example values (also surfaces in JSON Schema).                           |
-| `references`     | Foreign-key style reference, e.g. `list(model = "Order", field = "id")`. |
-| `quality`        | List of engine-specific quality checks.                                  |
+| Argument | Used for |
+|----|----|
+| `primary_key` | Marks the field as part of the primary key. |
+| `unique` | Indicates uniqueness. |
+| `pii` | Personally identifiable information flag. |
+| `classification` | `"public"`, `"internal"`, `"confidential"`, … |
+| `tags` | Free-form character vector of tags. |
+| `examples` | Example values (also surfaces in JSON Schema). |
+| `references` | Foreign-key style reference, e.g. `list(model = "Order", field = "id")`. |
+| `quality` | List of engine-specific quality checks. |
 
 ### CLI
 
@@ -215,6 +221,7 @@ If the upstream [`datacontract` CLI](https://cli.datacontract.com/) is
 installed and on `PATH`, three thin wrappers run it directly from R:
 
 ``` r
+
 if (datacontract_cli_available()) {
   datacontract_lint(tmp)
   datacontract_test(tmp, server = "production")
@@ -234,6 +241,7 @@ return type.
 ### Models
 
 ``` r
+
 define_model("Address2", fields = list(
   street = field("character"),
   city   = field("character")
@@ -257,6 +265,7 @@ names(doc$components$schemas)
 ### Typed functions
 
 ``` r
+
 greet <- typed_function(
   function(name, greeting = "Hi") paste(greeting, name),
   arg_specs = list(name = "character", greeting = "character"),
@@ -274,6 +283,7 @@ names(doc$paths)
 ### Round-trip via disk
 
 ``` r
+
 tmp <- tempfile(fileext = ".yaml")
 write_openapi("PersonDoc", tmp,
   info = list(title = "People API", version = "1.0.0")
@@ -291,10 +301,10 @@ for JSON output.
 
 ## Choosing a bridge
 
-| If you want to…                             | Use                                                        |
-|---------------------------------------------|------------------------------------------------------------|
-| Hand a schema to any JSON-Schema-aware tool | [`to_json_schema()`](../reference/to_json_schema.md)       |
-| Publish a data product description          | [`to_datacontract()`](../reference/to_datacontract.md)     |
-| Document a JSON HTTP API                    | [`to_openapi()`](../reference/to_openapi.md)               |
-| Bring an existing data contract into R      | [`from_datacontract()`](../reference/from_datacontract.md) |
-| Bring an existing OpenAPI document into R   | [`from_openapi()`](../reference/from_openapi.md)           |
+| If you want to… | Use |
+|----|----|
+| Hand a schema to any JSON-Schema-aware tool | [`to_json_schema()`](../reference/to_json_schema.md) |
+| Publish a data product description | [`to_datacontract()`](../reference/to_datacontract.md) |
+| Document a JSON HTTP API | [`to_openapi()`](../reference/to_openapi.md) |
+| Bring an existing data contract into R | [`from_datacontract()`](../reference/from_datacontract.md) |
+| Bring an existing OpenAPI document into R | [`from_openapi()`](../reference/from_openapi.md) |

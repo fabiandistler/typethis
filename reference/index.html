@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with typethis</a></li>
     <li><a class="dropdown-item" href="../articles/interop.html">Interop: JSON Schema, ODCS, and OpenAPI</a></li>
+    <li><a class="dropdown-item" href="../articles/package-wide.html">Type-checking your whole package</a></li>
     <li><a class="dropdown-item" href="../articles/type-specs.html">Composable type specifications</a></li>
     <li><a class="dropdown-item" href="../articles/validators-and-models.html">Validators and models</a></li>
   </ul></li>
@@ -61,6 +62,13 @@
 
         </dt>
         <dd>Bulk-retrofit every function in an environment</dd>
+
+        <dt>
+
+          <code><a href="as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code>
+
+        </dt>
+        <dd>Retrofit a package using its roxygen / Rd documentation</dd>
 
         <dt>
 
@@ -127,10 +135,38 @@
 
         <dt>
 
+          <code><a href="default_type_vocabulary.html">default_type_vocabulary()</a></code>
+
+        </dt>
+        <dd>Default prose-to-spec vocabulary for <code><a href="../reference/as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code></dd>
+
+        <dt>
+
           <code><a href="define_model.html">define_model()</a></code>
 
         </dt>
         <dd>Define a typed data model</dd>
+
+        <dt>
+
+          <code><a href="disable_typed_namespace.html">disable_typed_namespace()</a></code>
+
+        </dt>
+        <dd>Remove a typethis hook and revert the typed wrappers</dd>
+
+        <dt>
+
+          <code><a href="enable_for_package.html">enable_for_package()</a></code>
+
+        </dt>
+        <dd>Enable type checking for an entire package</dd>
+
+        <dt>
+
+          <code><a href="enable_typed_namespace.html">enable_typed_namespace()</a></code>
+
+        </dt>
+        <dd>Enable type checking for an installed package, without editing it</dd>
 
         <dt>
 
@@ -257,6 +293,13 @@
 
         </dt>
         <dd>OpenAPI 3.1 bridge</dd>
+
+        <dt>
+
+          <code><a href="parse_param_type.html">parse_param_type()</a></code>
+
+        </dt>
+        <dd>Map a single prose description to a type spec</dd>
 
         <dt>
 

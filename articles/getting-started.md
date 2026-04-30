@@ -5,6 +5,7 @@ tour of the four things you’ll reach for most: type checks, typed
 functions, typed models, and composable type specs.
 
 ``` r
+
 library(typethis)
 #> 
 #> Attaching package: 'typethis'
@@ -20,6 +21,7 @@ at function boundaries, when parsing inputs, or anywhere a quick sanity
 check is enough.
 
 ``` r
+
 is_type(5, "numeric")
 #> [1] TRUE
 is_type("hello", "numeric")
@@ -49,6 +51,7 @@ validate_type("hello", "numeric", "x")
 For safe coercion, use [`coerce_type()`](../reference/coerce_type.md):
 
 ``` r
+
 coerce_type("123", "numeric")
 #> [1] 123
 coerce_type(c(1, 0, 1), "logical")
@@ -61,6 +64,7 @@ coerce_type(c(1, 0, 1), "logical")
 each call is validated.
 
 ``` r
+
 greet <- typed_function(
   function(name, times = 1L) paste(rep(name, times), collapse = " "),
   arg_specs = list(name = "character", times = "integer"),
@@ -74,6 +78,7 @@ greet("hi", times = 3L)
 A bad call fails before the body runs:
 
 ``` r
+
 greet("hi", times = "three")
 #> Error:
 #> ! Type error: 'times' must be integer, got character
@@ -98,12 +103,14 @@ defaults are inferred automatically; only arguments you want to override
 appear in the call.
 
 ``` r
+
 add <- as_typed(function(x = 0L, y = 0L) x + y, .return = "integer")
 add(2L, 3L)
 #> [1] 5
 ```
 
 ``` r
+
 add("two", 3L)
 #> Error:
 #> ! Type error: 'x' must be integer, got character
@@ -112,6 +119,7 @@ add("two", 3L)
 Pass overrides by name. Inference fills in the rest:
 
 ``` r
+
 greet <- as_typed(
   function(name = "world", times = 1L) {
     paste(rep(name, times), collapse = " ")
@@ -133,6 +141,7 @@ symmetric replacement-form accessor over
 [`as_typed()`](../reference/as_typed.md):
 
 ``` r
+
 greet_clone <- function(name = "world", times = 1L) {
   paste(rep(name, times), collapse = " ")
 }
@@ -153,6 +162,7 @@ finds, and writes the typed versions back. Per-function overrides flow
 through `.specs`:
 
 ``` r
+
 e <- new.env()
 e$add <- function(x = 0L, y = 0L) x + y
 e$greet <- function(name = "world") paste0("hi ", name)
@@ -174,6 +184,7 @@ entity. It generates a `new_<Class>()` constructor and an
 `update_<Class>()` updater in the calling environment.
 
 ``` r
+
 define_model("User", fields = list(
   name = field("character"),
   age = field("integer",
@@ -197,6 +208,7 @@ ada
 Validation runs at construction time:
 
 ``` r
+
 new_User(name = "Ada", age = 200L, email = "ada@example.com")
 #> Error:
 #> ! Validation failed for field 'age' in User
@@ -206,6 +218,7 @@ new_User(name = "Ada", age = 200L, email = "ada@example.com")
 and revalidated:
 
 ``` r
+
 ada <- update_User(ada, age = 36L)
 ada$age
 #> [1] 36
@@ -214,6 +227,7 @@ ada$age
 Models nest. Reference one model from another by class name:
 
 ``` r
+
 define_model("Address", fields = list(
   street = field("character"),
   city   = field("character")
@@ -245,6 +259,7 @@ plain type name does ([`is_type()`](../reference/is_type.md),
 [`to_json_schema()`](../reference/to_json_schema.md)).
 
 ``` r
+
 id <- t_union("integer", "character")
 is_type(1L, id)
 #> [1] TRUE
@@ -267,6 +282,7 @@ is_type("admin", role)
 Specs compose:
 
 ``` r
+
 mixed <- t_list_of(t_union("integer", "character"))
 is_type(list(1L, "two", 3L), mixed)
 #> [1] TRUE

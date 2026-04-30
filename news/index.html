@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with typethis</a></li>
     <li><a class="dropdown-item" href="../articles/interop.html">Interop: JSON Schema, ODCS, and OpenAPI</a></li>
+    <li><a class="dropdown-item" href="../articles/package-wide.html">Type-checking your whole package</a></li>
     <li><a class="dropdown-item" href="../articles/type-specs.html">Composable type specifications</a></li>
     <li><a class="dropdown-item" href="../articles/validators-and-models.html">Validators and models</a></li>
   </ul></li>
@@ -48,9 +49,9 @@
 <div class="section level5">
 <h5 id="bulk-retrofit-and-replacement-form-accessor-development-version">Bulk retrofit and replacement-form accessor<a class="anchor" aria-label="anchor" href="#bulk-retrofit-and-replacement-form-accessor-development-version"></a></h5>
 <ul><li>
-<code><a href="../reference/as_typed_env.html">as_typed_env()</a></code> retrofits every function in an environment in one call. It walks the environment, applies <code><a href="../reference/as_typed.html">as_typed()</a></code> to each function (with inference by default), and writes the typed versions back in place. Per-function overrides flow through <code>.specs = list(funA   = list(...))</code>; an optional <code>.filter</code> predicate narrows the set of functions touched. Already-typed functions go through <code><a href="../reference/as_typed.html">as_typed()</a></code>’s existing idempotent merge path, and locked bindings (common for namespaces) are skipped with a single warning.</li>
+<code><a href="../reference/as_typed_env.html">as_typed_env()</a></code> retrofits every function in an environment in one call. It walks the environment, applies <code><a href="../reference/as_typed.html">as_typed()</a></code> to each function (with inference by default), and writes the typed versions back in place. Per-function overrides flow through <code>.specs = list(funA = list(...))</code>; an optional <code>.filter</code> predicate narrows the set of functions touched. Already-typed functions go through <code><a href="../reference/as_typed.html">as_typed()</a></code>’s existing idempotent merge path, and locked bindings (common for namespaces) are skipped with a single warning.</li>
 <li>
-<code>types(f)</code> / <code>types(f) &lt;- value</code> is a symmetric replacement-form accessor over <code><a href="../reference/as_typed.html">as_typed()</a></code>. The getter returns a list whose named entries are arg specs and whose <code>.return</code> entry (if present) is the return spec — the same shape the setter accepts, so <code>types(g) &lt;-   types(f)</code> round-trips. <code>types(f) &lt;- NULL</code> un-types <code>f</code> and returns the original inner function.</li>
+<code>types(f)</code> / <code>types(f) &lt;- value</code> is a symmetric replacement-form accessor over <code><a href="../reference/as_typed.html">as_typed()</a></code>. The getter returns a list whose named entries are arg specs and whose <code>.return</code> entry (if present) is the return spec — the same shape the setter accepts, so <code>types(g) &lt;- types(f)</code> round-trips. <code>types(f) &lt;- NULL</code> un-types <code>f</code> and returns the original inner function.</li>
 </ul><p>These were the two follow-ups deferred from the v0.6 NEWS entry.</p>
 </div>
 </div>

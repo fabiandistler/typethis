@@ -7,6 +7,7 @@
 <url><loc>/articles/getting-started.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/interop.html</loc></url>
+<url><loc>/articles/package-wide.html</loc></url>
 <url><loc>/articles/type-specs.html</loc></url>
 <url><loc>/articles/validators-and-models.html</loc></url>
 <url><loc>/authors.html</loc></url>
@@ -14,6 +15,7 @@
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/as_typed.html</loc></url>
 <url><loc>/reference/as_typed_env.html</loc></url>
+<url><loc>/reference/as_typed_from_roxygen.html</loc></url>
 <url><loc>/reference/assert_type.html</loc></url>
 <url><loc>/reference/coerce_type.html</loc></url>
 <url><loc>/reference/combine_validators.html</loc></url>
@@ -23,7 +25,11 @@
 <url><loc>/reference/datacontract_lint.html</loc></url>
 <url><loc>/reference/datacontract_test.html</loc></url>
 <url><loc>/reference/dataframe_spec.html</loc></url>
+<url><loc>/reference/default_type_vocabulary.html</loc></url>
 <url><loc>/reference/define_model.html</loc></url>
+<url><loc>/reference/disable_typed_namespace.html</loc></url>
+<url><loc>/reference/enable_for_package.html</loc></url>
+<url><loc>/reference/enable_typed_namespace.html</loc></url>
 <url><loc>/reference/enum_validator.html</loc></url>
 <url><loc>/reference/field.html</loc></url>
 <url><loc>/reference/from_datacontract.html</loc></url>
@@ -43,6 +49,7 @@
 <url><loc>/reference/nullable.html</loc></url>
 <url><loc>/reference/numeric_range.html</loc></url>
 <url><loc>/reference/openapi.html</loc></url>
+<url><loc>/reference/parse_param_type.html</loc></url>
 <url><loc>/reference/print.typed_model.html</loc></url>
 <url><loc>/reference/read_datacontract.html</loc></url>
 <url><loc>/reference/read_openapi.html</loc></url>

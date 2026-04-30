@@ -37,6 +37,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/getting-started.html">Getting started with typethis</a></li>
     <li><a class="dropdown-item" href="articles/interop.html">Interop: JSON Schema, ODCS, and OpenAPI</a></li>
+    <li><a class="dropdown-item" href="articles/package-wide.html">Type-checking your whole package</a></li>
     <li><a class="dropdown-item" href="articles/type-specs.html">Composable type specifications</a></li>
     <li><a class="dropdown-item" href="articles/validators-and-models.html">Validators and models</a></li>
   </ul>
@@ -144,24 +145,24 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Vignette</th>
 <th>What it covers</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><a href="vignettes/getting-started.Rmd"><code>vignette("getting-started")</code></a></td>
 <td>A 10-minute tour: type checks, typed functions, typed models.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="vignettes/validators-and-models.Rmd"><code>vignette("validators-and-models")</code></a></td>
 <td>All built-in validators and how to combine them; nested and strict models; field metadata.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><a href="vignettes/type-specs.Rmd"><code>vignette("type-specs")</code></a></td>
 <td>Composable type specifications with the <code>t_*()</code> family.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="vignettes/interop.Rmd"><code>vignette("interop")</code></a></td>
 <td>JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import.</td>
 </tr>
@@ -177,36 +178,36 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Use…</th>
 <th>…when you want to…</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>
 <code><a href="reference/is_type.html">is_type()</a></code> / <code><a href="reference/assert_type.html">assert_type()</a></code>
 </td>
 <td>Add ad-hoc type checks at function boundaries.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code><a href="reference/typed_function.html">typed_function()</a></code></td>
 <td>Wrap a function so every call is validated automatically.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code><a href="reference/define_model.html">define_model()</a></code></td>
 <td>Describe a record type — config, request body, domain entity — with field-level validation and constructors.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>
 <code><a href="reference/numeric_range.html">numeric_range()</a></code>, <code><a href="reference/string_pattern.html">string_pattern()</a></code>, <code><a href="reference/enum_validator.html">enum_validator()</a></code>, …</td>
 <td>Add value-level rules on top of types.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>
 <code><a href="reference/t_union.html">t_union()</a></code>, <code><a href="reference/t_nullable.html">t_nullable()</a></code>, <code><a href="reference/t_list_of.html">t_list_of()</a></code>, <code><a href="reference/t_enum.html">t_enum()</a></code>, …</td>
 <td>Build a richer type spec inline (e.g. <code>t_list_of(t_union("integer", "character"))</code>).</td>
 </tr>
-<tr class="even">
+<tr>
 <td>
 <code><a href="reference/to_json_schema.html">to_json_schema()</a></code> / <code><a href="reference/to_datacontract.html">to_datacontract()</a></code> / <code><a href="reference/to_openapi.html">to_openapi()</a></code>
 </td>

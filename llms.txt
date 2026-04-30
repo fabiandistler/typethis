@@ -10,6 +10,7 @@ and checks it at runtime — clearly, with helpful error messages, and
 without leaving plain R.
 
 ``` r
+
 define_model("User", fields = list(
   name  = field("character"),
   age   = field("integer", validator = numeric_range(0, 120)),
@@ -31,6 +32,7 @@ new_User(name = "Ada", age = 200L, email = "ada@example.com")
 ## Installation
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("fabiandistler/typethis")
 ```
@@ -65,6 +67,7 @@ devtools::install_github("fabiandistler/typethis")
 ## A 30-second tour
 
 ``` r
+
 library(typethis)
 
 # 1. Type checks
@@ -99,12 +102,12 @@ is_type("done", status)            # FALSE
 The reference is shipped as vignettes — start with **Getting Started**
 and follow the topic that matches what you want to do.
 
-| Vignette                                                                   | What it covers                                                                             |
-|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| [`vignette("getting-started")`](vignettes/getting-started.Rmd)             | A 10-minute tour: type checks, typed functions, typed models.                              |
+| Vignette | What it covers |
+|----|----|
+| [`vignette("getting-started")`](vignettes/getting-started.Rmd) | A 10-minute tour: type checks, typed functions, typed models. |
 | [`vignette("validators-and-models")`](vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
-| [`vignette("type-specs")`](vignettes/type-specs.Rmd)                       | Composable type specifications with the `t_*()` family.                                    |
-| [`vignette("interop")`](vignettes/interop.Rmd)                             | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import.               |
+| [`vignette("type-specs")`](vignettes/type-specs.Rmd) | Composable type specifications with the `t_*()` family. |
+| [`vignette("interop")`](vignettes/interop.Rmd) | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import. |
 
 For the full function reference see
 [`?typethis`](reference/typethis-package.md) (a topic-grouped index of
@@ -115,14 +118,14 @@ all other functions in the “Typed functions” family via `seealso`.
 
 ## When should I use which tool?
 
-| Use…                                                                                                                                                          | …when you want to…                                                                                           |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| [`is_type()`](reference/is_type.md) / [`assert_type()`](reference/assert_type.md)                                                                             | Add ad-hoc type checks at function boundaries.                                                               |
-| [`typed_function()`](reference/typed_function.md)                                                                                                             | Wrap a function so every call is validated automatically.                                                    |
-| [`define_model()`](reference/define_model.md)                                                                                                                 | Describe a record type — config, request body, domain entity — with field-level validation and constructors. |
-| [`numeric_range()`](reference/numeric_range.md), [`string_pattern()`](reference/string_pattern.md), [`enum_validator()`](reference/enum_validator.md), …      | Add value-level rules on top of types.                                                                       |
-| [`t_union()`](reference/t_union.md), [`t_nullable()`](reference/t_nullable.md), [`t_list_of()`](reference/t_list_of.md), [`t_enum()`](reference/t_enum.md), … | Build a richer type spec inline (e.g. `t_list_of(t_union("integer", "character"))`).                         |
-| [`to_json_schema()`](reference/to_json_schema.md) / [`to_datacontract()`](reference/to_datacontract.md) / [`to_openapi()`](reference/to_openapi.md)           | Hand the same definitions to non-R systems.                                                                  |
+| Use… | …when you want to… |
+|----|----|
+| [`is_type()`](reference/is_type.md) / [`assert_type()`](reference/assert_type.md) | Add ad-hoc type checks at function boundaries. |
+| [`typed_function()`](reference/typed_function.md) | Wrap a function so every call is validated automatically. |
+| [`define_model()`](reference/define_model.md) | Describe a record type — config, request body, domain entity — with field-level validation and constructors. |
+| [`numeric_range()`](reference/numeric_range.md), [`string_pattern()`](reference/string_pattern.md), [`enum_validator()`](reference/enum_validator.md), … | Add value-level rules on top of types. |
+| [`t_union()`](reference/t_union.md), [`t_nullable()`](reference/t_nullable.md), [`t_list_of()`](reference/t_list_of.md), [`t_enum()`](reference/t_enum.md), … | Build a richer type spec inline (e.g. `t_list_of(t_union("integer", "character"))`). |
+| [`to_json_schema()`](reference/to_json_schema.md) / [`to_datacontract()`](reference/to_datacontract.md) / [`to_openapi()`](reference/to_openapi.md) | Hand the same definitions to non-R systems. |
 
 ## Runtime only
 
@@ -158,6 +161,9 @@ MIT — see [`LICENSE`](LICENSE).
 - [`as_typed_env()`](as_typed_env.md) : Bulk-retrofit every function in
   an environment
 
+- [`as_typed_from_roxygen()`](as_typed_from_roxygen.md) : Retrofit a
+  package using its roxygen / Rd documentation
+
 - [`assert_type()`](assert_type.md) : Assert that a value has an
   expected type
 
@@ -188,7 +194,21 @@ MIT — see [`LICENSE`](LICENSE).
 - [`dataframe_spec()`](dataframe_spec.md) : Validate a data frame's
   structure
 
+- [`default_type_vocabulary()`](default_type_vocabulary.md) :
+
+  Default prose-to-spec vocabulary for
+  [`as_typed_from_roxygen()`](../reference/as_typed_from_roxygen.md)
+
 - [`define_model()`](define_model.md) : Define a typed data model
+
+- [`disable_typed_namespace()`](disable_typed_namespace.md) : Remove a
+  typethis hook and revert the typed wrappers
+
+- [`enable_for_package()`](enable_for_package.md) : Enable type checking
+  for an entire package
+
+- [`enable_typed_namespace()`](enable_typed_namespace.md) : Enable type
+  checking for an installed package, without editing it
 
 - [`enum_validator()`](enum_validator.md) : Validate a value against a
   fixed set of allowed values
@@ -240,6 +260,9 @@ MIT — see [`LICENSE`](LICENSE).
 - [`numeric_range()`](numeric_range.md) : Validate a numeric range
 
 - [`openapi`](openapi.md) : OpenAPI 3.1 bridge
+
+- [`parse_param_type()`](parse_param_type.md) : Map a single prose
+  description to a type spec
 
 - [`print(`*`<typed_model>`*`)`](print.typed_model.md) : Print method
   for typed model instances
@@ -326,5 +349,6 @@ MIT — see [`LICENSE`](LICENSE).
 
 - [Getting started with typethis](getting-started.md):
 - [Interop: JSON Schema, ODCS, and OpenAPI](interop.md):
+- [Type-checking your whole package](package-wide.md):
 - [Composable type specifications](type-specs.md):
 - [Validators and models](validators-and-models.md):

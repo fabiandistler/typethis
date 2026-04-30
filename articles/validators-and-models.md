@@ -1,6 +1,7 @@
 # Validators and models
 
 ``` r
+
 library(typethis)
 #> 
 #> Attaching package: 'typethis'
@@ -25,6 +26,7 @@ opaque predicate stubs.
 ### Numeric ranges
 
 ``` r
+
 age <- numeric_range(0, 120)
 age(25)
 #> [1] TRUE
@@ -42,6 +44,7 @@ prob(0)
 ### Strings
 
 ``` r
+
 name <- string_length(min_length = 1, max_length = 50)
 name("Ada Lovelace")
 #> [1] TRUE
@@ -58,6 +61,7 @@ email("not-an-email")
 ### Vectors and lists
 
 ``` r
+
 pair <- vector_length(exact_len = 2)
 pair(c(1, 2))
 #> [1] TRUE
@@ -81,6 +85,7 @@ optional_num(5)
 ### Data frames
 
 ``` r
+
 is_orders <- dataframe_spec(
   required_cols = c("id", "amount"),
   min_rows = 1
@@ -96,6 +101,7 @@ is_orders(data.frame(name = "Ada"))
 ### Enums
 
 ``` r
+
 status <- enum_validator(c("active", "inactive", "pending"))
 status("active")
 #> [1] TRUE
@@ -111,6 +117,7 @@ inside [`field()`](../reference/field.md) and
 ### Combining validators
 
 ``` r
+
 positive_num <- combine_validators(
   function(x) is.numeric(x),
   function(x) all(x > 0)
@@ -140,6 +147,7 @@ the structured constraint attached by the built-in factories — useful
 for tooling and for the bridge functions:
 
 ``` r
+
 validator_constraint(numeric_range(0, 10))
 #> $kind
 #> [1] "numeric_range"
@@ -166,6 +174,7 @@ record. It creates a `new_<Class>()` constructor and an
 `update_<Class>()` helper in the calling environment.
 
 ``` r
+
 define_model("Person", fields = list(
   name = field("character"),
   age = field("integer", validator = numeric_range(0, 120)),
@@ -186,6 +195,7 @@ p
 ### Defaults
 
 ``` r
+
 define_model("Config", fields = list(
   host  = field("character", default = "localhost"),
   port  = field("integer", default = 8080L),
@@ -205,6 +215,7 @@ omitted at construction without a default). Without it, omission is an
 error unless a default is set.
 
 ``` r
+
 define_model("Profile", fields = list(
   name = field("character"),
   bio  = field("character", nullable = TRUE)
@@ -221,6 +232,7 @@ new_Profile(name = "Ada", bio = "Mathematician")$bio
 `.strict = TRUE` rejects unknown fields at construction:
 
 ``` r
+
 define_model("StrictPoint", fields = list(
   x = field("numeric"),
   y = field("numeric")
@@ -237,6 +249,7 @@ A field’s `type` may be a registered model class name. The constructor
 will check that the value is an instance of that class.
 
 ``` r
+
 define_model("Address", fields = list(
   street = field("character"),
   city   = field("character")
@@ -267,6 +280,7 @@ or [`t_list_of()`](../reference/t_list_of.md).
 runs after the type check:
 
 ``` r
+
 define_model("Coupon", fields = list(
   code = field("character",
     validator = string_length(min_length = 4, max_length = 12)
@@ -289,6 +303,7 @@ new_Coupon(code = "AB", discount = 0.2)
 ### Working with instances
 
 ``` r
+
 schema_keys <- names(get_schema(p))
 schema_keys
 #> [1] "name"  "age"   "email"
@@ -311,6 +326,7 @@ result$valid
 class and revalidates:
 
 ``` r
+
 p2 <- update_Person(p, age = 37L)
 p2$age
 #> [1] 37
@@ -329,6 +345,7 @@ on runtime validation. See the [interop](interop.md) vignette for what
 each key does.
 
 ``` r
+
 field(
   "character",
   primary_key    = TRUE,

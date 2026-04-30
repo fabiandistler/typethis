@@ -4,5 +4,6 @@
 
 - [Getting started with typethis](getting-started.md):
 - [Interop: JSON Schema, ODCS, and OpenAPI](interop.md):
+- [Type-checking your whole package](package-wide.md):
 - [Composable type specifications](type-specs.md):
 - [Validators and models](validators-and-models.md):
