@@ -37,7 +37,7 @@ Re-locking is guaranteed by \code{on.exit} even if a wrap step errors.
 Typical use is from \code{.Rprofile} or an interactive session:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{typethis::enable_typed_namespace("dplyr")
-library(dplyr)   # functions are now wrapped on load
+library(dplyr) # functions are now wrapped on load
 }\if{html}{\out{</div>}}
 
 Standard package hook functions (\code{.onLoad}, \code{.onAttach}, ...) and
