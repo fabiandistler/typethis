@@ -2,6 +2,66 @@
 
 ## typethis (development version)
 
+### typethis 0.8.0
+
+#### New Features
+
+##### Whole-package retrofit
+
+- [`enable_for_package()`](../reference/enable_for_package.md) runs
+  [`as_typed()`](../reference/as_typed.md) over every exported function
+  of an installed package’s namespace in one call. Per-function specs
+  flow through `.specs = list(funA = list(...))`; an optional `.filter`
+  predicate narrows the set of functions touched. Already-typed
+  functions go through [`as_typed()`](../reference/as_typed.md)’s
+  idempotent merge path.
+
+##### Roxygen-driven retrofit
+
+- [`as_typed_from_roxygen()`](../reference/as_typed_from_roxygen.md)
+  reads installed `.Rd` files (or a source `man/` directory via
+  `.rd_dir`), extracts a type spec for each documented `\arguments` item
+  and `\value` block, then forwards the result via
+  [`enable_for_package()`](../reference/enable_for_package.md). Two
+  extraction layers run in sequence: an explicit `[type]` prefix at the
+  start of the description, and a vocabulary heuristic against
+  [`default_type_vocabulary()`](../reference/default_type_vocabulary.md)
+  that maps leading prose like “A numeric vector” or “If TRUE” to the
+  corresponding builtin spec. Rd-derived specs are pruned to formals
+  that actually exist on each function; user-supplied `.specs` win on
+  conflict.
+- [`parse_param_type()`](../reference/parse_param_type.md) is exported
+  so users can preview what would be derived from a single description
+  string.
+- [`default_type_vocabulary()`](../reference/default_type_vocabulary.md)
+  is exported so users can extend or replace the prose-to-spec map.
+
+##### Zero-touch namespace retrofit
+
+- [`enable_typed_namespace()`](../reference/enable_typed_namespace.md)
+  registers a `setHook(packageEvent(pkg, "onLoad"), ...)` handler that
+  runs [`enable_for_package()`](../reference/enable_for_package.md) over
+  the namespace each time it loads. If the package is already loaded
+  when called, the retrofit also applies immediately to the live
+  namespace. Because the hook fires after R locks the namespace
+  bindings, the retrofit goes through an unlock-modify-relock dance,
+  with re-locking guaranteed by `on.exit`.
+- [`disable_typed_namespace()`](../reference/disable_typed_namespace.md)
+  is the inverse: it removes typethis-tagged hooks from the package
+  event (foreign hooks are left intact) and, by default, walks the
+  loaded namespace to revert each typed wrapper to its inner function.
+- [`as_typed_env()`](../reference/as_typed_env.md) gained a `.unlock`
+  parameter. When `TRUE`, locked bindings are unlocked, reassigned to
+  their typed wrapper, and re-locked instead of skipped + warned.
+  [`enable_for_package()`](../reference/enable_for_package.md) forwards
+  the same `.unlock` through.
+
+This pattern is meant for development and exploratory use, not for
+CRAN-bound code: modifying namespaces you do not own is a developer
+convenience. See
+[`vignette("package-wide")`](../articles/package-wide.md) for the full
+walkthrough.
+
 ### typethis 0.7.0
 
 #### New Features

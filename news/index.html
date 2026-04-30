@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,9 +43,39 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="typethis-development-version">typethis (development version)<a class="anchor" aria-label="anchor" href="#typethis-development-version"></a></h2>
 <div class="section level3">
-<h3 id="typethis-development-version-1">typethis 0.7.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-1"></a></h3>
+<h3 id="typethis-development-version-1">typethis 0.8.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-1"></a></h3>
 <div class="section level4">
 <h4 id="new-features-development-version">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h4>
+<div class="section level5">
+<h5 id="whole-package-retrofit-development-version">Whole-package retrofit<a class="anchor" aria-label="anchor" href="#whole-package-retrofit-development-version"></a></h5>
+<ul><li>
+<code><a href="../reference/enable_for_package.html">enable_for_package()</a></code> runs <code><a href="../reference/as_typed.html">as_typed()</a></code> over every exported function of an installed package’s namespace in one call. Per-function specs flow through <code>.specs = list(funA = list(...))</code>; an optional <code>.filter</code> predicate narrows the set of functions touched. Already-typed functions go through <code><a href="../reference/as_typed.html">as_typed()</a></code>’s idempotent merge path.</li>
+</ul></div>
+<div class="section level5">
+<h5 id="roxygen-driven-retrofit-development-version">Roxygen-driven retrofit<a class="anchor" aria-label="anchor" href="#roxygen-driven-retrofit-development-version"></a></h5>
+<ul><li>
+<code><a href="../reference/as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code> reads installed <code>.Rd</code> files (or a source <code>man/</code> directory via <code>.rd_dir</code>), extracts a type spec for each documented <code>\arguments</code> item and <code>\value</code> block, then forwards the result via <code><a href="../reference/enable_for_package.html">enable_for_package()</a></code>. Two extraction layers run in sequence: an explicit <code>[type]</code> prefix at the start of the description, and a vocabulary heuristic against <code><a href="../reference/default_type_vocabulary.html">default_type_vocabulary()</a></code> that maps leading prose like “A numeric vector” or “If TRUE” to the corresponding builtin spec. Rd-derived specs are pruned to formals that actually exist on each function; user-supplied <code>.specs</code> win on conflict.</li>
+<li>
+<code><a href="../reference/parse_param_type.html">parse_param_type()</a></code> is exported so users can preview what would be derived from a single description string.</li>
+<li>
+<code><a href="../reference/default_type_vocabulary.html">default_type_vocabulary()</a></code> is exported so users can extend or replace the prose-to-spec map.</li>
+</ul></div>
+<div class="section level5">
+<h5 id="zero-touch-namespace-retrofit-development-version">Zero-touch namespace retrofit<a class="anchor" aria-label="anchor" href="#zero-touch-namespace-retrofit-development-version"></a></h5>
+<ul><li>
+<code><a href="../reference/enable_typed_namespace.html">enable_typed_namespace()</a></code> registers a <code>setHook(packageEvent(pkg, "onLoad"), ...)</code> handler that runs <code><a href="../reference/enable_for_package.html">enable_for_package()</a></code> over the namespace each time it loads. If the package is already loaded when called, the retrofit also applies immediately to the live namespace. Because the hook fires after R locks the namespace bindings, the retrofit goes through an unlock-modify-relock dance, with re-locking guaranteed by <code>on.exit</code>.</li>
+<li>
+<code><a href="../reference/disable_typed_namespace.html">disable_typed_namespace()</a></code> is the inverse: it removes typethis-tagged hooks from the package event (foreign hooks are left intact) and, by default, walks the loaded namespace to revert each typed wrapper to its inner function.</li>
+<li>
+<code><a href="../reference/as_typed_env.html">as_typed_env()</a></code> gained a <code>.unlock</code> parameter. When <code>TRUE</code>, locked bindings are unlocked, reassigned to their typed wrapper, and re-locked instead of skipped + warned. <code><a href="../reference/enable_for_package.html">enable_for_package()</a></code> forwards the same <code>.unlock</code> through.</li>
+</ul><p>This pattern is meant for development and exploratory use, not for CRAN-bound code: modifying namespaces you do not own is a developer convenience. See <code><a href="../articles/package-wide.html">vignette("package-wide")</a></code> for the full walkthrough.</p>
+</div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="typethis-development-version-2">typethis 0.7.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-2"></a></h3>
+<div class="section level4">
+<h4 id="new-features-development-version-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-1"></a></h4>
 <div class="section level5">
 <h5 id="bulk-retrofit-and-replacement-form-accessor-development-version">Bulk retrofit and replacement-form accessor<a class="anchor" aria-label="anchor" href="#bulk-retrofit-and-replacement-form-accessor-development-version"></a></h5>
 <ul><li>
@@ -57,9 +87,9 @@
 </div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-2">typethis 0.6.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-2"></a></h3>
+<h3 id="typethis-development-version-3">typethis 0.6.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-3"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-1"></a></h4>
+<h4 id="new-features-development-version-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-2"></a></h4>
 <div class="section level5">
 <h5 id="retrofitting-existing-functions-development-version">Retrofitting existing functions<a class="anchor" aria-label="anchor" href="#retrofitting-existing-functions-development-version"></a></h5>
 <ul><li>
@@ -71,9 +101,9 @@
 </div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-3">typethis 0.5.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-3"></a></h3>
+<h3 id="typethis-development-version-4">typethis 0.5.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-4"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-2"></a></h4>
+<h4 id="new-features-development-version-3">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-3"></a></h4>
 <div class="section level5">
 <h5 id="openapi-bridge-development-version">OpenAPI 3.1 Bridge<a class="anchor" aria-label="anchor" href="#openapi-bridge-development-version"></a></h5>
 <ul><li>
@@ -92,7 +122,7 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-4">typethis 0.4.1<a class="anchor" aria-label="anchor" href="#typethis-development-version-4"></a></h3>
+<h3 id="typethis-development-version-5">typethis 0.4.1<a class="anchor" aria-label="anchor" href="#typethis-development-version-5"></a></h3>
 <div class="section level4">
 <h4 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h4>
 <ul><li>
@@ -106,9 +136,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-5">typethis 0.4.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-5"></a></h3>
+<h3 id="typethis-development-version-6">typethis 0.4.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-6"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-3">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-3"></a></h4>
+<h4 id="new-features-development-version-4">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-4"></a></h4>
 <div class="section level5">
 <h5 id="data-contract-odcs-v3-bridge-development-version">Data Contract (ODCS v3) Bridge<a class="anchor" aria-label="anchor" href="#data-contract-odcs-v3-bridge-development-version"></a></h5>
 <ul><li>
@@ -133,9 +163,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-6">typethis 0.3.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-6"></a></h3>
+<h3 id="typethis-development-version-7">typethis 0.3.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-7"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-4">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-4"></a></h4>
+<h4 id="new-features-development-version-5">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-5"></a></h4>
 <div class="section level5">
 <h5 id="composite-type-specs-development-version">Composite Type Specs<a class="anchor" aria-label="anchor" href="#composite-type-specs-development-version"></a></h5>
 <ul><li>New <code>type_spec</code> S3 class for structured, composable type specifications.</li>
@@ -165,9 +195,9 @@
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="typethis-development-version-7">typethis 0.2.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-7"></a></h3>
+<h3 id="typethis-development-version-8">typethis 0.2.0<a class="anchor" aria-label="anchor" href="#typethis-development-version-8"></a></h3>
 <div class="section level4">
-<h4 id="new-features-development-version-5">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-5"></a></h4>
+<h4 id="new-features-development-version-6">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version-6"></a></h4>
 <div class="section level5">
 <h5 id="typed-functions-f1-f8-development-version">Typed Functions (F1-F8)<a class="anchor" aria-label="anchor" href="#typed-functions-f1-f8-development-version"></a></h5>
 <ul><li>

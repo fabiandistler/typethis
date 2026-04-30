@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,6 +102,8 @@
 <strong>Compose richer types.</strong> <code><a href="reference/t_union.html">t_union()</a></code>, <code><a href="reference/t_nullable.html">t_nullable()</a></code>, <code><a href="reference/t_list_of.html">t_list_of()</a></code>, <code><a href="reference/t_vector_of.html">t_vector_of()</a></code>, <code><a href="reference/t_enum.html">t_enum()</a></code>, <code><a href="reference/t_model.html">t_model()</a></code>, <code><a href="reference/t_predicate.html">t_predicate()</a></code> build up specs that work everywhere a type name does.</li>
 <li>
 <strong>Reach out to other ecosystems.</strong> Export and import <a href="https://json-schema.org/" class="external-link">JSON Schema</a> (Draft 2020-12), <a href="https://bitol-io.github.io/open-data-contract-standard/" class="external-link">Open Data Contract Standard v3</a>, and <a href="https://spec.openapis.org/oas/v3.1.0" class="external-link">OpenAPI 3.1</a> without leaving R.</li>
+<li>
+<strong>Retrofit a whole package.</strong> <code><a href="reference/enable_for_package.html">enable_for_package()</a></code>, <code><a href="reference/as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code>, and <code><a href="reference/enable_typed_namespace.html">enable_typed_namespace()</a></code> add type checks across an existing package without rewriting its functions.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -166,6 +168,10 @@
 <td><a href="vignettes/interop.Rmd"><code>vignette("interop")</code></a></td>
 <td>JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import.</td>
 </tr>
+<tr>
+<td><a href="vignettes/package-wide.Rmd"><code>vignette("package-wide")</code></a></td>
+<td>Retrofit type checks across an existing package without rewriting its functions.</td>
+</tr>
 </tbody>
 </table>
 <p>For the full function reference see <code><a href="reference/typethis-package.html">?typethis</a></code> (a topic-grouped index of every exported function) or the individual help pages. Function help is organised into families — <code><a href="reference/typed_function.html">?typed_function</a></code> for example links to all other functions in the “Typed functions” family via <code>seealso</code>.</p>
@@ -212,6 +218,12 @@
 <code><a href="reference/to_json_schema.html">to_json_schema()</a></code> / <code><a href="reference/to_datacontract.html">to_datacontract()</a></code> / <code><a href="reference/to_openapi.html">to_openapi()</a></code>
 </td>
 <td>Hand the same definitions to non-R systems.</td>
+</tr>
+<tr>
+<td>
+<code><a href="reference/enable_for_package.html">enable_for_package()</a></code> / <code><a href="reference/as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code> / <code><a href="reference/enable_typed_namespace.html">enable_typed_namespace()</a></code>
+</td>
+<td>Retrofit type checks across an existing package without rewriting its functions.</td>
 </tr>
 </tbody>
 </table>

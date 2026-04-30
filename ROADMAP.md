@@ -1,6 +1,53 @@
 # typethis Roadmap
 
-## v0.5 (current)
+## v0.8 (current)
+
+Whole-package type retrofit lands in v0.8 as three connected features:
+
+1.  **[`enable_for_package()`](reference/enable_for_package.md)** runs
+    [`as_typed()`](reference/as_typed.md) over every exported function
+    in an installed package’s namespace, with optional per-function
+    `.specs` and a `.filter` predicate.
+2.  **[`as_typed_from_roxygen()`](reference/as_typed_from_roxygen.md)**
+    lifts type specs out of installed `.Rd` files via an explicit
+    `[type]` prefix or a vocabulary heuristic
+    ([`default_type_vocabulary()`](reference/default_type_vocabulary.md)),
+    and forwards the result through
+    [`enable_for_package()`](reference/enable_for_package.md).
+    [`parse_param_type()`](reference/parse_param_type.md) is the
+    single-description preview helper.
+3.  **[`enable_typed_namespace()`](reference/enable_typed_namespace.md)**
+    /
+    **[`disable_typed_namespace()`](reference/disable_typed_namespace.md)**
+    register a `setHook(packageEvent(pkg, "onLoad"), ...)` handler that
+    applies the retrofit on every load (and immediately if the namespace
+    is already loaded), going through an unlock-modify-relock dance.
+    [`as_typed_env()`](reference/as_typed_env.md) and
+    [`enable_for_package()`](reference/enable_for_package.md) gained a
+    matching `.unlock` parameter.
+
+This pattern is for development and exploratory use, not CRAN-bound
+code. See [`vignette("package-wide")`](articles/package-wide.md).
+
+## v0.7
+
+1.  **[`as_typed_env()`](reference/as_typed_env.md)** retrofits every
+    function in an environment in one call, with `.specs` for
+    per-function overrides and `.filter` to narrow the set.
+2.  **`types(f)` / `types(f) <- value`** is a symmetric replacement-form
+    accessor over [`as_typed()`](reference/as_typed.md).
+    `types(g) <- types(f)` round-trips; `types(f) <- NULL` un-types `f`.
+
+## v0.6
+
+1.  **[`as_typed()`](reference/as_typed.md)** wraps an existing function
+    with type checks via `...` argument specs. Specs for arguments with
+    literal atomic defaults are inferred automatically;
+    [`as_typed()`](reference/as_typed.md) is idempotent.
+2.  **[`infer_specs()`](reference/infer_specs.md)** returns the inferred
+    argument specs for a function as a named list.
+
+## v0.5
 
 A single feature lands in v0.5:
 

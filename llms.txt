@@ -63,6 +63,12 @@ devtools::install_github("fabiandistler/typethis")
   Standard v3](https://bitol-io.github.io/open-data-contract-standard/),
   and [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) without
   leaving R.
+- **Retrofit a whole package.**
+  [`enable_for_package()`](reference/enable_for_package.md),
+  [`as_typed_from_roxygen()`](reference/as_typed_from_roxygen.md), and
+  [`enable_typed_namespace()`](reference/enable_typed_namespace.md) add
+  type checks across an existing package without rewriting its
+  functions.
 
 ## A 30-second tour
 
@@ -108,6 +114,7 @@ and follow the topic that matches what you want to do.
 | [`vignette("validators-and-models")`](vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
 | [`vignette("type-specs")`](vignettes/type-specs.Rmd) | Composable type specifications with the `t_*()` family. |
 | [`vignette("interop")`](vignettes/interop.Rmd) | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import. |
+| [`vignette("package-wide")`](vignettes/package-wide.Rmd) | Retrofit type checks across an existing package without rewriting its functions. |
 
 For the full function reference see
 [`?typethis`](reference/typethis-package.md) (a topic-grouped index of
@@ -126,6 +133,7 @@ all other functions in the “Typed functions” family via `seealso`.
 | [`numeric_range()`](reference/numeric_range.md), [`string_pattern()`](reference/string_pattern.md), [`enum_validator()`](reference/enum_validator.md), … | Add value-level rules on top of types. |
 | [`t_union()`](reference/t_union.md), [`t_nullable()`](reference/t_nullable.md), [`t_list_of()`](reference/t_list_of.md), [`t_enum()`](reference/t_enum.md), … | Build a richer type spec inline (e.g. `t_list_of(t_union("integer", "character"))`). |
 | [`to_json_schema()`](reference/to_json_schema.md) / [`to_datacontract()`](reference/to_datacontract.md) / [`to_openapi()`](reference/to_openapi.md) | Hand the same definitions to non-R systems. |
+| [`enable_for_package()`](reference/enable_for_package.md) / [`as_typed_from_roxygen()`](reference/as_typed_from_roxygen.md) / [`enable_typed_namespace()`](reference/enable_typed_namespace.md) | Retrofit type checks across an existing package without rewriting its functions. |
 
 ## Runtime only
 

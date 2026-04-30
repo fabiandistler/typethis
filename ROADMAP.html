@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">typethis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,32 @@
 <div id="typethis-roadmap" class="section level1">
 
 <div class="section level2">
-<h2 id="v05-current">v0.5 (current)<a class="anchor" aria-label="anchor" href="#v05-current"></a></h2>
+<h2 id="v08-current">v0.8 (current)<a class="anchor" aria-label="anchor" href="#v08-current"></a></h2>
+<p>Whole-package type retrofit lands in v0.8 as three connected features:</p>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="reference/enable_for_package.html">enable_for_package()</a></code></strong> runs <code><a href="reference/as_typed.html">as_typed()</a></code> over every exported function in an installed package’s namespace, with optional per-function <code>.specs</code> and a <code>.filter</code> predicate.</li>
+<li>
+<strong><code><a href="reference/as_typed_from_roxygen.html">as_typed_from_roxygen()</a></code></strong> lifts type specs out of installed <code>.Rd</code> files via an explicit <code>[type]</code> prefix or a vocabulary heuristic (<code><a href="reference/default_type_vocabulary.html">default_type_vocabulary()</a></code>), and forwards the result through <code><a href="reference/enable_for_package.html">enable_for_package()</a></code>. <code><a href="reference/parse_param_type.html">parse_param_type()</a></code> is the single-description preview helper.</li>
+<li>
+<strong><code><a href="reference/enable_typed_namespace.html">enable_typed_namespace()</a></code></strong> / <strong><code><a href="reference/disable_typed_namespace.html">disable_typed_namespace()</a></code></strong> register a <code>setHook(packageEvent(pkg, "onLoad"), ...)</code> handler that applies the retrofit on every load (and immediately if the namespace is already loaded), going through an unlock-modify-relock dance. <code><a href="reference/as_typed_env.html">as_typed_env()</a></code> and <code><a href="reference/enable_for_package.html">enable_for_package()</a></code> gained a matching <code>.unlock</code> parameter.</li>
+</ol><p>This pattern is for development and exploratory use, not CRAN-bound code. See <code><a href="articles/package-wide.html">vignette("package-wide")</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="v07">v0.7<a class="anchor" aria-label="anchor" href="#v07"></a></h2>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="reference/as_typed_env.html">as_typed_env()</a></code></strong> retrofits every function in an environment in one call, with <code>.specs</code> for per-function overrides and <code>.filter</code> to narrow the set.</li>
+<li>
+<strong><code>types(f)</code> / <code>types(f) &lt;- value</code></strong> is a symmetric replacement-form accessor over <code><a href="reference/as_typed.html">as_typed()</a></code>. <code>types(g) &lt;- types(f)</code> round-trips; <code>types(f) &lt;- NULL</code> un-types <code>f</code>.</li>
+</ol></div>
+<div class="section level2">
+<h2 id="v06">v0.6<a class="anchor" aria-label="anchor" href="#v06"></a></h2>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="reference/as_typed.html">as_typed()</a></code></strong> wraps an existing function with type checks via <code>...</code> argument specs. Specs for arguments with literal atomic defaults are inferred automatically; <code><a href="reference/as_typed.html">as_typed()</a></code> is idempotent.</li>
+<li>
+<strong><code><a href="reference/infer_specs.html">infer_specs()</a></code></strong> returns the inferred argument specs for a function as a named list.</li>
+</ol></div>
+<div class="section level2">
+<h2 id="v05">v0.5<a class="anchor" aria-label="anchor" href="#v05"></a></h2>
 <p>A single feature lands in v0.5:</p>
 <ol style="list-style-type: decimal"><li>
 <strong>OpenAPI 3.1 bridge.</strong> <code><a href="reference/to_openapi.html">to_openapi()</a></code> / <code><a href="reference/from_openapi.html">from_openapi()</a></code> lift typed models into <code>components.schemas</code> (with <code>$ref</code> rewriting from <code>#/$defs/X</code> to <code>#/components/schemas/X</code>) and turn typed functions into <code>paths</code> entries with a JSON <code>requestBody</code> and a <code>200</code> response. <code><a href="reference/write_openapi.html">write_openapi()</a></code> / <code><a href="reference/read_openapi.html">read_openapi()</a></code> are convenience wrappers around <code>yaml</code> and <code>jsonlite</code>; the format is inferred from the file extension. Composite type specs (<code>t_union</code>, <code>t_list_of</code>, <code>t_nullable</code>, <code>t_enum</code>) and <code><a href="reference/field.html">field()</a></code> validator constraints (<code>numeric_range</code>, <code>string_pattern</code>, …) flow through unchanged via <code><a href="reference/to_json_schema.html">to_json_schema()</a></code>.</li>
