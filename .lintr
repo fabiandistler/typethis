@@ -2,7 +2,7 @@ linters: linters_with_defaults(
     indentation_linter = NULL,
     object_usage_linter = NULL,
     commented_code_linter = NULL,
-    cyclocomp_linter = cyclocomp_linter(complexity_limit = 60L),
+    cyclocomp_linter = cyclocomp_linter(complexity_limit = 10L),
     object_name_linter = object_name_linter(
       styles = c("snake_case", "symbols"),
       regexes = c(
