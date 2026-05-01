@@ -41,7 +41,7 @@ sources of friction:
 \itemize{
 \item Argument specs are passed via \code{...} instead of \code{arg_specs = list(...)}.
 \item Specs for arguments with literal atomic defaults are inferred
-automatically (see \code{\link[=infer_specs]{infer_specs()}}); only the arguments you care about
+automatically  (see \code{\link[=infer_specs]{infer_specs()}}); only the arguments you care about
 need to appear in \code{...}.
 }
 
