@@ -7,7 +7,7 @@
 #'
 #' * Argument specs are passed via `...` instead of `arg_specs = list(...)`.
 #' * Specs for arguments with literal atomic defaults are inferred
-#'   automatically (see [infer_specs()]); only the arguments you care about
+#'   automatically  (see [infer_specs()]); only the arguments you care about
 #'   need to appear in `...`.
 #'
 #' Internally `as_typed()` builds an `arg_specs` list and delegates to
