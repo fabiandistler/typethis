@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Convenience wrapper around [typed_function()] for adding type checks to a
-#' function you already have. Compared to [typed_function()] it removes two
+#' function  you already have. Compared to [typed_function()] it removes two
 #' sources of friction:
 #'
 #' * Argument specs are passed via `...` instead of `arg_specs = list(...)`.
