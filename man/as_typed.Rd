@@ -36,7 +36,7 @@ A typed function. Same shape as the result of \code{\link[=typed_function]{typed
 }
 \description{
 Convenience wrapper around \code{\link[=typed_function]{typed_function()}} for adding type checks to a
-function you already have. Compared to \code{\link[=typed_function]{typed_function()}} it removes two
+function  you already have. Compared to \code{\link[=typed_function]{typed_function()}} it removes two
 sources of friction:
 \itemize{
 \item Argument specs are passed via \code{...} instead of \code{arg_specs = list(...)}.
