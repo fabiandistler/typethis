@@ -1,6 +1,6 @@
 #' Define a typed data model
 #'
-#' @description 
+#' @description
 #' Defines a model class — a record type with named fields, types, optional
 #' validators, defaults, and nullability — and creates two helpers in the
 #' calling environment:
