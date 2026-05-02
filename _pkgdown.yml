@@ -10,7 +10,13 @@ reference:
       - type_spec
       - is_type_spec
       - is_type
-      - starts_with("t_")
+      - t_enum
+      - t_list_of
+      - t_model
+      - t_nullable
+      - t_predicate
+      - t_union
+      - t_vector_of
   - title: Typed Functions and Methods
     desc: Tools for creating and managing functions with type safety.
     contents:
@@ -18,11 +24,17 @@ reference:
       - typed_method
       - as_typed
       - as_typed_env
+      - as_typed_from_roxygen
+      - default_type_vocabulary
+      - enable_for_package
+      - enable_typed_namespace
+      - disable_typed_namespace
       - validate_call
       - is_typed
       - signature
       - get_signature
       - with_signature
+      - parse_param_type
   - title: Models
     desc: Define and work with structured data models.
     contents:
@@ -56,7 +68,10 @@ reference:
       - write_datacontract
       - from_datacontract
       - to_datacontract
-      - starts_with("datacontract_")
+      - datacontract_cli_available
+      - datacontract_export
+      - datacontract_lint
+      - datacontract_test
   - title: Interoperability - OpenAPI
     desc: Integration with OpenAPI specifications.
     contents:
