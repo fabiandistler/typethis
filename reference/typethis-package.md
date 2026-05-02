@@ -114,4 +114,8 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Fabian Distler <dev@example.com>
+**Maintainer**: Fabian Distler
+
+Authors:
+
+- Fabian Distler
