@@ -53,6 +53,9 @@ devtools::install_github("fabiandistler/typethis")
   Schema](https://json-schema.org/) (Draft 2020-12), [Open Data Contract
   Standard v3](https://bitol-io.github.io/open-data-contract-standard/),
   and [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) without leaving R.
+- **Retrofit a whole package.** `enable_for_package()`,
+  `as_typed_from_roxygen()`, and `enable_typed_namespace()` add type
+  checks across an existing package without rewriting its functions.
 
 ## A 30-second tour
 
@@ -97,6 +100,7 @@ follow the topic that matches what you want to do.
 | [`vignette("type-specs")`](vignettes/type-specs.Rmd) | Composable type specifications with the `t_*()` family. |
 | [`vignette("validators-and-models")`](vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
 | [`vignette("interop")`](vignettes/interop.Rmd) | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import. |
+| [`vignette("package-wide")`](vignettes/package-wide.Rmd) | Retrofit type checks across an existing package without rewriting its functions. |
 
 For the full function reference see `?typethis` (a topic-grouped index of
 every exported function) or the individual help pages. Function help is
@@ -113,6 +117,7 @@ functions in the "Typed functions" family via `seealso`.
 | `numeric_range()`, `string_pattern()`, `enum_validator()`, … | Add value-level rules on top of types. |
 | `t_union()`, `t_nullable()`, `t_list_of()`, `t_enum()`, … | Build a richer type spec inline (e.g. `t_list_of(t_union("integer", "character"))`). |
 | `to_json_schema()` / `to_datacontract()` / `to_openapi()` | Hand the same definitions to non-R systems. |
+| `enable_for_package()` / `as_typed_from_roxygen()` / `enable_typed_namespace()` | Retrofit type checks across an existing package without rewriting its functions. |
 
 ## Runtime only
 
