@@ -2,3 +2,76 @@ url: ~
 template:
   bootstrap: 5
 
+reference:
+  - title: Type Definitions
+    desc: Functions for defining and checking type specifications.
+    contents:
+      - types
+      - type_spec
+      - is_type_spec
+      - is_type
+      - starts_with("t_")
+  - title: Typed Functions and Methods
+    desc: Tools for creating and managing functions with type safety.
+    contents:
+      - typed_function
+      - typed_method
+      - as_typed
+      - as_typed_env
+      - validate_call
+      - is_typed
+      - signature
+      - get_signature
+      - with_signature
+  - title: Models
+    desc: Define and work with structured data models.
+    contents:
+      - define_model
+      - validate_model
+      - field
+      - update_model
+      - is_model
+      - model_to_list
+  - title: Validation and Constraints
+    desc: Manual type checking and value-level constraints.
+    contents:
+      - validate_type
+      - assert_type
+      - coerce_type
+      - numeric_range
+      - string_pattern
+      - string_length
+      - vector_length
+      - enum_validator
+      - combine_validators
+      - validator_constraint
+      - is_one_of
+      - nullable
+      - list_of
+  - title: Interoperability - Data Contracts
+    desc: Integration with Frictionless Data Contracts.
+    contents:
+      - datacontract
+      - read_datacontract
+      - write_datacontract
+      - from_datacontract
+      - to_datacontract
+      - starts_with("datacontract_")
+  - title: Interoperability - OpenAPI
+    desc: Integration with OpenAPI specifications.
+    contents:
+      - openapi
+      - read_openapi
+      - write_openapi
+      - from_openapi
+      - to_openapi
+  - title: Interoperability - JSON Schema
+    desc: Working with JSON Schema.
+    contents:
+      - json_schema
+      - to_json_schema
+      - get_schema
+  - title: Utilities
+    contents:
+      - infer_specs
+      - dataframe_spec
