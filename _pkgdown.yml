@@ -44,6 +44,7 @@ reference:
       - update_model
       - is_model
       - model_to_list
+      - print.typed_model
   - title: Validation and Constraints
     desc: Manual type checking and value-level constraints.
     contents:
