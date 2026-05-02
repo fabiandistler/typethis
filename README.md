@@ -94,8 +94,8 @@ follow the topic that matches what you want to do.
 | Vignette | What it covers |
 | --- | --- |
 | [`vignette("getting-started")`](vignettes/getting-started.Rmd) | A 10-minute tour: type checks, typed functions, typed models. |
-| [`vignette("validators-and-models")`](vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
 | [`vignette("type-specs")`](vignettes/type-specs.Rmd) | Composable type specifications with the `t_*()` family. |
+| [`vignette("validators-and-models")`](vignettes/validators-and-models.Rmd) | All built-in validators and how to combine them; nested and strict models; field metadata. |
 | [`vignette("interop")`](vignettes/interop.Rmd) | JSON Schema, Open Data Contract Standard, and OpenAPI 3.1 export and import. |
 
 For the full function reference see `?typethis` (a topic-grouped index of
