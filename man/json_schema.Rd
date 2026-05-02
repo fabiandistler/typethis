@@ -20,7 +20,7 @@ factors, environments, custom predicate functions) are emitted with
 tooling without losing information.
 }
 \seealso{
-Other JSON Schema: 
-\code{\link{to_json_schema}()}
+Other JSON Schema:
+\code{\link[=to_json_schema]{to_json_schema()}}
 }
 \concept{JSON Schema}

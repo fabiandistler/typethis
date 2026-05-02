@@ -35,14 +35,14 @@ if (requireNamespace("yaml", quietly = TRUE)) {
 }
 }
 \seealso{
-Other Data Contract: 
+Other Data Contract:
 \code{\link{datacontract}},
-\code{\link{datacontract_cli_available}()},
-\code{\link{datacontract_export}()},
-\code{\link{datacontract_lint}()},
-\code{\link{datacontract_test}()},
-\code{\link{from_datacontract}()},
-\code{\link{read_datacontract}()},
-\code{\link{to_datacontract}()}
+\code{\link[=datacontract_cli_available]{datacontract_cli_available()}},
+\code{\link[=datacontract_export]{datacontract_export()}},
+\code{\link[=datacontract_lint]{datacontract_lint()}},
+\code{\link[=datacontract_test]{datacontract_test()}},
+\code{\link[=from_datacontract]{from_datacontract()}},
+\code{\link[=read_datacontract]{read_datacontract()}},
+\code{\link[=to_datacontract]{to_datacontract()}}
 }
 \concept{Data Contract}

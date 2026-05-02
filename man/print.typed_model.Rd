@@ -25,13 +25,13 @@ define_model("Point", fields = list(
 new_Point(x = 1, y = 2)
 }
 \seealso{
-Other typed models: 
-\code{\link{define_model}()},
-\code{\link{field}()},
-\code{\link{get_schema}()},
-\code{\link{is_model}()},
-\code{\link{model_to_list}()},
-\code{\link{update_model}()},
-\code{\link{validate_model}()}
+Other typed models:
+\code{\link[=define_model]{define_model()}},
+\code{\link[=field]{field()}},
+\code{\link[=get_schema]{get_schema()}},
+\code{\link[=is_model]{is_model()}},
+\code{\link[=model_to_list]{model_to_list()}},
+\code{\link[=update_model]{update_model()}},
+\code{\link[=validate_model]{validate_model()}}
 }
 \concept{typed models}

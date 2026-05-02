@@ -17,10 +17,10 @@ Pure parsing helper — does not register anything. Use \code{\link[=from_openap
 for the full import pipeline.
 }
 \seealso{
-Other OpenAPI: 
-\code{\link{from_openapi}()},
+Other OpenAPI:
+\code{\link[=from_openapi]{from_openapi()}},
 \code{\link{openapi}},
-\code{\link{to_openapi}()},
-\code{\link{write_openapi}()}
+\code{\link[=to_openapi]{to_openapi()}},
+\code{\link[=write_openapi]{write_openapi()}}
 }
 \concept{OpenAPI}

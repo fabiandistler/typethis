@@ -40,10 +40,10 @@ err <- tryCatch(
 err
 }
 \seealso{
-Other type checking: 
-\code{\link{assert_type}()},
-\code{\link{is_one_of}()},
-\code{\link{is_type}()},
-\code{\link{validate_type}()}
+Other type checking:
+\code{\link[=assert_type]{assert_type()}},
+\code{\link[=is_one_of]{is_one_of()}},
+\code{\link[=is_type]{is_type()}},
+\code{\link[=validate_type]{validate_type()}}
 }
 \concept{type checking}

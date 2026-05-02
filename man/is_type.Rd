@@ -30,10 +30,10 @@ is_type(NULL, "numeric", nullable = TRUE)
 is_type(1L, t_union("integer", "character"))
 }
 \seealso{
-Other type checking: 
-\code{\link{assert_type}()},
-\code{\link{coerce_type}()},
-\code{\link{is_one_of}()},
-\code{\link{validate_type}()}
+Other type checking:
+\code{\link[=assert_type]{assert_type()}},
+\code{\link[=coerce_type]{coerce_type()}},
+\code{\link[=is_one_of]{is_one_of()}},
+\code{\link[=validate_type]{validate_type()}}
 }
 \concept{type checking}

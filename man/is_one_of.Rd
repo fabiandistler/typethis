@@ -28,10 +28,10 @@ is_one_of(TRUE, c("numeric", "character"))
 \code{\link[=t_union]{t_union()}} for a composable equivalent that works as a type
 specification.
 
-Other type checking: 
-\code{\link{assert_type}()},
-\code{\link{coerce_type}()},
-\code{\link{is_type}()},
-\code{\link{validate_type}()}
+Other type checking:
+\code{\link[=assert_type]{assert_type()}},
+\code{\link[=coerce_type]{coerce_type()}},
+\code{\link[=is_type]{is_type()}},
+\code{\link[=validate_type]{validate_type()}}
 }
 \concept{type checking}

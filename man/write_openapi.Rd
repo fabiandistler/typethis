@@ -40,10 +40,10 @@ if (requireNamespace("yaml", quietly = TRUE)) {
 }
 }
 \seealso{
-Other OpenAPI: 
-\code{\link{from_openapi}()},
+Other OpenAPI:
+\code{\link[=from_openapi]{from_openapi()}},
 \code{\link{openapi}},
-\code{\link{read_openapi}()},
-\code{\link{to_openapi}()}
+\code{\link[=read_openapi]{read_openapi()}},
+\code{\link[=to_openapi]{to_openapi()}}
 }
 \concept{OpenAPI}

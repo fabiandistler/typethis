@@ -31,15 +31,15 @@ nums(list())
 \seealso{
 \code{\link[=t_list_of]{t_list_of()}} for the composable type-spec form.
 
-Other validators: 
-\code{\link{combine_validators}()},
-\code{\link{dataframe_spec}()},
-\code{\link{enum_validator}()},
-\code{\link{nullable}()},
-\code{\link{numeric_range}()},
-\code{\link{string_length}()},
-\code{\link{string_pattern}()},
-\code{\link{validator_constraint}()},
-\code{\link{vector_length}()}
+Other validators:
+\code{\link[=combine_validators]{combine_validators()}},
+\code{\link[=dataframe_spec]{dataframe_spec()}},
+\code{\link[=enum_validator]{enum_validator()}},
+\code{\link[=nullable]{nullable()}},
+\code{\link[=numeric_range]{numeric_range()}},
+\code{\link[=string_length]{string_length()}},
+\code{\link[=string_pattern]{string_pattern()}},
+\code{\link[=validator_constraint]{validator_constraint()}},
+\code{\link[=vector_length]{vector_length()}}
 }
 \concept{validators}

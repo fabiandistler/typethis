@@ -38,7 +38,7 @@ if (requireNamespace("jsonlite", quietly = TRUE)) {
 \code{\link[=to_datacontract]{to_datacontract()}} and \code{\link[=to_openapi]{to_openapi()}} for related export
 bridges.
 
-Other JSON Schema: 
+Other JSON Schema:
 \code{\link{json_schema}}
 }
 \concept{JSON Schema}

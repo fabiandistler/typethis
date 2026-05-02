@@ -23,14 +23,14 @@ is_type("root", role)
 \seealso{
 \code{\link[=enum_validator]{enum_validator()}} for a validator-only form.
 
-Other type specifications: 
-\code{\link{is_type_spec}()},
-\code{\link{t_list_of}()},
-\code{\link{t_model}()},
-\code{\link{t_nullable}()},
-\code{\link{t_predicate}()},
-\code{\link{t_union}()},
-\code{\link{t_vector_of}()},
+Other type specifications:
+\code{\link[=is_type_spec]{is_type_spec()}},
+\code{\link[=t_list_of]{t_list_of()}},
+\code{\link[=t_model]{t_model()}},
+\code{\link[=t_nullable]{t_nullable()}},
+\code{\link[=t_predicate]{t_predicate()}},
+\code{\link[=t_union]{t_union()}},
+\code{\link[=t_vector_of]{t_vector_of()}},
 \code{\link{type_spec}}
 }
 \concept{type specifications}
