@@ -28,10 +28,10 @@ validate_type(5, "numeric", "x")
 validate_type("hello", "numeric", "x")
 }
 \seealso{
-Other type checking: 
-\code{\link{assert_type}()},
-\code{\link{coerce_type}()},
-\code{\link{is_one_of}()},
-\code{\link{is_type}()}
+Other type checking:
+\code{\link[=assert_type]{assert_type()}},
+\code{\link[=coerce_type]{coerce_type()}},
+\code{\link[=is_one_of]{is_one_of()}},
+\code{\link[=is_type]{is_type()}}
 }
 \concept{type checking}

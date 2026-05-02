@@ -45,22 +45,22 @@ infer_specs(function(x = 1L, y = 1.0, name = "a", flag = TRUE) NULL)
 infer_specs(function(x, y = NULL, z = list()) NULL)
 }
 \seealso{
-Other typed functions: 
-\code{\link{as_typed}()},
-\code{\link{as_typed_env}()},
-\code{\link{as_typed_from_roxygen}()},
-\code{\link{default_type_vocabulary}()},
-\code{\link{disable_typed_namespace}()},
-\code{\link{enable_for_package}()},
-\code{\link{enable_typed_namespace}()},
-\code{\link{get_signature}()},
-\code{\link{is_typed}()},
-\code{\link{parse_param_type}()},
-\code{\link{signature}},
-\code{\link{typed_function}()},
-\code{\link{typed_method}()},
-\code{\link{types}()},
-\code{\link{validate_call}()},
-\code{\link{with_signature}()}
+Other typed functions:
+\code{\link[=as_typed]{as_typed()}},
+\code{\link[=as_typed_env]{as_typed_env()}},
+\code{\link[=as_typed_from_roxygen]{as_typed_from_roxygen()}},
+\code{\link[=default_type_vocabulary]{default_type_vocabulary()}},
+\code{\link[=disable_typed_namespace]{disable_typed_namespace()}},
+\code{\link[=enable_for_package]{enable_for_package()}},
+\code{\link[=enable_typed_namespace]{enable_typed_namespace()}},
+\code{\link[=get_signature]{get_signature()}},
+\code{\link[=is_typed]{is_typed()}},
+\code{\link[=parse_param_type]{parse_param_type()}},
+\code{\link[=signature]{signature()}},
+\code{\link[=typed_function]{typed_function()}},
+\code{\link[=typed_method]{typed_method()}},
+\code{\link[=types]{types()}},
+\code{\link[=validate_call]{validate_call()}},
+\code{\link[=with_signature]{with_signature()}}
 }
 \concept{typed functions}

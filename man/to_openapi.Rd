@@ -50,10 +50,10 @@ names(doc$components$schemas)
 \code{\link[=from_openapi]{from_openapi()}} for the reverse direction; \code{\link[=to_json_schema]{to_json_schema()}} for
 the underlying schema export.
 
-Other OpenAPI: 
-\code{\link{from_openapi}()},
+Other OpenAPI:
+\code{\link[=from_openapi]{from_openapi()}},
 \code{\link{openapi}},
-\code{\link{read_openapi}()},
-\code{\link{write_openapi}()}
+\code{\link[=read_openapi]{read_openapi()}},
+\code{\link[=write_openapi]{write_openapi()}}
 }
 \concept{OpenAPI}

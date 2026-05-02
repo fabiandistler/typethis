@@ -83,7 +83,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Fabian Distler \email{dev@example.com}
+\strong{Maintainer}: Fabian Distler
+
+Authors:
+\itemize{
+  \item Fabian Distler
+}
 
 }
 \keyword{internal}
